@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="1 つまたは複数のサクセサーへの送信"/>
+<meta name="DC.subject" content="フローグラフのヒント, 1 つのサクセサーへの送信, すべてのサクセサーへのブロードキャスト"/>
+<meta name="keywords" content="フローグラフのヒント, 1 つのサクセサーへの送信, すべてのサクセサーへのブロードキャスト"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Flow_Graph_making_edges_tips.html"/>
+<meta name="DC.Relation" scheme="URI" content="use_make_edge.html#use_make_edge"/>
+<meta name="DC.Relation" scheme="URI" content="communicate_with_nodes.html#communicate_with_nodes"/>
+<meta name="DC.Relation" scheme="URI" content="use_source_node.html#use_source_node"/>
+<meta name="DC.Relation" scheme="URI" content="avoiding_data_races.html#avoiding_data_races"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="broadcast_or_send"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>1 つまたは複数のサクセサーへの送信</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="broadcast_or_send">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">1 つまたは複数のサクセサーへの送信</h1>
+<div><p>事前定義ノードの重要な特性は、出力を 1 つのサクセサーに push するか、すべてのサクセサーにブロードキャストするかどうかです。次の事前定義ノードは 1 つのサクセサーにメッセージを push します。</p>
+<ul><li><span class="keyword">buffer_node</span></li>
+<li><span class="keyword">queue_node</span></li>
+<li><span class="keyword">priority_queue_node</span></li>
+<li><span class="keyword">sequencer_node</span></li>
+</ul>
+<p>ほかのノードは、メッセージを受け付けるすべてのサクセサーに push します。</p>
+<p>1 つのサクセサーのみに push するノードはすべてバッファーノードです。その目的は、ダウンストリームに消費されるまで、メッセージを一時的に保持することです。次の例について考えてみます。<pre>
+void use_buffer_and_two_nodes() {
+  graph g;
+
+  function_node&lt; int, int, rejecting &gt; f1( g, 1, []( int i ) -&gt; int {
+    spin_for(0.1);
+    cout &lt;&lt; "f1 consuming " &lt;&lt; i &lt;&lt; "\n";
+    return i; 
+  } );
+
+  function_node&lt; int, int, rejecting &gt; f2( g, 1, []( int i ) -&gt; int {
+    spin_for(0.2);
+    cout &lt;&lt; "f2 consuming " &lt;&lt; i &lt;&lt; "\n";
+    return i; 
+  } );
+
+  priority_queue_node&lt; int &gt; q(g);
+
+  make_edge( q, f1 );
+  make_edge( q, f2 );
+  for ( int i = 10; i &gt; 0; --i ) {
+    q.try_put( i );
+  }
+  g.wait_for_all();
+}
+</pre></p>
+<p>まず、<span class="keyword">function_node</span> は入力で受け取ったメッセージをデフォルトでキューに入れます。<span class="keyword">priority_queue_node</span> が <span class="keyword">function_node</span> で適切に動作するように、上記の例では <span class="keyword">function_node</span> と拒否するバッファー・ポリシー・セットを構築しています。このため、<span class="keyword">f1</span> と <span class="keyword">f2</span> は着信メッセージを内部にバッファーしないで、代わりに <span class="keyword">priority_queue_node</span> のアップストリーム・バッファーに依存します。 
+	 </p>
+<p>上記の例で、<span class="keyword">priority_queue_node</span> にバッファーされたメッセージは、<span class="keyword">f1</span> または <span class="keyword">f2</span> のいずれかに送られます。両方には送られません。</p>
+<p>別の動作を行った場合、例えば、<span class="keyword">priority_queue_node</span> がすべてのサクセサーにブロードキャストした場合を考えてみましょう。全ノードではなく、一部のノードがメッセージを受け付ける場合はどうすれば良いでしょうか。すべてのノードがメッセージを受け付けるまでメッセージをバッファーすべきでしょうか。それとも、メッセージを受け付けるバッファーのみにメッセージを送信すべきでしょうか。ノードがメッセージをバッファーし続ける場合、ノードが次のメッセージを受け付けるときに、すべてのノードに同じ順でメッセージを送信すべきでしょうか。それとも現在の優先順でメッセージを送信すべきでしょうか。例えば、<span class="keyword">priority_queue_node</span> が "9" のメッセージのみを含み、サクセサーノード <span class="keyword">f1</span> が "9" を受け付け、別のサクセサーノード <span class="keyword">f2</span> が "9" を拒否したとします。次に、"100" のメッセージが到着し、<span class="keyword">f2</span> はこのメッセージを受け付けることができるとします。この場合、<span class="keyword">f2</span> は "9" と "100" のどちらを受け取るべきでしょうか。どちらの優先度が高いでしょうか。どのような状況でも、すべてのサクセサーがメッセージを受信できることを保証しようとすると、ガベージ・コレクション問題が起こり、問題の原因が複雑になります。このため、これらのバッファーノードは 1 つのサクセサーのみにメッセージを push します。また、この特性を活かして、上記のグラフで示されているような、各メッセージが <span class="keyword">f1</span> または <span class="keyword">f2</span> のいずれかで優先順に処理されるグラフ構造を作成することができます。</p>
+<p>では、<span class="keyword">f1</span> と <span class="keyword">f2</span> の両方ですべての値を優先順に受信したい場合はどうすればいいでしょうか。この場合は、次に示すように、<span class="keyword">function_node</span> ごとに 1 つの <span class="keyword">priority_queue_node</span> を作成し、<span class="keyword">broadcast_node</span> を使用して値を両方のキューに push します。</p>
+<pre>  graph g;
+
+  function_node&lt; int, int, rejecting &gt; f1( g, 1, []( int i ) -&gt; int {
+    spin_for(0.1);
+    cout &lt;&lt; "f1 consuming " &lt;&lt; i &lt;&lt; "\n";
+    return i; 
+  } );
+
+  function_node&lt; int, int, rejecting &gt; f2( g, 1, []( int i ) -&gt; int {
+    spin_for(0.2);
+    cout &lt;&lt; "f2 consuming " &lt;&lt; i &lt;&lt; "\n";
+    return i; 
+  } );
+
+  priority_queue_node&lt; int &gt; q1(g);
+  priority_queue_node&lt; int &gt; q2(g);
+  broadcast_node&lt; int &gt; b(g);
+
+  make_edge( b, q1 );
+  make_edge( b, q2 );
+  make_edge( q1, f1 );
+  make_edge( q2, f2 );
+  for ( int i = 10; i &gt; 0; --i ) {
+    b.try_put( i );
+  }
+  g.wait_for_all();
+</pre><p>このため、複数のサクセサーにグラフのノードを接続する場合は、出力がすべてのサクセサーにブロードキャストされるのか、1 つのサクセサーにのみ送信されるのかを必ず理解するようにしてください。 
+	 </p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Flow_Graph_making_edges_tips.html">エッジの作成におけるフローグラフのヒント</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="use_make_edge.html#use_make_edge">make_edge と remove_edge の使用</a></div>
+<div><a href="communicate_with_nodes.html#communicate_with_nodes">グラフ間の通信</a></div>
+<div><a href="use_source_node.html#use_source_node">source_node の使用</a></div>
+<div><a href="avoiding_data_races.html#avoiding_data_races">データ競合の回避</a></div></div></div>
+</body>
+</html>

@@ -1,0 +1,145 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="flattened2d テンプレート・クラス"/>
+<meta name="DC.subject" content="flattened2d テンプレート・クラス"/>
+<meta name="keywords" content="flattened2d テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/thread_local_storage.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/thread_local_storage/flattened2d_cls/whole_container_operations_2d_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/thread_local_storage/flattened2d_cls/concurrent_operations.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/thread_local_storage/flattened2d_cls/iterators_2d_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/thread_local_storage/flattened2d_cls/utility_funcs.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="flattened2d_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>flattened2d テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="flattened2d_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">flattened2d テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>複数のコンテナーの 1 つのコンテナーのフラットなビューを提供するアダプター。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>
+    template&lt;typename Container&gt;
+    class flattened2;
+     
+    template &lt;typename Container&gt;
+    flattened2d&lt;Container&gt; flatten2d(const Container &amp;c); 
+     
+    template &lt;typename Container&gt;
+    flattened2d&lt;Container&gt; flatten2d(
+        const Container &amp;c, 
+        const typename Container::const_iterator b, 
+        const typename Container::const_iterator e); </pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/enumerable_thread_specific.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">flattened2d</samp> は、複数のコンテナーの 1 つのコンテナーのフラットなビューを提供します。<samp class="codeph">begin()</samp> から <samp class="codeph">end()</samp> の反復で、内部コンテナーの要素をすべて確認します。要素がコンテナーである <samp class="codeph">enumerable_thread_specific</samp> を走査するときに便利です。</p>
+<p><samp class="codeph">flatten2d</samp> ユーティリティー関数は、コンテナーから <samp class="codeph">flattened2d</samp> オブジェクトを作成します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>次のコードは、<samp class="codeph">flatten2d</samp> および <samp class="codeph">flattened2d</samp> を使用する単純な例を示しています。各スレッドは、スレッド・ローカル・ベクトルで <samp class="codeph">K</samp> により均等に分割可能な <samp class="codeph">i</samp> の値を集めます。メインで、すべてのローカルベクトルの全要素を単純に調べることができるように、結果は <samp class="codeph">flattened2d</samp> を使用して出力されます。</p>
+<pre>    
+#include &lt;iostream&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+ 
+#include "tbb/task_scheduler_init.h"
+#include "tbb/enumerable_thread_specific.h"
+#include "tbb/parallel_for.h"
+#include "tbb/blocked_range.h"
+ 
+// VecType はスレッドごとに別の std::vector&lt;int&gt; を含む
+typedef tbb::enumerable_thread_specific&lt; std::vector&lt;int&gt; &gt; VecType;
+VecType MyVectors; 
+int K = 1000000;
+ 
+struct Func {
+    void operator()(const tbb::blocked_range&lt;int&gt;&amp; r) const {
+        VecType::reference v = MyVectors.local();
+        for (int i=r.begin(); i!=r.end(); ++i) 
+            if( i%k==0 ) 
+                v.push_back(i);
+    } 
+};
+ 
+int main() {
+    tbb::parallel_for(tbb::blocked_range&lt;int&gt;(0, 100000000), Func());
+ 
+    tbb::flattened2d&lt;VecType&gt; flat_view = tbb::flatten2d( MyVectors );
+    for( tbb::flattened2d&lt;VecType&gt;::const_iterator 
+         i = flat_view.begin(); i != flat_view.end(); ++i) 
+        cout &lt;&lt; *i &lt;&lt; endl;
+    return 0;
+}
+</pre></div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+    template&lt;typename Container&gt;
+    class flattened2d {
+ 
+    public:
+        // 基本型
+        typedef <em>implementation-dependent</em> size_type;
+        typedef <em>implementation-dependent</em> difference_type;
+        typedef <em>implementation-dependent</em> allocator_type;
+        typedef <em>implementation-dependent</em> value_type;
+        typedef <em>implementation-dependent</em> reference;
+        typedef <em>implementation-dependent</em> const_reference;
+        typedef <em>implementation-dependent</em> pointer;
+        typedef <em>implementation-dependent</em> const_pointer;
+ 
+        typedef <em>implementation-dependent</em> iterator;
+        typedef <em>implementation-dependent</em> const_iterator;
+ 
+        explicit flattened2d( const Container&amp; c );
+ 
+        flattened2d( const Container&amp; c, 
+                     typename Container::const_iterator first,
+                    typename Container::const_iterator last );
+ 
+        iterator begin();
+        iterator end();
+        const_iterator begin() const;
+        const_iterator end() const;
+ 
+        size_type size() const;
+    };
+ 
+    template &lt;typename Container&gt;
+    flattened2d&lt;Container&gt; flatten2d(const Container &amp;c);
+ 
+    template &lt;typename Container&gt;
+    flattened2d&lt;Container&gt; flatten2d(
+        const Container &amp;c, 
+        const typename Container::const_iterator first, 
+        const typename Container::const_iterator last);
+}</pre></div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/thread_local_storage.html">スレッド・ローカル・ストレージ</a></div>
+</div>
+<div>
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../../reference/thread_local_storage/flattened2d_cls/whole_container_operations_2d_cls.html">コンテナー全体の操作</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/thread_local_storage/flattened2d_cls/concurrent_operations.html">並列操作</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/thread_local_storage/flattened2d_cls/iterators_2d_cls.html">イテレーター</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/thread_local_storage/flattened2d_cls/utility_funcs.html">ユーティリティー関数</a><br/>
+</li>
+</ul>
+</div>
+</body>
+</html>

@@ -1,0 +1,254 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="concurrent_priority_queue テンプレート・クラス"/>
+<meta name="DC.subject" content="concurrent_priority_queue テンプレート・クラス"/>
+<meta name="keywords" content="concurrent_priority_queue テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/containers_overview.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="concurrent_priority_queue_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>concurrent_priority_queue テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="concurrent_priority_queue_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">concurrent_priority_queue テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>並列操作を含む優先度キュー用のテンプレート・クラス。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><p><pre>
+template&lt;typename T, typename Alloc = cache_aligned_allocator&lt;T&gt; &gt;
+class concurrent_priority_queue;
+</pre></p>
+</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><p><pre>#include "tbb/concurrent_priority_queue.h"</pre></p>
+</div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">concurrent_priority_queue</samp> は、複数のスレッドがアイテムのプッシュとポップを同時に行うことができるコンテナーです。アイテムは、テンプレート引数により決定された優先度順にポップされます。キューの大きさは無制限で、対象のマシン上のメモリー制限に従います。</p>
+<p>インターフェイスは、同時変更を安全に行えるようにしている点を除いて、STL <samp class="codeph">std::priority_queue</samp> に似ています。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">STL のキューとインテル&reg; TBB の concurrent_priority_queue の相違点</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="NaN%" id="d27493e52"><p>機能</p>
+</th>
+<th class="cellrowborder" valign="top" width="NaN%" id="d27493e55"><p>STL std::priority_queue</p>
+</th>
+<th class="row-nocellborder" valign="top" width="NaN%" id="d27493e58"><p>concurrent_priority_queue</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="NaN%" headers="d27493e52 "><p>コンテナーの選択</p>
+</td>
+<td class="cellrowborder" valign="top" width="NaN%" headers="d27493e55 "><p>シーケンス・テンプレート引数</p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d27493e58 "><p>コンテナーの選択なし。代わりに、アロケーターの選択が提供されます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d27493e52 "><p>優先度の最も高いアイテムへのアクセス</p>
+</td>
+<td class="cellrowborder" valign="top" width="NaN%" headers="d27493e55 "><p><samp class="codeph">const value_type&amp; top() const </samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d27493e58 "><p>なし。コンカレント・コンテナーでは安全ではありません。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d27493e52 "><p>アイテムがある場合のコピーおよびポップ</p>
+</td>
+<td class="cellrowborder" valign="top" width="NaN%" headers="d27493e55 "><p><samp class="codeph">bool b=!q.empty(); if(b) { x=q.top(); q.pop(); } </samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d27493e58 "><p><samp class="codeph">bool b = q.try_pop(x);</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d27493e52 "><p>キューの中のアイテム数の取得</p>
+</td>
+<td class="cellrowborder" valign="top" width="NaN%" headers="d27493e55 "><p><samp class="codeph">size_type size() const</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d27493e58 "><p>同じ。ただし、保留中の並列に処理されるプッシュまたはポップ操作がある場合は正しくない可能性があります。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d27493e52 "><p>キューにアイテムがあるかどうかの確認</p>
+</td>
+<td class="cellrowborder" valign="top" width="NaN%" headers="d27493e55 "><p><samp class="codeph">bool empty() const</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d27493e58 "><p>同じ。ただし、保留中の並列に処理されるプッシュまたはポップ操作がある場合は正しくない可能性があります。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>
+namespace tbb {
+    template &lt;typename T, typename Compare=std::less&lt;T&gt;,
+                 typename A=cache_aligned_allocator&lt;T&gt; &gt;
+    class concurrent_priority_queue {
+    public:
+        typedef T value_type;
+        typedef T&amp; reference;
+        typedef const T&amp; const_reference;
+        typedef size_t size_type;
+        typedef ptrdiff_t difference_type;
+        typedef A allocator_type;
+
+        // コンストラクター
+        concurrent_priority_queue(const allocator_type&amp; a = allocator_type());
+        concurrent_priority_queue(size_type init_capacity,
+                                  const allocator_type&amp; a = allocator_type());
+        template&lt;typename InputIterator&gt;
+        concurrent_priority_queue(InputIterator begin, InputIterator end,
+                                  const allocator_type&amp; a = allocator_type());
+        concurrent_priority_queue(const concurrent_priority_queue&amp; src,
+                                  const allocator_type&amp; a = allocator_type());
+        // C++11 からサポート
+        concurrent_priority_queue(concurrent_priority_queue&amp;&amp; src);
+        concurrent_priority_queue(concurrent_priority_queue&amp;&amp; src,
+                                  const allocator_type&amp; a);
+        concurrent_priority_queue(std::initializer_list&lt;T&gt; il,
+                                  const allocator_type &amp;a = allocator_type());
+
+        // 代入
+        concurrent_priority_queue&amp; operator=(const concurrent_priority_queue&amp; src);
+        template&lt;typename InputIterator&gt;
+        void assign(InputIterator begin, InputIterator end);
+        // C++11 からサポート
+        concurrent_priority_queue&amp; operator=(concurrent_priority_queue&amp;&amp; src);
+        concurrent_priority_queue&amp; operator=(std::initializer_list&lt;T&gt; il);
+        void assign(std::initializer_list&lt;T&gt; il);
+
+        void swap(concurrent_priority_queue&amp; other);
+
+        ~concurrent_priority_queue();
+
+        allocator_type get_allocator() const;
+
+        bool empty() const;
+        size_type size() const;
+
+        void push(const_reference elem);
+        // Supported since C++11
+        void push(T&amp;&amp; elem);
+        template&lt;typename... Args&gt;
+        void emplace(Args&amp;&amp;... args);
+
+        bool try_pop(reference elem);
+
+        void clear();
+    };
+}
+</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d27493e130">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d27493e132">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d27493e130 "><span class="keyword">concurrent_priority_queue(const allocator_type&amp; a = allocator_type()) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d27493e132 "><p>空のキューを構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d27493e130 "><span class="keyword">concurrent_priority_queue(size_type init_capacity, const allocator_type&amp; a = allocator_type()) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d27493e132 "><p>キャパシティーの初期値で空のキューを構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d27493e130 "><span class="keyword">template &lt;typename InputIterator&gt; concurrent_priority_queue(InputIterator begin, InputIterator end, const allocator_type&amp; a = allocator_type()) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d27493e132 "><p>半開区間 <samp class="codeph">[begin, end)</samp> のイテレーターの要素のコピーを含むテーブルを構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d27493e130 "><span class="keyword">concurrent_priority_queue(std::initializer_list&lt;T&gt; il, const allocator_type &amp;a = allocator_type()) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d27493e132 "><p>C++11 からサポート。<samp class="codeph">concurrent_priority_queue(<em>il</em>.begin(), <em>il</em>.end(), <em>a</em>)</samp> と等価です。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d27493e130 "><span class="keyword">concurrent_priority_queue(const concurrent_priority_queue&amp; src, const allocator_type&amp; a = allocator_type()) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d27493e132 "><p><samp class="codeph">src</samp> のコピーを構築します。この操作はスレッドセーフではありません。別のスレッドが同時に <samp class="codeph">src</samp> を変更すると、エラーが発生したり、<samp class="codeph">src</samp> の無効なコピーが構築される可能性があります。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d27493e130 "><span class="keyword">concurrent_priority_queue(concurrent_priority_queue&amp;&amp; src) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d27493e132 "><p>C++11 からサポート。<samp class="codeph">src</samp> のコンテンツを移動することにより新しいキューを構築します。<samp class="codeph">src</samp> は無指定の状態のままですが、安全に破棄することができます。<samp class="codeph">src</samp> キューに保留中の並列操作がある場合、この操作は安全ではありません。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d27493e130 "><span class="keyword">concurrent_priority_queue(concurrent_priority_queue&amp;&amp; src, const allocator_type&amp; a) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d27493e132 "><p>C++11 からサポート。アロケーター <samp class="codeph">a</samp> を使用して <samp class="codeph">src</samp> のコンテンツを移動することにより新しいキューを構築します。<samp class="codeph">src</samp> は無指定の状態のままですが、安全に破棄することができます。<samp class="codeph">src</samp> キューに保留中の並列操作がある場合、この操作は安全ではありません。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d27493e130 "><span class="keyword">concurrent_priority_queue&amp; operator=(const concurrent_priority_queue&amp; src) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d27493e132 "><p><samp class="codeph">src</samp> のコンテンツを <samp class="codeph">*this</samp> に代入します。この操作はスレッドセーフではありません。別のスレッドが同時に <samp class="codeph">src</samp> を変更すると、エラーが発生したり、<samp class="codeph">src</samp> の無効なコピーが構築される可能性があります。</p>
+<p><strong>戻り値</strong>: 計算後の <samp class="codeph">*this</samp> への参照。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d27493e130 "><span class="keyword">concurrent_priority_queue&amp; operator=(concurrent_priority_queue&amp;&amp; src); </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d27493e132 "><p>C++11 からサポート。<samp class="codeph">src</samp> から <samp class="codeph">*this</samp> にデータを移動します。<samp class="codeph">src</samp> は無指定の状態のままですが、安全に破棄することができます。<samp class="codeph">src</samp> キューに保留中の並列操作がある場合、この操作は安全ではありません。</p>
+<p><strong>戻り値</strong>: 計算後の <samp class="codeph">*this</samp> への参照。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d27493e130 "><span class="keyword">concurrent_priority_queue&amp; operator=(std::initializer_list&lt;T&gt; il) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d27493e132 "><p>C++11 からサポート。初期化子リスト <samp class="codeph">il</samp> のコンテンツを <samp class="codeph">*this</samp> に代入します。</p>
+<p><strong>戻り値</strong>: 計算後の <samp class="codeph">*this</samp> への参照。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d27493e130 "><span class="keyword">template &lt;typename InputIterator&gt; void assign(InputIterator begin, InputIterator end, const allocator_type&amp;) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d27493e132 "><p>半開区間 <samp class="codeph">[begin, end)</samp> のイテレーターのコンテンツを <samp class="codeph">*this</samp> に代入します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d27493e130 "><span class="keyword">void assign(std::initializer_list&lt;T&gt; il)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d27493e132 "><p>C++11 からサポート。<samp class="codeph">assign(<em>il</em>.begin(), <em>il</em>.end())</samp> と等価です。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d27493e130 "><span class="keyword">~concurrent_priority_queue()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d27493e132 "><p>コンテナーが使用されないように、キュー内のすべてのアイテムとコンテナーを破棄します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d27493e130 "><span class="keyword">bool empty() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d27493e132 "><p><strong>戻り値</strong>: キューにアイテムがない場合は <samp class="codeph">true</samp>。その他の場合は <samp class="codeph">false</samp>。並列に処理される <samp class="codeph">push</samp> 操作または <samp class="codeph">try_pop</samp> 操作が保留中の場合は、戻り値が正しくない可能性があります。この操作は共有データを読み取ります。この操作を同時に使用した場合、競合状態を発見するツールで競合状態が検出されることがあります。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d27493e130 "><span class="keyword">size_type size() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d27493e132 "><p><strong>戻り値</strong>: キューのアイテムの数。並列に処理される <samp class="codeph">push</samp> 操作または <samp class="codeph">try_pop</samp> 操作が保留中の場合は、戻り値が正しくない可能性があります。この操作は共有データを読み取ります。この操作を同時に使用した場合、競合状態を発見するツールで競合状態が検出されることがあります。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d27493e130 "><span class="keyword">void push(const_reference elem)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d27493e132 "><p><samp class="codeph">elem</samp> のコピーをキューにプッシュします。この操作はスレッドセーフです。ほかの <samp class="codeph">push</samp> 操作、<samp class="codeph">try_pop</samp> 操作、および <samp class="codeph">emplace</samp> 操作とともに使用できます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d27493e130 "><span class="keyword">void push(T&amp;&amp; elem)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d27493e132 "><p>C++11 からサポート。move コンストラクターを使用して指定された要素をキューにプッシュします。この操作はスレッドセーフです。ほかの <samp class="codeph">push</samp> 操作、<samp class="codeph">try_pop</samp> 操作、および <samp class="codeph">emplace</samp> 操作とともに使用できます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d27493e130 "><span class="keyword">template&lt;typename... Args&gt; void emplace(Args&amp;&amp;... args); </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d27493e132 "><p>C++11 からサポート。新しい要素をキューにプッシュします。要素は指定された引数で構築されます。この操作はスレッドセーフです。ほかの <samp class="codeph">push</samp> 操作、<samp class="codeph">try_pop</samp> 操作、および <samp class="codeph">emplace</samp> 操作とともに使用できます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d27493e130 "><span class="keyword">bool try_pop(reference elem)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d27493e132 "><p>キューが空でない場合、キューから優先度の最も高いアイテムをコピーして <samp class="codeph">elem</samp> に割り当て、キューからポップしたアイテムを破棄します。その他の場合は、何もしません。この操作はスレッドセーフです。ほかの <samp class="codeph">push</samp> 操作、<samp class="codeph">try_pop</samp> 操作、および <samp class="codeph">emplace</samp> 操作とともに使用できます。</p>
+<p><strong>戻り値</strong>: アイテムがポップされた場合は <samp class="codeph">true</samp>、その他の場合は <samp class="codeph">false</samp>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d27493e130 "><span class="keyword"> void clear()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d27493e132 "><p>キューを消去します。これにより、<samp class="codeph">size()==0</samp> になります。この操作はスレッドセーフではありません。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d27493e130 "><span class="keyword">void swap(concurrent_priority_queue&amp; other)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d27493e132 "><p>キューのコンテンツを other のコンテンツとスワップします。この操作はスレッドセーフではありません。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d27493e130 "><span class="keyword">allocator_type get_allocator() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d27493e132 "><p><strong>戻り値</strong>: キューの構築に使用されるアロケーターのコピー。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/containers_overview.html">コンテナーの概要</a></div>
+</div>
+<div/>
+</body>
+</html>

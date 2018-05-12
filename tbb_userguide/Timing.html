@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="タイミング"/>
+<meta name="DC.subject" content="タイミング"/>
+<meta name="keywords" content="タイミング"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/title.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Timing"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>タイミング</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Timing">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">タイミング</h1>
+<div><p>並列プログラムのパフォーマンスは、通常、CPU 時間ではなく、「時計」時間で測定します。これは、並列化が進むにつれ、より多くの CPU を使用し、CPU の総時間が増加するためです。プログラムの並列化の最終目的は、リアルタイムでプログラムを<strong>より速く</strong>実行することです。</p>
+<p>インテル&reg; TBB の <samp class="codeph">tick_count</samp> クラスは、時計時間を取得する単純なインターフェイスを提供します。<samp class="codeph">tick_count</samp> の値は、現在の絶対時間を表すスタティック・メソッド <span class="option">tick_count::now()</span> から取得されます。2 つの <samp class="codeph">tick_count</samp> 値を引くと、<samp class="codeph">tick_count::interval_t</samp> で相対時間値が求められます。この値は次の例のように、秒に変換することができます。</p>
+<pre>
+tick_count t0 = tick_count::now();
+... 時間計測する処理を実行 ...
+tick_count t1 = tick_count::now();
+printf("work took %g seconds\n",(t1-t0).seconds());
+    </pre><p>
+      一部の時間計測インターフェイスとは異なり、<samp class="codeph">tick_count</samp> は複数のスレッドで使用しても安全であることが保証されています。異なるスレッドで作成された <samp class="codeph">tick_count</samp> 値の差分を求められます。<samp class="codeph">tick_count</samp> の差分は秒に変換することができます。
+    </p>
+<p><samp class="codeph">tick_count</samp> の分解能は、同一プロセス内の複数のスレッド間で有効な、プラットフォームで最も高い分解能タイミングサービスに対応します。プラットフォームによっては、CPU タイマーレジスターは複数のスレッドにわたって有効では<strong>ない</strong>ため、<span class="option">tick_count</span> の分解能はプラットフォーム間で一貫性があることは保証できません。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>Linux* では、tbb::tick_count クラスを使用するときリンカーコマンドに -lrt を追加する必要があります。詳細は、http://fedoraproject.org/wiki/Features/ChangeInImplicitDSOLinking (英語) を参照してください。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/title.html">インテル&reg; TBB デベロッパー・ガイド</a></div>
+</div>
+<div/>
+</body>
+</html>

@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="デザインパターン"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/title.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/Agglomeration.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/Elementwise.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/Odd-Even_Communication.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/Wavefront.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/Reduction.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/Divide_and_Conquer.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/GUI_Thread.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/Non-Preemptive_Priorities.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/Local_Serializer.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/Fenced_Data_Transfer.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/Lazy_Initialization.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/Reference_Counting.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/Compare_and_Swap_Loop.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/General_References.html"/>
+<meta name="DC.Relation" scheme="URI" content="../Lambda_Expressions.html#tutorial_Lambda_Expressions"/>
+<meta name="DC.Relation" scheme="URI" content="General_References.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="Introduction"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>デザインパターン</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="Introduction">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">デザインパターン</h1>
+<div><p>このセクションでは、いくつかの一般的な並列プログラミング・パターンと、インテル&reg; TBB を使用してそれらのパターンを実装する方法を説明します。</p>
+<p>各パターンの説明は、次の形式で行っています。</p>
+<ul><li><p><strong>問題</strong> – 解決する問題を説明します。</p>
+</li>
+<li><p><strong>コンテキスト</strong> – 問題が発生するコンテキストを説明します。</p>
+</li>
+<li><p><strong>影響</strong> . パターンの使用による影響に関する考察です。</p>
+</li>
+<li><p><strong>ソリューション</strong> . パターンの実装方法を説明します。</p>
+</li>
+<li><p><strong>サンプル</strong> – 実装例を示します。</p>
+</li>
+</ul>
+<p>バリエーションとサンプルは状況に合わせて紹介します。コードサンプルは重要なポイントを強調するために用いられているものであり、完全なコードではありません。非 const メソッドの明示的な const オーバーロードは省略しています。</p>
+<p>用語とサンプルの多くは、Eun-Gyu および Marc Snir の両氏によって作成された Web ページとカリフォルニア大学バークレー校の parallel patterns wiki の内容を参考にしています。「全般的な参考資料」セクションのリンクを参照してください。</p>
+<p>コードを簡潔にするため、いくつかのコードサンプルでは C++11 ラムダ式を使用しています。ラムダ式を等価な C++03 コードで表現することは難しくありませんが、少し冗長になることがあります。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../tbb_userguide/title.html">インテル&reg; TBB デベロッパー・ガイド</a></div>
+</div>
+<div class="See Also">
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../../tbb_userguide/Design_Patterns/Agglomeration.html">凝集化</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../tbb_userguide/Design_Patterns/Elementwise.html">要素単位</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../tbb_userguide/Design_Patterns/Odd-Even_Communication.html">奇偶通信</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../tbb_userguide/Design_Patterns/Wavefront.html">ウェーブフロント</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../tbb_userguide/Design_Patterns/Reduction.html">リダクション</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../tbb_userguide/Design_Patterns/Divide_and_Conquer.html">分割統治</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../tbb_userguide/Design_Patterns/GUI_Thread.html">GUI スレッド</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../tbb_userguide/Design_Patterns/Non-Preemptive_Priorities.html">ノンプリエンプティブな優先度</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../tbb_userguide/Design_Patterns/Local_Serializer.html">ローカル・シリアライザー</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../tbb_userguide/Design_Patterns/Fenced_Data_Transfer.html">フェンス付きデータ転送</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../tbb_userguide/Design_Patterns/Lazy_Initialization.html">遅延初期化</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../tbb_userguide/Design_Patterns/Reference_Counting.html">参照カウント</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../tbb_userguide/Design_Patterns/Compare_and_Swap_Loop.html">CAS (コンペアー・アンド・スワップ) ループ</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../tbb_userguide/Design_Patterns/General_References.html">全般的な参考資料</a><br/>
+</li>
+</ul>
+<h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../Lambda_Expressions.html#tutorial_Lambda_Expressions">ラムダ式</a></div>
+<div><a href="General_References.html">全般的な参考資料</a></div></div></div>
+</body>
+</html>

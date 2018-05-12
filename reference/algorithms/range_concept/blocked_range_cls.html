@@ -1,0 +1,208 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="blocked_range テンプレート・クラス"/>
+<meta name="DC.subject" content="blocked_range テンプレート・クラス"/>
+<meta name="keywords" content="blocked_range テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/algorithms/range_concept.html"/>
+<meta name="DC.Relation" scheme="URI" content="../parallel_for_func.html#parallel_for_func"/>
+<meta name="DC.Relation" scheme="URI" content="../parallel_reduce_func.html#parallel_reduce_func"/>
+<meta name="DC.Relation" scheme="URI" content="../parallel_scan_func.html#parallel_scan_func"/>
+<meta name="DC.Relation" scheme="URI" content="../../environment/enabling_debugging_features.html#enabling_debugging_features"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="blocked_range_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>blocked_range テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="blocked_range_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">blocked_range テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>再帰的に分割可能な半開区間用のテンプレート・クラス。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><p><pre>#include "tbb/blocked_range.h"</pre></p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>template&lt;typename Value&gt; class blocked_range;</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">blocked_range&lt;Value&gt;</samp> は、再帰的に分割できる半開区間 [<em>i</em>,<em>j</em>) を表します。<em>i</em> および <em>j</em> の型は、次の表の要件をモデル化しなければなりません。表では、型 <samp class="codeph">D</samp> は式 <samp class="codeph">"j-i"</samp> の型になります。これは、<samp class="codeph">size_t</samp> に変換可能な任意の整数型です。Value 要件をモデル化するサンプルは、相違が <samp class="codeph">size_t</samp> に暗黙的に型変換できる整数型、ポインター、および STL ランダムアクセス・イテレーターです。</p>
+<p><samp class="codeph">blocked_range</samp> は、Range コンセプトをモデル化します。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">blocked_range の Value コンセプト</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" id="d9647e78"><p>擬似署名</p>
+</th>
+<th class="row-nocellborder" valign="top" id="d9647e81"><p>意味</p>
+</th>
+</tr>
+</thead>
+<tbody><tr valign="top"><td class="cellrowborder" valign="top" headers="d9647e78 "><p><samp class="codeph"> Value::Value( const Value&amp; )</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d9647e81 "><p>コピー・コンストラクター。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d9647e78 "><p><samp class="codeph"> Value::~Value()</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d9647e81 "><p>デストラクター。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d9647e78 "><p><samp class="codeph"> void operator=( const Value&amp; )</samp><div class="Note"><h3 class="NoteTipHead">注</h3> <p>擬似署名の戻り型 <samp class="codeph">void</samp> は、<samp class="codeph">operator=</samp> は値を返す必要がないことを示します。<samp class="codeph">operator=</samp> は値を返すことができますが、<samp class="codeph">blocked_range</samp> によって無視されます。</p>
+</div>
+</p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d9647e81 "><p>代入。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d9647e78 "><p><samp class="codeph"> bool operator&lt;( const Value&amp; i, const Value&amp; j )</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d9647e81 "><p>値 <em>i</em> は値 <em>j</em> に先行します。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d9647e78 "><p><samp class="codeph"> D operator-( const Value&amp; i, const Value&amp; j )</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d9647e81 "><p>範囲 <samp class="codeph">[i,j)</samp> にある値の数です。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d9647e78 "><p><samp class="codeph"> Value operator+( const Value&amp; i, D k )</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d9647e81 "><p><em>i</em> の後の <em>k</em> 番目の値です。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><samp class="codeph">blocked_range&lt;Value&gt;</samp> は、<samp class="codeph">size_t</samp> 型の <em>grainsize</em> を指定します。範囲のサイズが <em>grainsize</em> を超える場合、<samp class="codeph">blocked_range</samp> は 2 つのサブ範囲に分割可能です。理想的な粒度は、<samp class="codeph">parallel_for</samp> ループ・テンプレート、<samp class="codeph">parallel_reduce</samp> ループ・テンプレート、または <samp class="codeph">parallel_scan</samp> ループ・テンプレートの典型的な範囲引数である <samp class="codeph">blocked_range&lt;Value&gt;</samp> のコンテキストに依存します。粒度が非常に小さい場合、並列処理による速度向上よりもループ・テンプレート内のオーバーヘッドに時間がかかることがあります。粒度が非常に大きい場合、不必要に並列処理を制限することがあります。例えば、粒度が非常に大きいために範囲を 1 回しか分割できない場合、最大の可能な並列処理は 2 になります。</p>
+<p><em>grainsize</em> を選択する推奨手順を次に示します。</p>
+<ol><li>grainsize 引数を 10,000 に設定します。この値は、すべてのループボディーでスケジューラー・オーバーヘッドの影響を考慮する必要がない高い値ですが、不必要に並列処理を制限します。</li>
+<li>アルゴリズムを <em>1</em> つのプロセッサーで実行します。</li>
+<li>grainsize 引数を半分にしていき、値が少なくなるにつれ、どの程度アルゴリズムの速度が遅くなるかを確認します。</li>
+</ol>
+<p>約 5 から 10% 遅くなる値が、汎用的に利用可能な設定です。</p>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p><samp class="codeph">blocked_range [i,j)</samp> で <samp class="codeph">j&lt;i</samp> の場合、すべてのメソッドで動作が指定されているとは限りません。しかし、<samp class="codeph">j&lt;i</samp> の場合でも、多くのメソッドで、<samp class="codeph">parallel_for</samp>、<samp class="codeph">parallel_reduce</samp>、および <samp class="codeph">parallel_scan</samp> がシリアルループ <samp class="codeph">for( Value index=i; index&lt;j; ++index )...</samp> と同じ反復空間上を反復する動作が指定されています。<samp class="codeph">TBB_USE_ASSERT</samp> が非ゼロの場合、動作が指定されていないメソッドではアサーション・エラーが発生します。</p>
+</div>
+<p><strong>サンプル</strong></p>
+<p><samp class="codeph">blocked_range&lt;Value&gt;</samp> は、通常、ループ・テンプレートの範囲引数として使用されます。<samp class="codeph">parallel_for</samp>、<samp class="codeph">parallel_reduce</samp>、および <samp class="codeph">parallel_scan</samp> のサンプルを参照してください。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre> 
+namespace tbb {
+    template&lt;typename Value&gt;
+    class blocked_range {
+    public:
+        // 型
+        typedef size_t size_type;
+        typedef Value const_iterator;
+
+        // コンストラクター
+        blocked_range( Value begin, Value end,
+                       size_type grainsize=1 );
+        blocked_range( blocked_range&amp; r, split );
+        blocked_range( blocked_range&amp; r, proportional_split&amp; proportion );
+
+        // 比例分割が可能
+        static const bool is_splittable_in_proportion = true;
+
+        // キャパシティー
+        size_type size() const;
+        bool empty() const;
+
+        // アクセス
+        size_type grainsize() const;
+        bool is_divisible() const;
+
+        // イテレーター
+        const_iterator begin() const;
+        const_iterator end() const;
+    };
+}
+</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d9647e263">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d9647e265">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d9647e263 "><span class="keyword">size_type </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d9647e265 "><p><samp class="codeph">blocked_range</samp> のサイズを測定する型です。型は常に <samp class="codeph">size_t</samp> です。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d9647e263 "><span class="keyword">const_iterator</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d9647e265 ">範囲内の値の型です。その名前に反して、<samp class="codeph">const_iterator</samp> 型は必ずしも STL イテレーターではありません。上記の表の Value 要件を満たす必要があるだけです。しかし、型が <samp class="codeph">const_iterator</samp> である場合、<samp class="codeph">blocked_range</samp> は読み取り専用の STL コンテナーのように動作するので、この型を const_iterator と呼ぶと便利です。</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d9647e263 "><p><span class="keyword">blocked_range( Value begin, Value end, size_t grainsize=1 )</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d9647e265 "><p><strong>要件</strong>: 引数 <samp class="codeph">grainsize</samp> が正であること。この要件が満たされない場合、ライブラリーのデバッグバージョンはアサーション・エラーになります。</p>
+<p><strong>効果</strong>: 指定された <samp class="codeph">grainsize</samp> で、半開区間 <samp class="codeph">[begin,end)</samp> を表す <samp class="codeph">blocked_range</samp> を構築します。</p>
+<p><strong>例</strong>: <samp class="codeph">"blocked_range&lt;int&gt; r( 5, 14, 2 );"</samp> 文は、粒度 2 で、値 5 から 13 までを含む <samp class="codeph">int</samp> の範囲を構築します。その後、<samp class="codeph">r.begin()==5</samp> および <samp class="codeph">r.end()==14</samp> に設定します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d9647e263 "><p><span class="keyword">blocked_range( blocked_range&amp; range, split )</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d9647e265 "><p>基本分割コンストラクター。</p>
+<p><strong>要件</strong>: <samp class="codeph">is_divisible()</samp> が true であること。</p>
+<p><strong>効果</strong>: <samp class="codeph">range</samp> を 2 つのサブ範囲に分割します。新しく構築される <samp class="codeph">blocked_range</samp> は、ほぼオリジナルの <samp class="codeph">range</samp> の半分で、<samp class="codeph">range</samp> は残りになるように更新されます。各サブ範囲の粒度はオリジナルの <samp class="codeph">range</samp> の粒度と同じです。</p>
+<p><strong>例</strong>: <samp class="codeph">r</samp> を、粒度 <samp class="codeph">g</samp> で半開区間 <samp class="codeph">[i, j)</samp> を表す <samp class="codeph">blocked_range</samp> とします。<samp class="codeph">blocked_range&lt;int&gt; s(r, split);</samp> 文を実行すると、粒度 <samp class="codeph">g</samp> で、r は <samp class="codeph">[i, i+(j-i)/2)</samp>、<samp class="codeph">s</samp> は <samp class="codeph">[i+(j-i)/2, j)</samp> を表します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d9647e263 "><p><span class="keyword">blocked_range( blocked_range&amp; range, proportional_split proportion )</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d9647e265 "><p>比例分割コンストラクター。</p>
+<p><strong>要件</strong>: <samp class="codeph">is_divisible()</samp> が true であること。</p>
+<p><strong>効果</strong>: <samp class="codeph">range</samp> をサイズの比率が <samp class="codeph">proportion.left()</samp> と <samp class="codeph">proportion.right()</samp> の比率に近い 2 つのサブ範囲に分割します。新しく構築される <samp class="codeph">blocked_range</samp> は右のサブ範囲で、<samp class="codeph">range</samp> は左のサブ範囲になるように更新されます。</p>
+<p><strong>例</strong>: <samp class="codeph">r</samp> を、粒度 <samp class="codeph">g</samp> で半開区間 <samp class="codeph">[i, j)</samp> を表す <samp class="codeph">blocked_range</samp> とします。<samp class="codeph">blocked_range&lt;int&gt; s(r, proportional_split(2, 3));</samp> 文を実行すると、粒度 <samp class="codeph">g</samp> で、<samp class="codeph">r</samp> は <samp class="codeph">[i, i+2*(j-i)/(2+3))</samp>、<samp class="codeph">s</samp> は <samp class="codeph">[i+2*(j-i)/(2+3), j)</samp> を表します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d9647e263 "><span class="keyword"> static const bool is_splittable_in_proportion </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d9647e265 ">特別なフィールドで、<samp class="codeph">blocked_range</samp> のインスタンスが比例分割可能であることを示します。<samp class="codeph">true</samp> に設定します。</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d9647e263 "><span class="keyword">size_type size() const </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d9647e265 "><p><strong>要件</strong>: <samp class="codeph">end()&lt;begin()</samp> が false であること。</p>
+<p><strong>効果</strong>: 範囲のサイズを決定します。</p>
+<p><strong>戻り値</strong>: <samp class="codeph">end()-begin()</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d9647e263 "><span class="keyword">bool empty() const </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d9647e265 "><p><strong>効果</strong>: 範囲が空かどうかを決定します。</p>
+<p><strong>戻り値</strong>: <samp class="codeph">!(begin()&lt;end())</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d9647e263 "><span class="keyword">size_type grainsize() const </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d9647e265 "><p><strong>戻り値</strong>: 範囲の粒度。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d9647e263 "><span class="keyword">bool is_divisible() const </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d9647e265 "><p><strong>要件</strong>: <samp class="codeph">!(end()&lt;begin())</samp></p>
+<p><strong>効果</strong>: 範囲がサブ範囲に分割できるかどうかを決定します。</p>
+<p><strong>戻り値</strong>: <samp class="codeph">size()&gt;grainsize();</samp> の場合は true。その他の場合は false。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d9647e263 "><span class="keyword">const_iterator begin() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d9647e265 "><p><strong>戻り値</strong>: 範囲の包含的な下限。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d9647e263 "><span class="keyword">const_iterator end() const </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d9647e265 "><p><strong>戻り値</strong>: 範囲の排他的な上限。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/algorithms/range_concept.html">Range コンセプト</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../parallel_for_func.html#parallel_for_func">parallel_for テンプレート関数</a></div>
+<div><a href="../parallel_reduce_func.html#parallel_reduce_func">parallel_reduce テンプレート関数</a></div>
+<div><a href="../parallel_scan_func.html#parallel_scan_func">parallel_scan テンプレート関数</a></div>
+<div><a href="../../environment/enabling_debugging_features.html#enabling_debugging_features">TBB_USE_ASSERT マクロ</a></div></div></div>
+</body>
+</html>

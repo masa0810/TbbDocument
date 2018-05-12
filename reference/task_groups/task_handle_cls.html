@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="task_handle テンプレート・クラス"/>
+<meta name="DC.subject" content="task_handle テンプレート・クラス"/>
+<meta name="keywords" content="task_handle テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/task_groups.html"/>
+<meta name="DC.Relation" scheme="URI" content="structured_task_group_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="make_task_func.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="task_handle_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>task_handle テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="task_handle_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">task_handle テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p><samp class="codeph">structured_task_group</samp> クラスとともに関数オブジェクトをラップするために使用されるテンプレート・クラス。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">task_handle</samp> クラスは、主に <samp class="codeph">structured_task_group</samp> クラスとともに使用されます。統一性のために、<samp class="codeph">task_group</samp> クラスでも <samp class="codeph">task_handle</samp> と同じ引数を使用できます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre> template&lt;typename Func&gt;
+    class task_handle {
+    public:
+        task_handle( const Func&amp; f );
+        void operator()() const;
+    };</pre></div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/task_groups.html">タスクグループ</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="structured_task_group_cls.html">structured_task_group クラス</a></div>
+<div><a href="make_task_func.html">make_task テンプレート関数</a></div></div></div>
+</body>
+</html>

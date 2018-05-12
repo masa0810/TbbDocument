@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="バージョン情報"/>
+<meta name="DC.subject" content="バージョン情報, TBB_INTERFACE_VERSION, TBB_INTERFACE_VERSION_MAJOR, TBB_INTERFACE_VERSION/1000, TBB_COMPATIBLE_INTERFACE_VERSION, TBB_USE_ASSERT, DO_ITT_NOTIFY, ALLOCATOR"/>
+<meta name="keywords" content="バージョン情報, TBB_INTERFACE_VERSION, TBB_INTERFACE_VERSION_MAJOR, TBB_INTERFACE_VERSION/1000, TBB_COMPATIBLE_INTERFACE_VERSION, TBB_USE_ASSERT, DO_ITT_NOTIFY, ALLOCATOR"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/environment.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="version_information"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>バージョン情報</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="version_information">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">バージョン情報</h1>
+<div><div class="section"><p>インテル&reg; TBB には、バージョンおよびランタイム情報を取得するマクロ、環境変数、および関数があります。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">バージョンマクロ</h2><p>ヘッダー <samp class="codeph">tbb/tbb_stddef.h</samp> は、次に示すようにバージョンに関するマクロを定義します。これらのマクロは再定義すべきではありません。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl4" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">バージョンマクロ</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="340.0px" id="d44555e51"><p><strong>マクロ</strong></p>
+</th>
+<th class="row-nocellborder" valign="top" width="310.0px" id="d44555e55"><p><strong>値の説明</strong></p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="340.0px" headers="d44555e51 "><p><samp class="codeph">TBB_INTERFACE_VERSION</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="310.0px" headers="d44555e55 "><p>現在のインターフェイスのバージョン。値は、<samp class="codeph"><em>xyyy</em></samp> 形式の 10 進数です。ここで、<samp class="codeph">x</samp> はメジャーバージョン番号、<samp class="codeph"><em>y</em></samp> はマイナーバージョン番号です。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="340.0px" headers="d44555e51 "><p><samp class="codeph">TBB_INTERFACE_VERSION_MAJOR</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="310.0px" headers="d44555e55 "><p><samp class="codeph">TBB_INTERFACE_VERSION/1000;</samp> つまり、メジャーバージョン番号。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="340.0px" headers="d44555e51 "><p><samp class="codeph">TBB_COMPATIBLE_INTERFACE_VERSION</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="310.0px" headers="d44555e55 "><p>サポートされている最も古いメジャー・インターフェイス・バージョン。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle"><samp class="codeph">TBB_VERSION</samp> 環境変数</h2><p><samp class="codeph">TBB_VERSION</samp> 環境変数を <samp class="codeph">1</samp> に設定すると、ライブラリーは <samp class="codeph">stderr</samp> の情報を出力します。各行は、<samp class="codeph">“TBB: <em>tag value</em>”</samp> 形式です。<em>tag</em> と <em>value</em> は次の説明のとおりです。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl5" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">TBB_VERSION の出力</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="200.0px" id="d44555e132"><p><strong>tag</strong></p>
+</th>
+<th class="row-nocellborder" valign="top" width="427.0px" id="d44555e136"><p><strong>値の説明</strong></p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="200.0px" headers="d44555e132 "><p><samp class="codeph">VERSION</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="427.0px" headers="d44555e136 "><p>インテル&reg; TBB 製品バージョン番号。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="200.0px" headers="d44555e132 "><p><samp class="codeph">INTERFACE_VERSION </samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="427.0px" headers="d44555e136 "><p>ライブラリーがコンパイルされたときの <samp class="codeph">TBB_INTERFACE_VERSION</samp> マクロの値。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="200.0px" headers="d44555e132 "><p><samp class="codeph">BUILD_</samp>...</p>
+</td>
+<td class="row-nocellborder" valign="top" width="427.0px" headers="d44555e136 "><p>ライブラリーがビルドされたマシンの構成に関するさまざまな情報。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="200.0px" headers="d44555e132 "><p><samp class="codeph">TBB_USE_ASSERT</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="427.0px" headers="d44555e136 "><p><samp class="codeph">TBB_USE_ASSERT</samp> マクロの設定。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="200.0px" headers="d44555e132 "><p><samp class="codeph">DO_ITT_NOTIFY</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="427.0px" headers="d44555e136 "><p>ライブラリーがインテル&reg; Parallel Studio XE の解析ツール向けにインストルメンテーションを有効にできる場合は <samp class="codeph">1</samp>、その他の場合は <samp class="codeph">0</samp> または <samp class="codeph">undefined</samp>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="200.0px" headers="d44555e132 "><p><samp class="codeph">ITT</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="427.0px" headers="d44555e136 "><p>ライブラリーがインテル&reg; Parallel Studio XE の解析ツール向けにインストルメンテーションを有効にした場合は <samp class="codeph">yes</samp>、その他の場合は no。通常、プログラムがインテル&reg; Parallel Studio XE の解析ツールの制御の下に実行されている場合のみ <samp class="codeph">yes</samp> になります。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="200.0px" headers="d44555e132 "><p><samp class="codeph">ALLOCATOR</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="427.0px" headers="d44555e136 "><p><samp class="codeph">tbb::tbb_allocator</samp> のアロケーター。インテル&reg; TBB の malloc ライブラリーがロードされた場合は <samp class="codeph">scalable_malloc</samp>。その他の場合は <samp class="codeph">malloc</samp>。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>この出力は実装固有であり、変更される場合があります。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle"><samp class="codeph">TBB_runtime_interface_version</samp> 関数</h2><p><strong>概要</strong></p>
+<p>ランタイムにロードされたインテル&reg; TBB ライブラリーのインターフェイス・バージョンを返す関数。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><p><pre>extern “C” int TBB_runtime_interface_version();</pre></p>
+</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><p><pre>#include "tbb/tbb_stddef.h"</pre></p>
+</div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">TBB_runtime_interface_version()</samp> が返す値は、コンパイル時に取得された <samp class="codeph">TBB_INTERFACE_VERSION</samp> と異なる場合があります。これを使用して、アプリケーションが、互換性のあるインテル&reg; TBB ヘッダーのバージョンでコンパイルされているかどうかを識別できます。</p>
+<p>一般に、ランタイム値 <samp class="codeph">TBB_runtime_interface_version()</samp> は、コンパイル時の値 TBB_INTERFACE_VERSION 以上でなければなりません。そうでないと、アプリケーションは、ランタイムにすべてのシンボルを解決できないことがあります。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/environment.html">環境</a></div>
+</div>
+<div/>
+</body>
+</html>

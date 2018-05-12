@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="source_node の使用"/>
+<meta name="DC.subject" content="フローグラフのヒント, source_node の使用"/>
+<meta name="keywords" content="フローグラフのヒント, source_node の使用"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Flow_Graph_making_edges_tips.html"/>
+<meta name="DC.Relation" scheme="URI" content="use_make_edge.html#use_make_edge"/>
+<meta name="DC.Relation" scheme="URI" content="broadcast_or_send.html#broadcast_or_send"/>
+<meta name="DC.Relation" scheme="URI" content="communicate_with_nodes.html#communicate_with_nodes"/>
+<meta name="DC.Relation" scheme="URI" content="avoiding_data_races.html#avoiding_data_races"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="use_source_node"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>source_node の使用</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="use_source_node">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">source_node の使用</h1>
+<div><p>アクティブな <span class="keyword">source_node</span> は、エッジが接続されるとすぐにメッセージの送信を開始します。適切に管理されていないと、メッセージが廃棄されることがあります。デフォルトでは、インアクティブ状態で構築されない限り、<span class="keyword">source_node</span> はアクティブです。</p>
+<pre>template&lt; typename Body &gt; source_node( graph &amp;g, Body body, bool is_active=true )</pre><p>インアクティブな <span class="keyword">source_node</span> をアクティブにするには、ノードの activate 関数を呼び出します。 
+	 </p>
+<pre>    source_node&lt; int &gt; src( g, src_body(10), false );
+    // make_edge への呼び出しで使用...
+    src.activate();
+</pre><p>この管理を行うには、<span class="keyword">source_node</span> をすべてインアクティブ状態で構築してフローグラフ全体が構築された後にアクティブにするか、グラフを構築するときにメッセージが廃棄されないように注意しなければなりません。 
+	 </p>
+<p>例えば、<a href="Data_Flow_Graph.html#Data_Flow_Graph">データフロー・グラフ</a>のコードを使用できます。この実装では、<span class="keyword">source_node</span> はインアクティブ状態で構築され、ほかのエッジがすべて作成された後にアクティブにされています。</p>
+<pre>      make_edge( squarer, summer );
+      make_edge( cuber, summer );
+      source_node&lt; int &gt; src( g, src_body(10), false );
+      make_edge( src, squarer );
+      make_edge( src, cuber );
+      src.activate();
+      g.wait_for_all();
+</pre><p>この例で、<span class="keyword">source_node</span> がアクティブ状態で構築された場合、エッジが squarer に接続された後、直ちに squarer にメッセージを送ります。次に、エッジが cuber に接続されると、cuber は接続以降のメッセージをすべて受け取りますが、接続前の一部のメッセージを受け取っていない可能性があります。 
+	 </p>
+<p>一般に、<span class="keyword">source_node</span> をインアクティブ状態で構築し、グラフ全体が構築された後にアクティブ状態にすることが最も安全です。しかし、このアプローチではグラフの構築とグラフの実行がシリアル化されます。</p>
+<p>一部のグラフでは、構築と実行のオーバーラップを許可することで、<span class="keyword">source_node</span> をアクティブ状態で安全に構築できます。グラフが有向非巡回グラフ (DAG) で、各 <span class="keyword">source_node</span> に 1 つのサクセサーのみ含まれる場合、逆トポロジカル順にエッジを構築すれば、アクティブ状態で <span class="keyword">source_node</span> を構築できます。つまり、最初にツリーの最も深いエッジを作成した後、最も浅いエッジに戻ります。例えば、<span class="keyword">src</span> が <span class="keyword">source_node</span> で <span class="keyword">func1</span> と <span class="keyword">func2</span> がどちらも関数ノードの場合、次のグラフは <span class="keyword">src</span> がアクティブ状態で構築された場合でもメッセージは廃棄されません。</p>
+<pre>    const int limit = 10;
+    int count = 0;
+    graph g;
+    source_node&lt;int&gt; src( g, [&amp;]( int &amp;v ) -&gt; bool {
+      if ( count &lt; limit ) {
+        ++count;
+        v = count;
+        return true;
+      } else {
+        return false;
+      }
+    } );
+    function_node&lt;int,int&gt; func1( g, 1, []( int i ) -&gt; int {
+      cout &lt;&lt; i &lt;&lt; "\n";
+      return i;
+    } );
+    function_node&lt;int,int&gt; func2( g, 1, []( int i ) -&gt; int {
+      cout &lt;&lt; i &lt;&lt; "\n";
+      return i;
+    } );
+
+    make_edge( func1, func2 );
+    make_edge( src, func1 );
+
+    g.wait_for_all();
+</pre><p><span class="keyword">func1</span> から func2 のエッジが、<span class="keyword">src</span> から <span class="keyword">func1</span> のエッジの前に作成されるため、上記のコードは安全です。<span class="keyword">src</span> から <span class="keyword">func1</span> のエッジが最初に作成された場合、<span class="keyword">func2</span> がアタッチされる前に <span class="keyword">func1</span> がメッセージを生成すると、そのメッセージは廃棄されます。また、<span class="keyword">src</span> には 1 つのサクセサーのみ含まれます。<span class="keyword">src</span> に 2 つ以上のサクセサーが含まれる場合、最初にアタッチされたサクセサーが、後からアタッチされたサクセサーが受け取らないメッセージを受け取る場合があります。 
+	 </p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Flow_Graph_making_edges_tips.html">エッジの作成におけるフローグラフのヒント</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="use_make_edge.html#use_make_edge">make_edge と remove_edge の使用</a></div>
+<div><a href="broadcast_or_send.html#broadcast_or_send">1 つまたは複数のサクセサーへの送信</a></div>
+<div><a href="communicate_with_nodes.html#communicate_with_nodes">グラフ間の通信</a></div>
+<div><a href="avoiding_data_races.html#avoiding_data_races">データ競合の回避</a></div></div></div>
+</body>
+</html>

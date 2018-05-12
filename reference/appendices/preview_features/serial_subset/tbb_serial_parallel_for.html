@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="tbb::serial::parallel_for()"/>
+<meta name="DC.subject" content="tbb::serial::parallel_for()"/>
+<meta name="keywords" content="tbb::serial::parallel_for()"/>
+<meta name="DC.Relation" scheme="URI" content="../../../../reference/appendices/preview_features/serial_subset.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tbb_serial_parallel_for"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../../intel_css_styles.css"/>
+<title>tbb::serial::parallel_for()</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tbb_serial_parallel_for">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(4);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">tbb::serial::parallel_for()</h1>
+<div><div class="section"><h2 class="sectiontitle">ヘッダー</h2><p>#define TBB_PREVIEW_SERIAL_SUBSET 1</p>
+<p>#include "tbb/parallel_for.h"</p>
+</div>
+<div class="section"><h2 class="sectiontitle">目的</h2><p>デバッグ中などに、特定の <samp class="codeph">parallel_for()</samp> 呼び出しはシリアルに実行し、ほかの <samp class="codeph">parallel_for()</samp> 呼び出しは並列に実行できると便利なことがあります。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">tbb::serial::parallel_for</samp> 関数は、シリアル実装を使用して <samp class="codeph">tbb::parallel_for</samp> API を実装します。特定の <samp class="codeph">parallel_for()</samp> 呼び出しをシリアルに実行する場合、parallel_for.h の前に <samp class="codeph">TBB_PREVIEW_SERIAL_SUBSET</samp> マクロを定義し、対象となる <samp class="codeph">parallel_for()</samp> に <samp class="codeph">tbb::serial::</samp> プリフィクスを追加する必要があります。内部的に、シリアル実装は再帰分解と同じ法則を使用しますが、タスクをスポーンする代わりに、「実際に」再帰実行します (つまり、ボディー関数は、オリジナル範囲を 2 つに分解したサブ範囲で自身を 2 回呼び出します)。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><pre>#define TBB_PREVIEW_SERIAL_SUBSET 1
+#include &lt;tbb/parallel_for.h&gt;
+Foo()
+{
+  // ...
+  tbb::serial::parallel_for( ...);
+  tbb::parallel_for( ...);
+  // ... 
+}</pre></div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../../reference/appendices/preview_features/serial_subset.html">シリアルサブセット</a></div>
+</div>
+<div/>
+</body>
+</html>

@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="flow_control クラス"/>
+<meta name="DC.subject" content="flow_control クラス"/>
+<meta name="keywords" content="flow_control クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/algorithms/parallel_pipeline_func.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="flow_control_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>flow_control クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="flow_control_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">flow_control クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2>入力の最後に達したことを示すため、複合フィルターの最初のフィルターを有効にします。</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/pipeline.h" </pre></div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>class flow_control;</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">parallel_pipeline</samp> テンプレート関数は、<samp class="codeph">flow_control</samp> オブジェクト <samp class="codeph"><em>fc</em></samp> を <samp class="codeph">filter_t</samp> の入力ファンクターに渡します。入力ファンクターは入力の最後に達すると、<samp class="codeph"><em>fc</em>.stop()</samp> を呼び出し、ダミー値を返します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+    class flow_control {
+    public:
+        void stop();
+    };
+}
+</pre></div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/algorithms/parallel_pipeline_func.html">parallel_pipeline 関数</a></div>
+</div>
+<div/>
+</body>
+</html>

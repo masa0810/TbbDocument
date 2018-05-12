@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="タスクの再利用"/>
+<meta name="DC.subject" content="タスクの再利用"/>
+<meta name="keywords" content="タスクの再利用"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/task_scheduler.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="recycling_tasks"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>タスクの再利用</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="recycling_tasks">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">タスクの再利用</h1>
+<div><div class="section"><p>最初から再割り当てを行うよりも、タスク・オブジェクトを再利用するほうが多くの場合効率的です。親は継続、またはプレデセッサーの 1 つとしてよく再利用されます。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p><strong>オーバーラップの規則</strong>: 再利用されるタスク <em>t</em> は、<samp class="codeph"><em>t</em>.execute()</samp> の前の呼び出しがまだ実行中の間は <samp class="codeph"><em>t</em>.execute()</samp> が再実行される状況で利用してはなりません。ライブラリーのデバッグバージョンは、この規則の違反を検出します。</p>
+</div>
+<p>例えば、<samp class="codeph"><em>t</em>.execute()</samp> は <samp class="codeph"><em>t</em></samp> を再利用した後に直接作成してはなりません。代わりに、<samp class="codeph"><em>t</em>.execute()</samp> は <samp class="codeph"><em>t</em></samp> のポインターを返して、<samp class="codeph"><em>t</em>.execute()</samp> が完了した後、<samp class="codeph">t</samp> が作成されるようにします。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d79476e72">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d79476e74">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d79476e72 "><span class="keyword">void recycle_as_continuation()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d79476e74 "><p><strong>要件</strong>: <samp class="codeph">execute()</samp> メソッドの実行中に呼び出されること。</p>
+<p>再利用するタスクの <samp class="codeph"><em>refcount</em></samp> は、<samp class="codeph"><em>n</em></samp> (<samp class="codeph"><em>n</em></samp> は継続タスクのプレデセッサーの数) に設定する必要があります。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>呼び出し元は、<samp class="codeph">execute()</samp> メソッドがリターンするまでタスクの <samp class="codeph"><em>refcount</em></samp> が 0 にならないことを保証する必要があります。保証できない場合、代わりに <samp class="codeph">recycle_as_safe_continuation()</samp> メソッドを使用して、<samp class="codeph"><em>refcount</em></samp> を <samp class="codeph"><em>n</em>+1</samp> に設定してください。</p>
+</div>
+<p>次の場合、タスク <samp class="codeph"><em>t</em></samp> で競合状態が発生します。</p>
+<p><samp class="codeph"><em>t</em>.execute()</samp> が <samp class="codeph"><em>t</em></samp> を継続として再利用する。</p>
+<p>継続が <samp class="codeph"><em>t</em>.execute()</samp> がリターンする前にすべて完了するプレデセッサーを持っている。</p>
+<p>このため、オリジナルの <samp class="codeph"><em>t</em>.execute()</samp> の実行中に再利用される <samp class="codeph"><em>t</em></samp> が暗黙的に作成され、オーバーラップの規則に違反してしまいます。</p>
+<p><samp class="codeph">recycle_as_continuation()</samp> を使用するパターンは通常、<samp class="codeph"><em>t</em>.execute()</samp> が明示的にそのプレデセッサーを作成する代わりにプレデセッサーの 1 つのポインターを返すことにより、競合状態を回避します。スケジューラーは、<samp class="codeph"><em>t</em>.execute()</samp> がリターンした後に暗黙的にそのプレデセッサーを作成して、再利用される t が早めに再実行しないことを保証します。</p>
+<p><strong>効果</strong>: <samp class="codeph">execute()</samp> メソッドがリターンしたときに <samp class="codeph">this</samp> を破棄しません。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d79476e72 "><span class="keyword">void recycle_as_safe_continuation()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d79476e74 "><p><strong>要件</strong>: <samp class="codeph">execute()</samp> メソッドの実行中に呼び出されること。</p>
+<p>再利用するタスクの <samp class="codeph"><em>refcount</em></samp> は、<samp class="codeph"><em>n</em>+1</samp> (<samp class="codeph"><em>n</em></samp> は継続タスクのプレデセッサーの数) に設定する必要があります。<samp class="codeph">+1</samp> は、タスクが再利用されることを表します。</p>
+<p><strong>効果</strong>: <samp class="codeph">execute()</samp> メソッドがリターンしたときに <samp class="codeph">this</samp> を破棄しません。</p>
+<p><samp class="codeph"><em>refcount</em></samp> に追加される +1 によって <samp class="codeph">execute()</samp> のオリジナルの呼び出しが完了するまで継続が実行されないため、このメソッドは recycle_as_continuation で説明された競合状態を回避します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d79476e72 "><span class="keyword">void recycle_as_child_of( task&amp; new_successor )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d79476e74 "><p><strong>要件</strong>: <samp class="codeph">execute()</samp> メソッドの実行中に呼び出されること。</p>
+<p><strong>効果</strong>: <samp class="codeph">this</samp> を <samp class="codeph"><em>new_successor</em></samp> のプレデセッサーとして、<samp class="codeph">execute()</samp> メソッドがリターンしたときに破棄しません。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/task_scheduler.html">タスク・スケジューラー</a></div>
+</div>
+<div/>
+</body>
+</html>

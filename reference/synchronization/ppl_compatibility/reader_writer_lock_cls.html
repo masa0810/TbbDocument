@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="reader_writer_lock クラス"/>
+<meta name="DC.subject" content="reader_writer_lock クラス"/>
+<meta name="keywords" content="reader_writer_lock クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/synchronization/ppl_compatibility_synch.html"/>
+<meta name="DC.Relation" scheme="URI" content="../mutexes/mutex_concept.html"/>
+<meta name="DC.Relation" scheme="URI" content="../mutexes/readerwritermutex_concept.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="reader_writer_lock_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>reader_writer_lock クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="reader_writer_lock_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">reader_writer_lock クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>スケーラブルで、ライターを優先する PPL 互換のリーダー/ライター mutex。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>class reader_writer_lock;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/reader_writer_lock.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">reader_writer_lock</samp> は、PPL 互換のリーダー/ライター mutex を実装します。<samp class="codeph">reader_writer_lock</samp> はスケーラブルです。再帰的ではありません。ライターがリーダーよりも優先されることを除いて、ロックのリクエストを先着順に処理します。スレッドが reader_writer_lock の取得を待つ必要がある場合、ビジーウェイトを行うため、ウェイトが長くなるとシステムのパフォーマンスに影響します。しかし、ウェイトが短い場合、<samp class="codeph">reader_writer_lock</samp> は、ほかの mutex よりも大幅にパフォーマンスを向上させます。</p>
+<p><samp class="codeph">reader_writer_lock</samp> は、ReaderWriterMutex コンセプトの一部と C++11 互換インターフェイスの一部をモデル化します。主な違いは次のとおりです。</p>
+<ul><li><p>スコープ・インターフェイスはスコープロックのみサポートします。例えば、<samp class="codeph">scoped_lock::release()</samp> メソッドはサポートされません。</p>
+</li>
+<li><p>リーダーロックは別のインターフェイスです。例えば、ReaderWriterMutex コンセプトのリーダーを識別するフラグの代わりに、リーダーロック用の個別のスコープ・インターフェイス scoped_lock_read があります。</p>
+</li>
+</ul>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+    class reader_writer_lock {
+    public:
+        reader_writer_lock();
+        ~reader_writer_lock();
+        void lock();
+        void lock_read();
+        bool try_lock();
+        bool try_lock_read();
+        void unlock();
+         class scoped_lock {
+        public:
+            scoped_lock( reader_writer_lock&amp; mutex );
+            ~scoped_lock();
+        };
+        class scoped_lock_read {
+        public:
+            scoped_lock_read( reader_writer_lock&amp; mutex );
+            ~scoped_lock_read();
+        };
+   };}</pre><p>次の表は、このクラスのメンバーを要約したものです。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl30" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">reader_writer_lock メンバーの概要</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="NaN%" id="d75937e71"><p>メンバー</p>
+</th>
+<th class="row-nocellborder" valign="top" width="NaN%" id="d75937e74"><p>意味</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="NaN%" headers="d75937e71 "><p><samp class="codeph">reader_writer_lock()</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d75937e74 "><p>ロックしていない mutex を構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d75937e71 "><samp class="codeph">~reader_writer_lock()</samp></td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d75937e74 "><p>ロックしていない mutex を破棄します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d75937e71 "><p><samp class="codeph">void reader_writer_lock::lock()</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d75937e74 "><p>mutex のライターロックを取得します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d75937e71 "><p><samp class="codeph">void reader_writer_lock::lock_read()</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d75937e74 "><p>mutex のリーダーロックを取得します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d75937e71 "><p><samp class="codeph">bool reader_writer_lock::try_lock()</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d75937e74 "><p>mutex のライターロックを取得しようとします。ロックが取得された場合は <em>true</em>、その他の場合は <em>false</em> を返します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d75937e71 "><p><samp class="codeph">bool reader_writer_lock::try_lock_read()</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d75937e74 "><p>mutex のリーダーロックを取得しようとします。ロックが取得された場合は <em>true</em>、その他の場合は <em>false</em> を返します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d75937e71 "><p><samp class="codeph">reader_writer_lock::unlock()</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d75937e74 "><p>ロックを解放します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d75937e71 "><samp class="codeph"> reader_writer_lock::scoped_lock (reader_writer_lock&amp; m) </samp></td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d75937e74 "><p>mutex m のライターロックを取得します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d75937e71 "><p><samp class="codeph">reader_writer_lock::~scoped_lock()</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d75937e74 "><p>ライターロックを解放します (取得している場合)。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d75937e71 "><p><samp class="codeph">reader_writer_lock::scoped_lock_read (reader_writer_lock&amp; m)</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d75937e74 "><p>mutex m のリーダーロックを取得します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d75937e71 "><p><samp class="codeph">reader_writer_lock::~scoped_lock_read()</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d75937e74 "><p>リーダーロックを解放します (取得している場合)。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/synchronization/ppl_compatibility_synch.html">PPL との互換性</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../mutexes/mutex_concept.html">Mutex コンセプト</a></div>
+<div><a href="../mutexes/readerwritermutex_concept.html">ReaderWriterMutex コンセプト</a></div></div></div>
+</body>
+</html>

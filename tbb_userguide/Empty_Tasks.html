@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="空のタスク"/>
+<meta name="DC.subject" content="空のタスク"/>
+<meta name="keywords" content="空のタスク"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Useful_Task_Techniques.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Empty_Tasks"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>空のタスク</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Empty_Tasks">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">空のタスク</h1>
+<div><p>何もしないけれども、子が完了するまで待機するタスクが必要な場合があります。<samp class="codeph">task.h</samp> ヘッダーファイルは、この役割を担う <samp class="codeph">empty_task</samp> クラスを定義します。次に定義を示します。</p>
+<pre>// 何もしないタスク。同期に役立ちます
+class empty_task: public task {
+    /* オーバーライド */ task* execute() {
+        return NULL;
+    }
+};</pre><p><samp class="codeph">empty_task</samp> が良い例です。<span class="option">start_for::execute()</span> メソッドで <samp class="codeph">parallel_for</samp> (<samp class="codeph">tbb/parallel_for.h</samp>) を呼び出します。ここでのコードは、継続渡しスタイルを使用します。2 つの子タスクを作成し、子タスクの完了時に <samp class="codeph">empty_task</samp> を継続として使用します。トップレベルのルーチン <samp class="codeph">parallel_for</samp> (<samp class="codeph">tbb/parallel_for.</samp><samp class="codeph">h</samp>) はルートで待機します。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Useful_Task_Techniques.html">役立つタスク手法</a></div>
+</div>
+<div/>
+</body>
+</html>

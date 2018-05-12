@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="デバッグ・ライブラリーとリリース・ライブラリー"/>
+<meta name="DC.subject" content="デバッグ・ライブラリーとリリース・ライブラリー"/>
+<meta name="keywords" content="デバッグ・ライブラリーとリリース・ライブラリー"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Package_Contents.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/reference.html#reference"/>
+<meta name="DC.Relation" scheme="URI" content="Initializing_and_Terminating_the_Library.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Debug_Versus_Release_Libraries"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>デバッグ・ライブラリーとリリース・ライブラリー</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Debug_Versus_Release_Libraries">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">デバッグ・ライブラリーとリリース・ライブラリー</h1>
+<div><p>次の表は、インテル&reg; TBB に含まれるデバッグバージョンとリリースバージョンの動的共有ライブラリーの詳細です。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl2" width="100%" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">インテル&reg; TBB に含まれている動的共有ライブラリー</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="31.439393939393938%" id="d94625e29"><p>ライブラリー</p>
+<p>(*.dll、lib*.so または lib*.dylib)</p>
+</th>
+<th class="cellrowborder" valign="top" width="34.84848484848485%" id="d94625e34"><p>説明</p>
+</th>
+<th class="cellrowborder" valign="top" width="33.71212121212121%" id="d94625e37"><p>使用方法</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="31.439393939393938%" headers="d94625e29 "><p><samp class="codeph">tbb_debug</samp></p>
+<p><samp class="codeph">tbbmalloc_debug</samp></p>
+<p><samp class="codeph">tbbmalloc_proxy_debug</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="34.84848484848485%" headers="d94625e34 "><p>ライブラリーを正しく使用するための広範囲な内部チェック機能を備えています。</p>
+</td>
+<td class="cellrowborder" valign="top" width="33.71212121212121%" headers="d94625e37 "><p><samp class="codeph">TBB_USE_DEBUG</samp> マクロを 1 に設定してコンパイルします。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="31.439393939393938%" headers="d94625e29 "><p><samp class="codeph">tbb</samp></p>
+<p><samp class="codeph">tbbmalloc</samp></p>
+<p><samp class="codeph">tbbmalloc_proxy</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="34.84848484848485%" headers="d94625e34 "><p>最大レベルのパフォーマンスを提供します。ライブラリーを正しく使用するためのほとんどの内部チェックを行いません。</p>
+</td>
+<td class="cellrowborder" valign="top" width="33.71212121212121%" headers="d94625e37 "><p><samp class="codeph">TBB_USE_DEBUG</samp> マクロを未定義もしくは 0 に設定してコンパイルします。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>最初にデバッグバージョンのライブラリーでプログラムをテストして、適切にライブラリーが使用されているかどうかを確認します。リリースバージョンでは、ライブラリーが適切に使用されていない場合、予測できないプログラム動作が生じることがあります。</p>
+</div>
+<p>インテル&reg; TBB は、インテル&reg; Inspector およびインテル&reg; VTune&#8482; Amplifier をサポートしています。これらのツールをフルサポートするには、<samp class="codeph">TBB_USE_THREADING_TOOLS</samp> マクロを 1 に設定してコンパイルする必要があります。次の条件では、このマクロはデフォルトで 1 に設定されます。</p>
+<ul><li><p><samp class="codeph">TBB_USE_DEBUG=1</samp> の場合。</p>
+</li>
+<li><p>Windows* システムで、<samp class="codeph">_DEBUG=1</samp> の場合。</p>
+</li>
+</ul>
+<p>デフォルト値についての詳細は、『インテル&reg; TBB デベロッパー・リファレンス』を参照してください。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>インテル&reg; Inspector のインストルメンテーション・サポートは、タスク・ライブラリーが最初に初期化された後で有効になります。この初期化が行われる前にライブラリー・コンポーネントが使用されると、実際には競合状態が発生していない場合でも、インテル&reg; Inspector が誤って競合状態をレポートする可能性があります。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Package_Contents.html">パッケージの内容</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../reference/reference.html#reference">インテル&reg; TBB デベロッパー・リファレンス</a></div>
+<div><a href="Initializing_and_Terminating_the_Library.html">ライブラリーの初期化と終了</a></div></div></div>
+</body>
+</html>

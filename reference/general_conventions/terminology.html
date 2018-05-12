@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="用語"/>
+<meta name="DC.subject" content="用語"/>
+<meta name="keywords" content="用語"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/general_conventions.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="terminology"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>用語</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="terminology">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">用語</h1>
+<div><div class="section"><p>このセクションでは、インテル&reg; TBB 特有の用語について説明します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">コンセプト</h2><p>「コンセプト (concept)」は、型の要件のセットです。要件は、構文または意味を成します。例えば、ソート可能 (Sortable) のコンセプトは、配列のソートを可能にする要件のセットとして定義されます。<samp class="codeph">T</samp> 型は、次の場合にソート可能です。</p>
+<ul><li><p><samp class="codeph">x &lt; y</samp> がブール値を返し、<samp class="codeph">T</samp> 型のアイテムのすべての順序を表す。</p>
+</li>
+<li><p><samp class="codeph">swap(x,y)</samp> がアイテム <samp class="codeph">x</samp> と <samp class="codeph">y</samp> を交換する。</p>
+</li>
+</ul>
+<p>C++ でソート・テンプレート関数を記述して、ソート可能な任意の型の配列がソートできることを保証できます。</p>
+<p>コンセプトを定義するための 2 つのアプローチは、「有効式」と「擬似署名」です。C++ 標準は、使用方法のパターンを示す「有効式」アプローチに従っていますが、このアプローチには、重要な詳細表記が規則に影響される欠点があります。このドキュメントでは、簡潔で、最初の実装にカットアンドペーストできるため、擬似署名を使用しています。</p>
+<p>下記の表は、ソート可能 (Sortable) コンセプトの <samp class="codeph">T</samp> 型の擬似署名を示しています。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl1" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">ソート可能コンセプト例の擬似署名</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="150" id="d67335e67"><p><strong>擬似署名</strong></p>
+</th>
+<th class="row-nocellborder" valign="top" width="100" id="d67335e71"><p><strong>意味</strong></p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="150" headers="d67335e67 "><p>bool operator&lt;(const T&amp; x, const T&amp; y)</p>
+</td>
+<td class="row-nocellborder" valign="top" width="100" headers="d67335e71 "><p>x と y を比較します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="150" headers="d67335e67 "><p>void swap(T&amp; x, T&amp; y)</p>
+</td>
+<td class="row-nocellborder" valign="top" width="100" headers="d67335e71 "><p>x と y を交換します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>実署名は、C++ で許可された暗黙的型変換による擬似署名とは異なります。例えば、C++ では <samp class="codeph">int</samp> から <samp class="codeph">bool</samp> への暗黙的型変換と <samp class="codeph">U</samp> から (<samp class="codeph">const U&amp;</samp>) への暗黙的型変換を許可しているため、type <samp class="codeph">U</samp>、上記の表の operator<samp class="codeph">&lt;</samp> を実装する実署名は、<samp class="codeph">int operator&lt;( U x, U y )</samp> として表現できます。同様に、C++ では参照型への const 修飾子の暗黙的な追加を許可しているため、実署名 <samp class="codeph">bool operator&lt;( U&amp; x, U&amp; y )</samp> は許容されます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">モデル</h2><p>コンセプトの要件を満たす場合、型はコンセプトを「モデル化」します。例えば、2 つの <samp class="codeph">int</samp> 値 <samp class="codeph">x</samp> と <samp class="codeph">y</samp> を交換する関数 <samp class="codeph">swap(x,y)</samp> が存在する場合、<samp class="codeph">int</samp> 型は上記の表のソート可能コンセプトをモデル化します。ソートを可能とするほかの要件、特に <samp class="codeph">x&lt;y</samp> は、<samp class="codeph">int</samp> 型のビルトイン <samp class="codeph">operator&lt;</samp> によってすでに満たされています。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">コピーコンストラクト可能 (CopyConstructible)</h2><p>まれに、型が ISO C++ 標準で定義され、型の作成と参照の基本操作を提供する「コピーコンストラクト可能 (CopyConstructible)」コンセプトのモデル化が必要になることもあります。下記の表は、擬似署名形式で「コピーコンストラクト可能 (CopyConstructible)」の要件を示しています。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl2" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">コピーコンストラクト可能 (CopyConstructible) の要件</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="244.0px" id="d67335e160"><p><strong>擬似署名</strong></p>
+</th>
+<th class="row-nocellborder" valign="top" width="256.0px" id="d67335e164"><p><strong>意味</strong></p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="244.0px" headers="d67335e160 "><p>T( const T&amp; )</p>
+</td>
+<td class="row-nocellborder" valign="top" width="256.0px" headers="d67335e164 "><p>const T のコピーを構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="244.0px" headers="d67335e160 "><p>~T()</p>
+</td>
+<td class="row-nocellborder" valign="top" width="256.0px" headers="d67335e164 "><p>デストラクター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="244.0px" headers="d67335e160 "><p>T* operator&amp;()</p>
+</td>
+<td class="row-nocellborder" valign="top" width="256.0px" headers="d67335e164 "><p>アドレスを取得します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="244.0px" headers="d67335e160 "><p>const T* operator&amp;() const</p>
+</td>
+<td class="row-nocellborder" valign="top" width="256.0px" headers="d67335e164 "><p>const T のアドレスを取得します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/general_conventions.html">一般的な規則</a></div>
+</div>
+<div/>
+</body>
+</html>

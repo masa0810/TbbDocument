@@ -1,0 +1,201 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="continue_node テンプレート・クラス"/>
+<meta name="DC.subject" content="continue_node テンプレート・クラス"/>
+<meta name="keywords" content="continue_node テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/flow_graph.html"/>
+<meta name="DC.Relation" scheme="URI" content="make_edge_func.html"/>
+<meta name="DC.Relation" scheme="URI" content="remove_edge_func.html"/>
+<meta name="DC.Relation" scheme="URI" content="copy_body_func.html"/>
+<meta name="DC.Relation" scheme="URI" content="../task_scheduler/task_group_context.html"/>
+<meta name="DC.Relation" scheme="URI" content="../exceptions.html"/>
+<meta name="DC.Relation" scheme="URI" content="message_passing_protocol.html"/>
+<meta name="DC.Relation" scheme="URI" content="sender_and_buffer_policy.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="continue_node_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>continue_node テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="continue_node_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">continue_node テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p><span class="keyword">graph_node</span>、<span class="keyword">continue_receiver</span>、<span class="keyword">sender&lt;T&gt;</span> のテンプレート・クラス。トリガーされると指定されたボディー・オブジェクトを実行し、生成された値をすべてのサクセサーにブロードキャストします。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>template&lt; typename Output &gt; class continue_node;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/flow_graph.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p>実行する前にプレデセッサーの完了を待機するが、入力エッジ間で明示的なデータが渡されないノードに使用されます。ノードの出力は <span class="keyword">continue_msg</span> または値です。</p>
+<p><span class="keyword">continue_node</span> は、内部しきい値 T と内部カウンター C を維持します。構築時にプレデセッサー数の値が指定された場合は、T がその値に、C=0 に設定されます。その他の場合は、C=T=0 に設定されます。</p>
+<p><span class="keyword">register_predecessor</span> メソッドを呼び出すと、しきい値 T がインクリメントされます。<span class="keyword">remove_predecessor</span> メソッドを呼び出すと、しきい値 T がデクリメントされます。<span class="keyword">make_edge</span> および <span class="keyword">remove_edge</span> 関数は、エッジが <span class="keyword">continue_node</span> に追加または削除されると、<span class="keyword">register_predecessor</span> と <span class="keyword">remove_predecessor</span> を適切に呼び出します。</p>
+<p><span class="keyword">try_put</span> メソッドを呼び出すと、C がインクリメントされます。インクリメント後に C&gt;=T の場合、C は 0 にリセットされ、タスクは <span class="keyword">body()</span> の結果をすべてのサクセサーにブロードキャストするためスポーンされます。C のインクリメント、タスクをスポーンする処理、C のリセットはすべて、ノードに関してアトミックに行われます。インクリメントの後に C&lt;T になった場合、追加のアクションは行われません。</p>
+<p>ボディー・オブジェクトの実行により生成された値は、すべてのサクセサーにブロードキャストされます。サクセサーがメッセージを拒否した場合、「メッセージ・パッシング・プロトコル」で説明されているプロトコルを使用して処理されます。</p>
+<p><span class="keyword">continue_node</span> は、グラフのターミナルノードとして動作できます。<span class="keyword">continue_msg</span> の <span class="keyword">Output</span> が使用され、サクセサーは接続されません。</p>
+<p><span class="keyword">Output</span> は、コピー構築可能および代入可能でなければなりません。</p>
+<p><span class="keyword">continue_node</span> のボディーコンセプトを次に示します。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl22" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">continue_node&lt;Output&gt; ボディーコンセプト</span></caption><thead align="left"><tr><th class="cellrowborder" align="center" valign="top" width="50%" id="d49479e107"><p>擬似署名</p>
+</th>
+<th class="cellrowborder" align="center" valign="top" width="50%" id="d49479e110"><p>意味</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="50%" headers="d49479e107 "><p><span class="keyword">B::B( const B&amp; )</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="50%" headers="d49479e110 "><p>コピー・コンストラクター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d49479e107 "><p><span class="keyword">B::~B()</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="50%" headers="d49479e110 "><p>デストラクター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d49479e107 "><p><span class="keyword">void operator=( const B&amp; )</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="50%" headers="d49479e110 "><p>代入。擬似署名の戻り型 <span class="keyword">void</span> は、<span class="keyword">operator=</span> は値を返す必要がないことを示します。<span class="keyword">operator=</span> は値を返すことができますが無視されます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d49479e107 "><p><span class="keyword">Output B::operator()(const continue_msg &amp;v) const</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="50%" headers="d49479e110 "><p>操作を実行して Output 型の値を返します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p><span class="keyword">continue_node</span> に渡されるボディー・オブジェクトはコピーされます。そのため、メンバー変数を更新してもノードの構築に使用されたオリジナルのオブジェクトには影響しません。ノードの外部からボディー・オブジェクト内に保持されている状態を確認する場合は、<span class="keyword">copy_body</span> 関数を使用して更新されたコピーを取得します。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>ボディー・オブジェクトは、そのエンクロージング・グラフをスローまたはキャンセルすることがあります。詳細は、「task_group_context」および「例外」を参照してください。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+namespace flow {
+ 
+template&lt; typename Output &gt;
+class continue_node :
+  public graph_node, public continue_receiver,
+  public sender&lt;Output&gt; {
+public:
+    template&lt;typename Body&gt;
+    continue_node( graph &amp;g, Body body );
+    template&lt;typename Body&gt;
+    continue_node( graph &amp;g, int number_of_predecessors,
+                     Body body );
+    continue_node( const continue_node &amp;src );
+ 
+    // continue_receiver
+    typedef continue_msg input_type;
+    typedef sender&lt;input_type&gt; predecessor_type;
+    bool try_put( const input_type &amp;v );
+    bool register_predecessor( predecessor_type &amp;p );
+    bool remove_predecessor( predecessor_type &amp;p );
+ 
+    // sender&lt;Output&gt;
+    typedef Output output_type;
+    typedef receiver&lt;output_type&gt; successor_type;
+    bool register_successor( successor_type &amp;r );
+    bool remove_successor( successor_type &amp;r );
+    bool try_get( output_type &amp;v );
+    bool try_reserve( output_type &amp;v );
+    bool try_release( );
+    bool try_consume( );
+};
+ 
+}
+}</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d49479e180">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d49479e182">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d49479e180 "><span class="keyword">template&lt; typename Body&gt; continue_node( graph &amp;g, Body body )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d49479e182 "><p><span class="keyword">body</span> を呼び出す <span class="keyword">continue_node</span> を構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d49479e180 "><span class="keyword">template&lt; typename Body&gt; continue_node( graph &amp;g, int number_of_predecessors, Body body )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d49479e182 "><p><span class="keyword">body</span> を呼び出す <span class="keyword">continue_node</span> を構築します。しきい値 T は <span class="keyword">number_of_predecessors</span> に初期化されます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d49479e180 "><span class="keyword">continue_node( const continue_node &amp;src )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d49479e182 "><p><span class="keyword">src</span> の構築後の状態と同じ初期状態で <span class="keyword">continue_node</span> を構築します。現在の <span class="keyword">try_puts</span> 呼び出しを受け取った回数、または現在の既知のプレデセッサー数はコピーしません。構築される <span class="keyword">continue_node</span> には、<span class="keyword">src</span> と同じ <span class="keyword">graph</span> オブジェクトへの参照、<span class="keyword">src</span> で使用される初期 <span class="keyword">body</span> のコピーが含まれます。また、<span class="keyword">src</span> がゼロ以外のしきい値で構築されている場合のみゼロ以外のしきい値が含まれます。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>新しいボディー・オブジェクトは、<span class="keyword">src</span> の構築時に提供されたオリジナルのボディーのコピーからコピー構築されます。このため、<span class="keyword">src</span> の構築後に <span class="keyword">src</span> のボディーのメンバー変数に対して行われた変更は、新しい <span class="keyword">continue_node</span> のボディーに影響しません。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d49479e180 "><span class="keyword">bool try_put( const input_type &amp;v )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d49479e182 "><p><span class="keyword">try_put</span> 呼び出しを受け取った回数をインクリメントします。インクリメント後の回数が既知のプレデセッサー数と等しい場合、タスクは <span class="keyword">body</span> を実行するようにスポーンされ、<span class="keyword">try_put</span> 呼び出しの内部カウントはゼロにリセットされます。このメソッドは、ボディータスクをスポーンする処理と内部カウントの更新があたかもアトミックに行われたように実行されます。ボディーの実行が完了するのを待ちません。</p>
+<p><strong>戻り値</strong>: <span class="keyword">true</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d49479e180 "><span class="keyword">bool register_predecessor( predecessor_type &amp;p )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d49479e182 "><p>既知のプレデセッサー数をインクリメントします。</p>
+<p><strong>戻り値</strong>: <span class="keyword">true</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d49479e180 "><span class="keyword">bool remove_predecessor( predecessor_type &amp;p ) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d49479e182 "><p>既知のプレデセッサー数をデクリメントします。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>この呼び出しにより受け取った <span class="keyword">try_put</span> 呼び出しの回数が既知のプレデセッサー数と等しくなる場合、ボディーは呼び出されません。つまり、<span class="keyword">remove_predecessor</span> の呼び出しはボディーを呼び出しません。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d49479e180 "><span class="keyword">bool register_successor( successor_type &amp;r )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d49479e182 "><p>サクセサーのセットに <span class="keyword">r</span> を追加します。</p>
+<p><strong>戻り値</strong>: <span class="keyword">true</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d49479e180 "><span class="keyword">bool remove_successor( successor_type &amp;r )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d49479e182 "><p>サクセサーのセットから <span class="keyword">r</span> を削除します。</p>
+<p><strong>戻り値</strong>: <span class="keyword">true</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d49479e180 "><span class="keyword">bool try_get( output_type &amp;v )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d49479e182 "><p><span class="keyword">continue_node</span> にバッファーは含まれていないため、<span class="keyword">try_get</span> 呼び出しは常に拒否されます。</p>
+<p><strong>戻り値</strong>: <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d49479e180 "><span class="keyword">bool try_reserve( output_type &amp;v )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d49479e182 "><p><span class="keyword">continue_node</span> にバッファーは含まれていないため、予約することはできません。</p>
+<p><strong>戻り値</strong>: <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d49479e180 "><span class="keyword">bool try_release( )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d49479e182 "><p><span class="keyword">continue_node</span> にバッファーは含まれていないため、予約することはできません。</p>
+<p><strong>戻り値</strong>: <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d49479e180 "><span class="keyword">bool try_consume( )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d49479e182 "><p><span class="keyword">continue_node</span> にバッファーは含まれていないため、予約することはできません。</p>
+<p><strong>戻り値</strong>: <span class="keyword">false</span>。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/flow_graph.html">フローグラフ</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="make_edge_func.html">make_edge テンプレート関数</a></div>
+<div><a href="remove_edge_func.html">remove_edge テンプレート関数</a></div>
+<div><a href="copy_body_func.html">copy_body テンプレート関数</a></div>
+<div><a href="../task_scheduler/task_group_context.html">task_group_context クラス</a></div>
+<div><a href="../exceptions.html">例外</a></div>
+<div><a href="message_passing_protocol.html">メッセージ・パッシング・プロトコル</a></div>
+<div><a href="sender_and_buffer_policy.html">転送、バッファー、受信ポリシー</a></div></div></div>
+</body>
+</html>

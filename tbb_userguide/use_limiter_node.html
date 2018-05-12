@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="limiter_node の使用"/>
+<meta name="DC.subject" content="フローグラフのヒント, limiter_node の使用, サブグラフのメッセージ数の制限, limiter_node"/>
+<meta name="keywords" content="フローグラフのヒント, limiter_node の使用, サブグラフのメッセージ数の制限, limiter_node"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Flow_Graph_resource_tips.html"/>
+<meta name="DC.Relation" scheme="URI" content="use_concurrency_limits.html#use_concurrency_limits"/>
+<meta name="DC.Relation" scheme="URI" content="create_token_based_system.html#create_token_based_system"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="use_limiter_node"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>limiter_node の使用</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="use_limiter_node">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">limiter_node の使用</h1>
+<div><p>リソースの消費を制限する 1 つの方法は、<span class="keyword">limiter_node</span>  を使用してグラフの指定したポイントを通過するメッセージ数の制限を設定することです。limiter_node のコンストラクターには、最大で 3 つの引数を指定します。</p>
+<pre>limiter_node( graph &amp;g, size_t threshold, int number_of_decrement_predecessors = 0 )</pre><p>第 1 引数は、属するグラフへの参照です。第 2 引数は、ノードが着信メッセージを拒否する前に渡すことができるアイテムの最大数を設定します。最後の引数 (デフォルトは 0) は、<span class="keyword">make_edge</span> の呼び出しによって追加されたデクリメント・ポートを超えることを仮定するサクセサーの数です。 
+	 </p>
+<p><span class="keyword">limiter_node</span> は、渡すことができるメッセージの内部カウントを管理します。メッセージが制御されているグラフの部分を離れると、<span class="keyword">limiter_node</span> のデクリメント・ポートにメッセージを送ってカウントをデクリメントし、さらにメッセージを渡せるようになります。下記の例で、<span class="keyword">source_node</span> は M 個のビッグ・オブジェクトを生成します。しかし、ここでは、一度に <span class="keyword">function_node</span> に達するビッグ・オブジェクトを最大 3 つに制限して、<span class="keyword">source_node</span> が一度に <span class="keyword">M</span> 個のビッグ・オブジェクトをすべて生成しないようにします。</p>
+<pre>  graph g;
+
+  int src_count = 0;
+  int number_of_objects = 0;
+  int max_objects = 3;
+
+  source_node&lt; big_object * &gt; s( g, [&amp;]( big_object* &amp;v ) -&gt; bool {
+	  if ( src_count &lt; M ) {
+		v = new big_object();
+        ++src_count;
+        return true;
+      } else {
+        return false;
+      }
+  } );
+
+  limiter_node&lt; big_object * &gt; l( g, max_objects );
+
+  function_node&lt; big_object *, continue_msg &gt; f( g, unlimited, 
+    []( big_object *v ) -&gt; continue_msg {
+	  spin_for(1);
+      delete v;
+      return continue_msg();
+  } );
+
+
+  make_edge( l, f );
+  make_edge( f, l.decrement );
+  make_edge( s, l );
+  g.wait_for_all();
+</pre><p>上記の例は、<span class="keyword">source_node</span> が一度に <span class="keyword">M</span> 個のビッグ・オブジェクトをすべて作成しないようにしています。<span class="keyword">limiter_node</span> にはしきい値 3 が設定されているため、内部カウントが 3 になると着信メッセージは拒否されます。<span class="keyword">source_node</span> は、メッセージが拒否されると、ボディー・オブジェクトの呼び出しを停止して最後に生成した値を一時的にバッファーに入れます。<span class="keyword">function_node</span> は、<span class="keyword">limiter_node</span> のデクリメント・ポートに出力 <span class="keyword">continue_msg</span> を送ります。そのため、実行を完了した後、<span class="keyword">limiter_node</span> の内部カウントはデクリメントされます。内部カウントがしきい値よりも低くなると、メッセージは <span class="keyword">source_node</span> からの送出を再開します。この例では、最大で 4 つのビッグ・オブジェクトが同時に存在します。3 つは <span class="keyword">limiter_node</span> で渡され、1 つは <span class="keyword">source_node</span> にバッファーされます。 
+	 </p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Flow_Graph_resource_tips.html">リソース消費を制限するためのフローグラフのヒント</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="use_concurrency_limits.html#use_concurrency_limits">同時実行数の制限の使用</a></div>
+<div><a href="create_token_based_system.html#create_token_based_system">トークンベース・システムの作成</a></div></div></div>
+</body>
+</html>

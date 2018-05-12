@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="デバッグ目的の並列キュー上での反復"/>
+<meta name="DC.subject" content="デバッグ目的の並列キュー上での反復"/>
+<meta name="keywords" content="デバッグ目的の並列キュー上での反復"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Concurrent_Queue_Classes.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Iterating_Over_a_Concurrent_Queue_for_Debugging"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>デバッグ目的の並列キュー上での反復</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Iterating_Over_a_Concurrent_Queue_for_Debugging">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">デバッグ目的の並列キュー上での反復</h1>
+<div><p><samp class="codeph">concurrent_queue</samp> および <samp class="codeph">concurrent_bounded_queue</samp> テンプレート・クラスは、STL スタイルの反復をサポートします。キューをダンプする必要がある場合、このサポートはデバッグ目的でのみ行われます。イテレーターは前方へのみ移動します。非常に遅いため、製品コードでは使用しないでください。キューが変更された場合、キューを指すイテレーターはすべて無効になり、安全に使用できなくなります。次のコードは、キューをダンプします。<samp class="codeph">operator&lt;&lt;</samp> は、<samp class="codeph">Foo</samp> のために定義されています。</p>
+<pre>concurrent_queue&lt;Foo&gt; q;
+...
+typedef concurrent_queue&lt;Foo&gt;::const_iterator iter;
+for(iter i(q.unsafe_begin()); i!=q.unsafe_end(); ++i ) {
+    cout &lt;&lt; *i;
+}</pre><p>メソッドの <samp class="codeph">unsafe_</samp> プリフィクスは、並列化セーフでないことを示すリマインダーです。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Concurrent_Queue_Classes.html">並列キュークラス</a></div>
+</div>
+<div/>
+</body>
+</html>

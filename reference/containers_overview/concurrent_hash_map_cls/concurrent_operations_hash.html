@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="並列操作"/>
+<meta name="DC.subject" content="並列操作"/>
+<meta name="keywords" content="並列操作"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/containers_overview/concurrent_hash_map_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="concurrent_operations_hash"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>並列操作</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="concurrent_operations_hash">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">並列操作</h1>
+<div><div class="section"><p><samp class="codeph">count</samp> 操作、<samp class="codeph">find</samp> 操作、<samp class="codeph">insert</samp> 操作、<samp class="codeph">erase</samp> 操作のみ、同じ <samp class="codeph">concurrent_hash_map</samp> で同時に呼び出すことができます。これらの操作は指定されたキーと一致するキー/値ペアについてテーブルを検索します。<samp class="codeph">find</samp> メソッドと <samp class="codeph">insert</samp> メソッドはそれぞれ、2 つの可変要素があります。1 つは、<samp class="codeph">const_accessor</samp> 引数を使用して目的のキー/値ペアの読み取りアクセスを提供します。もう 1 つは、accessor 引数を使用して書き込みアクセスを提供します。さらに、<samp class="codeph">insert</samp> には accessor 引数のないバージョンもあります。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>並列操作 (<samp class="codeph">count</samp>、<samp class="codeph">find</samp>、<samp class="codeph">insert</samp>、および <samp class="codeph">erase</samp>) は、影響を受けるインスタンスを指している反復を、<samp class="codeph">const</samp> 修飾子を含むものであっても無効にします。これらの操作をほかの操作と同時に使用することは安全ではありません。この規則の例外として、<samp class="codeph">rehash</samp> メソッドへの最後の呼び出しの後に変更と消去が発生しなかった場合、<samp class="codeph">count</samp> と <samp class="codeph">find</samp> はイテレーターを無効にしません。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>シリアルコードでは、<samp class="codeph">equal_range</samp> のほうが速く、イテレーターを無効にしないため、<samp class="codeph">find</samp> メソッドの代わりに <samp class="codeph">equal_range</samp> メソッドを使用してルックアップを行います。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>キーの検索で<samp class="codeph">nonconst</samp> 可変要素が成功すると、その結果生じる書き込みアクセスは、アクセサー・オブジェクトが破棄されるまで、ほかのスレッドがキーをアクセスしないようにブロックします。可能であれば、並列性を向上するために const 可変要素を使用してください。</p>
+</div>
+<p>操作に成功した場合、このセクションの各マップ操作は true を返し、その他の場合は false を返します。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>指定されたキーはマップに多くても 1 つしかありませんが、同じキーには異なるキー/値ペアが複数ある可能性があります。これは、<samp class="codeph">insert</samp> メソッドと <samp class="codeph">erase</samp> メソッドのセマンティクスによります。<samp class="codeph">insert</samp> メソッドは、マップに追加されない一時的なキー/値ペアを作成し破棄できます。erase メソッドは、キー/値ペアを破棄する前にマップから削除し、古いキーが破棄される前に別のスレッドが同じようなキーを作成できるようにします。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>指定されたキーに対して、同時に存在するリソースのインスタンスが 1 つだけであることを保証するため、次の手法を使用します。</p>
+<ul><li><p>リソースの構築: リソースを構築する前に、マップのキーへの <samp class="codeph">accessor</samp> を取得します。</p>
+</li>
+<li><p>リソースの破棄: キーへの <samp class="codeph">accessor</samp> を取得し、リソースを破棄してから、accessor を使用してキーを消去します。</p>
+</li>
+</ul>
+</div>
+<p>次のコードは、この方法を示したものです。</p>
+<pre>
+extern tbb::concurrent_hash_map&lt;Key,Resource,HashCompare&gt; Map;
+
+void ConstructResource( Key key ) {
+    accessor acc;
+    if( Map.insert(acc,key) ) {
+        // 現在のスレッドはキーを挿入して排他アクセス
+        ... ここでリソースを構築 ...
+    }
+    // acc リリースロックの暗黙的な破棄
+}
+
+void DestroyResource( Key key ) {
+    accessor acc;
+    if( Map.find(acc,key) ) {
+        // 現在のスレッドはキーを検索して排他アクセス
+        ... ここでリソースを破棄 ...
+        // accessor を使用してキーを消去
+        Map.erase(acc);
+    }
+}
+</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d24982e141">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d24982e143">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d24982e141 "><span class="keyword">size_type count( const Key&amp; key ) const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d24982e143 "><div class="Note"><h3 class="NoteTipHead">注意</h3> <p>このメソッドは、以前に取得されたイテレーターを無効にすることがあります。シリアルコードでは、その問題がない <samp class="codeph">equal_range</samp> を使用できます。</p>
+</div>
+<p><strong>戻り値</strong>: マップにキーがある場合は 1、その他の場合は 0。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d24982e141 "><span class="keyword">bool find( const_accessor&amp; result, const Key&amp; key ) const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d24982e143 "><p>指定されたキーを含むペアがあるかテーブルを検索します。キーが見つかった場合、一致するペアの読み取り専用アクセスを提供するように result を設定します。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>このメソッドは、以前に取得されたイテレーターを無効にすることがあります。シリアルコードでは、その問題がない <samp class="codeph">equal_range</samp> を使用できます。</p>
+</div>
+<p><strong>戻り値</strong>: キーが見つかった場合は ture。キーが見つからなかった場合は false。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d24982e141 "><span class="keyword">bool find( accessor&amp; result, const Key&amp; key )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d24982e143 "><p>指定されたキーを含むペアがあるかテーブルを検索します。キーが見つかった場合、一致するペアへの書き込みアクセスを提供するように result を設定します。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>このメソッドは、以前に取得されたイテレーターを無効にすることがあります。シリアルコードでは、その問題がない <samp class="codeph">equal_range</samp> を使用できます。</p>
+</div>
+<p><strong>戻り値</strong>: キーが見つかった場合は ture。キーが見つからなかった場合は false。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d24982e141 "><span class="keyword">bool insert( const_accessor&amp; result, const Key&amp; key )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d24982e143 "><p>指定されたキーを含むペアがあるかテーブルを検索します。ペアがない場合、テーブルに新しい <samp class="codeph">pair(key,T())</samp> を挿入します。一致するペアへの読み取り専用アクセスを提供するように <samp class="codeph"><em>result</em></samp> を設定します。</p>
+<p><strong>戻り値</strong>: 新しいペアが挿入された場合は true。キーがすでにマップにある場合は false。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d24982e141 "><span class="keyword"> bool insert( accessor&amp; result, const Key&amp; key )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d24982e143 "><p>指定されたキーを含むペアがあるかテーブルを検索します。ペアがない場合、テーブルに新しい <samp class="codeph">pair(key,T())</samp> を挿入します。一致するペアへの書き込みアクセスを提供するように <samp class="codeph"><em>result</em></samp> を設定します。</p>
+<p><strong>戻り値</strong>: 新しいペアが挿入された場合は true。キーがすでにマップにある場合は false。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d24982e141 "><span class="keyword">bool insert( const_accessor&amp; result, const value_type&amp; value ) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d24982e143 "><p>指定されたキーを含むペアがあるかテーブルを検索します。ペアがない場合、テーブルに <em>value</em> から作成された新しいペアのコピーを挿入します。一致するペアへの読み取り専用アクセスを提供するように <em>result</em> を設定します。</p>
+<p><strong>戻り値</strong>: 新しいペアが挿入された場合は true。キーがすでにマップにある場合は false。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d24982e141 "><span class="keyword">bool insert( accessor&amp; result, const value_type&amp; value )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d24982e143 "><p>指定されたキーを含むペアがあるかテーブルを検索します。ペアがない場合、テーブルに <samp class="codeph"><em>value</em></samp> から作成された新しいペアのコピーを挿入します。一致するペアへの書き込みアクセスを提供するように <samp class="codeph"><em>result</em></samp> を設定します。</p>
+<p><strong>戻り値</strong>: 新しいペアが挿入された場合は true。キーがすでにマップにある場合は false。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d24982e141 "><span class="keyword">bool insert( const value_type&amp; value )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d24982e143 "><p>指定されたキーを含むペアがあるかテーブルを検索します。ペアがない場合、テーブルに <samp class="codeph"><em>value</em></samp> から作成された新しいペアのコピーを挿入します。</p>
+<p><strong>戻り値</strong>: 新しいペアが挿入された場合は true。キーがすでにマップにある場合は false。</p>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>挿入後にデータにアクセスする必要がない場合は、accessor なしの insert を使用します。処理が速くなり、使用するロックの数も少なくて済みます。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d24982e141 "><span class="keyword">template&lt;typename InputIterator&gt; void insert( InputIterator first, InputIterator last ) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d24982e143 "><p>半開区間 [<samp class="codeph"><em>first,last</em></samp>) の各ペア <samp class="codeph"><em>p</em></samp> について、<samp class="codeph">insert(<em>p</em>)</samp> を実行します。挿入順序または並列に実行するかどうかは指定できません。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>現在の実装は、挿入を順番に処理します。将来の実装では、挿入を並列に処理できるようになる可能性があります。[<samp class="codeph"><em>first,last</em></samp>) に重複キーがある場合は、挿入順序に依存しないように注意してください。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d24982e141 "><span class="keyword">void insert( std::initializer_list&lt;value_type&gt; il )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d24982e143 "><p>C++11 からサポート。初期化子リストから各要素を挿入して、マップにシーケンスを挿入します。挿入順序または並列に実行するかどうかは指定できません。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>現在の実装は、挿入を順番に処理します。将来の実装では、挿入を並列に処理できるようになる可能性があります。初期化子リストに重複キーがある場合は、挿入順序に依存しないように注意してください。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d24982e141 "><span class="keyword">bool erase( const Key&amp; key )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d24982e143 "><p>指定されたキーを含むペアがあるかテーブルを検索します。ペアがある場合、一致するペアを削除します。ペアを指しているアクセサーがある場合もペアはテーブルから削除されますが、すべてのアクセサーが参照を停止するまで削除が保留されます。</p>
+<p><strong>戻り値</strong>: 呼び出しによりペアが削除された場合は true。キーがマップにない場合は false。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d24982e141 "><span class="keyword">bool erase( const_accessor&amp; item_accessor )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d24982e143 "><p><strong>要件</strong>: <samp class="codeph"><em>item_accessor</em>.empty()==false</samp></p>
+<p><strong>効果</strong></p>
+<p><samp class="codeph"><em>item_accessor</em></samp> で参照されるペアを削除します。別の <span class="keyword">const_accessor</span> が<span class="keyword">ペア</span>を指している場合も<span class="keyword">ペア</span>はテーブルから削除されますが、すべての<span class="keyword">アクセサー</span>が参照を停止するまで削除が保留されます。同時に同じキーの挿入を行うと、テーブルに新しい<span class="keyword">ペア</span>が作成され、削除されるペアと一時的に共存できます。</p>
+<p><strong>戻り値</strong>: このスレッドでペアが削除された場合は true。別のスレッドでペアが削除された場合は false。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d24982e141 "><span class="keyword"> bool erase( accessor&amp; item_accessor )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d24982e143 "><p><strong>要件</strong>: <samp class="codeph"><em>item_accessor</em>.empty()==false</samp></p>
+<p><strong>効果</strong>: <samp class="codeph"><em>item_accessor</em></samp> で参照されるペアをテーブルから削除し、破棄します。同時に同じキーの挿入を行うと、テーブルに新しい<span class="keyword">ペア</span>が作成され、削除されるペアと一時的に共存できます。</p>
+<p><strong>戻り値</strong>: このスレッドでペアが削除された場合は true。別のスレッドでペアが削除された場合は false。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/containers_overview/concurrent_hash_map_cls.html">concurrent_hash_map テンプレート・クラス</a></div>
+</div>
+<div/>
+</body>
+</html>

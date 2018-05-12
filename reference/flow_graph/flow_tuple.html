@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="flow::tuple テンプレート・クラス"/>
+<meta name="DC.subject" content="flow::tuple"/>
+<meta name="keywords" content="flow::tuple"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/flow_graph.html"/>
+<meta name="DC.Relation" scheme="URI" content="join_node_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="multifunc_node_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="split_node_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="indexer_node_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="composite_node_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="flow_tuple"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>flow::tuple テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="flow_tuple">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">flow::tuple テンプレート・クラス</h1>
+<div><p>一部のノードは、ほかのメッセージを組み合わせたメッセージを作成または使用します。これをサポートするため、<samp class="codeph">flow::tuple</samp> テンプレート・クラスがフローの一部として追加されています。タプルを使用してポートを管理するノードは、<span class="keyword">join_node</span>、<span class="keyword">multifunction_node</span>、<span class="keyword">split_node</span>、<span class="keyword">indexer_node</span> および <span class="keyword">composite_node</span> です。タプルの送受信を行うノードは、<span class="keyword">join_node</span> および <span class="keyword">split_node</span> です。</p>
+<p><samp class="codeph">tuple</samp> クラスは C++11 標準の一部で、標準ライブラリーの初期実装に <samp class="codeph">tuple</samp> クラスが含まれている可能性があります。標準ライブラリーに <samp class="codeph">std::tuple</samp> が含まれている場合、<samp class="codeph">flow::tuple</samp> は <samp class="codeph">std::tuple</samp> として型定義されます。</p>
+<p>標準ライブラリーに <samp class="codeph">tuple</samp> が含まれていない場合、次の <samp class="codeph">std::tuple</samp> 機能をサポートする実装が使用されます。<ul><li>構築、コピー、および破棄</li>
+<li>代入</li>
+<li><samp class="codeph">get&lt;I&gt;(tuple)</samp> (<samp class="codeph">tuple</samp> の i 番目の要素。要素はゼロから始まる。)</li>
+<li><samp class="codeph">tuple_element&lt;I,T&gt;::type</samp> (タプル型 <samp class="codeph">T</samp> の i 番目の要素の型)</li>
+<li><samp class="codeph">tuple_size&lt;T&gt;::value</samp> (タプル型 <samp class="codeph">T</samp> の要素数)</li>
+</ul>
+</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p><samp class="codeph">flow</samp> の以前のリリースでは、<samp class="codeph">flow</samp> の <samp class="codeph">tuple</samp> 実装を <samp class="codeph">std::</samp> 名前空間に追加していました。標準ライブラリーの一部として <samp class="codeph">std::tuple</samp> を実装していないコンパイラーとの互換性を保持するため、<samp class="codeph">flow</samp> の <samp class="codeph">std::tuple</samp> への参照は <samp class="codeph">flow::tuple</samp> に変更すべきです。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/flow_graph.html">フローグラフ</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="join_node_cls.html">join_node テンプレート・クラス</a></div>
+<div><a href="multifunc_node_cls.html">multifunction_node テンプレート・クラス</a></div>
+<div><a href="split_node_cls.html">split_node テンプレート・クラス</a></div>
+<div><a href="indexer_node_cls.html">indexer_node テンプレート・クラス</a></div>
+<div><a href="composite_node_cls.html">composite_node テンプレート・クラス</a></div></div></div>
+</body>
+</html>

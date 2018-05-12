@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="入れ子のフローグラフの使用"/>
+<meta name="DC.subject" content="フローグラフのヒント, 入れ子のフローグラフの使用, 入れ子のフローグラフ"/>
+<meta name="keywords" content="フローグラフのヒント, 入れ子のフローグラフの使用, 入れ子のフローグラフ"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Flow_Graph_nested_parallelism_tips.html"/>
+<meta name="DC.Relation" scheme="URI" content="use_nested_algorithms.html#use_nested_algorithms"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="use_nested_flow_graphs"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>入れ子のフローグラフの使用</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="use_nested_flow_graphs">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">入れ子のフローグラフの使用</h1>
+<div><p>フローグラフのノード内部のアルゴリズムを入れ子にすることに加えて、フローグラフを入れ子にすることもできます。例えば、次のグラフ <span class="keyword">g</span> には、<span class="keyword">a</span> と <span class="keyword">b</span> の 2 つのノードがあります。ノード a はメッセージを受け取ると、内部依存関係グラフを構築して実行します。ノード b はメッセージを受け取ると、内部データフロー・グラフを構築して実行します。</p>
+<pre>	graph g;
+	function_node&lt; int, int &gt; a( g, unlimited, []( int i ) -&gt; int {
+		graph h;
+		node_t n1( h, [=]( msg_t ) { cout &lt;&lt; "n1: " &lt;&lt; i &lt;&lt; "\n"; } );
+		node_t n2( h, [=]( msg_t ) { cout &lt;&lt; "n2: " &lt;&lt; i &lt;&lt; "\n"; } );
+		node_t n3( h, [=]( msg_t ) { cout &lt;&lt; "n3: " &lt;&lt; i &lt;&lt; "\n"; } );
+		node_t n4( h, [=]( msg_t ) { cout &lt;&lt; "n4: " &lt;&lt; i &lt;&lt; "\n"; } );
+		make_edge( n1, n2 );
+		make_edge( n1, n3 );
+		make_edge( n2, n4 );
+		make_edge( n3, n4 );
+		n1.try_put(continue_msg());
+		h.wait_for_all();
+		return i;
+	} );
+	function_node&lt; int, int &gt; b( g, unlimited, []( int i ) -&gt; int {
+		graph h;
+		function_node&lt; int, int &gt; m1( h, unlimited, []( int j ) -&gt; int {
+			cout &lt;&lt; "m1: " &lt;&lt; j &lt;&lt; "\n";
+			return j;
+		} );
+		function_node&lt; int, int &gt; m2( h, unlimited, []( int j ) -&gt; int {
+			cout &lt;&lt; "m2: " &lt;&lt; j &lt;&lt; "\n";
+			return j;
+		} );
+		function_node&lt; int, int &gt; m3( h, unlimited, []( int j ) -&gt; int {
+			cout &lt;&lt; "m3: " &lt;&lt; j &lt;&lt; "\n";
+			return j;
+		} );
+		function_node&lt; int, int &gt; m4( h, unlimited, []( int j ) -&gt; int {
+			cout &lt;&lt; "m4: " &lt;&lt; j &lt;&lt; "\n";
+			return j;
+		} );
+		make_edge( m1, m2 );
+		make_edge( m1, m3 );
+		make_edge( m2, m4 );
+		make_edge( m3, m4 );
+		m1.try_put(i);
+		h.wait_for_all();
+		return i;
+	} );
+	make_edge( a, b );
+	for ( int i = 0; i &lt; 3; ++i ) {
+		a.try_put(i);
+	}
+	g.wait_for_all();
+</pre><p>入れ子のグラフがノードの呼び出し間でその構造が変わらない場合、毎回グラフを構築することは冗長です。グラフの再構築は実行のオーバーヘッドを増やすだけです。例えば、ノード <span class="keyword">b</span> が呼び出し間で同じグラフを再利用するように上記の例を変更できます。 
+	 </p>
+<pre>	graph h;
+	function_node&lt; int, int &gt; m1( h, unlimited, []( int j ) -&gt; int {
+		cout &lt;&lt; "m1: " &lt;&lt; j &lt;&lt; "\n";
+		return j;
+	} );
+	function_node&lt; int, int &gt; m2( h, unlimited, []( int j ) -&gt; int {
+		cout &lt;&lt; "m2: " &lt;&lt; j &lt;&lt; "\n";
+		return j;
+	} );
+	function_node&lt; int, int &gt; m3( h, unlimited, []( int j ) -&gt; int {
+		cout &lt;&lt; "m3: " &lt;&lt; j &lt;&lt; "\n";
+		return j;
+	} );
+	function_node&lt; int, int &gt; m4( h, unlimited, []( int j ) -&gt; int {
+		cout &lt;&lt; "m4: " &lt;&lt; j &lt;&lt; "\n";
+		return j;
+	} );
+	make_edge( m1, m2 );
+	make_edge( m1, m3 );
+	make_edge( m2, m4 );
+	make_edge( m3, m4 );
+
+	graph g;
+	function_node&lt; int, int &gt; a( g, unlimited, []( int i ) -&gt; int {
+		graph h;
+		node_t n1( h, [=]( msg_t ) { cout &lt;&lt; "n1: " &lt;&lt; i &lt;&lt; "\n"; } );
+		node_t n2( h, [=]( msg_t ) { cout &lt;&lt; "n2: " &lt;&lt; i &lt;&lt; "\n"; } );
+		node_t n3( h, [=]( msg_t ) { cout &lt;&lt; "n3: " &lt;&lt; i &lt;&lt; "\n"; } );
+		node_t n4( h, [=]( msg_t ) { cout &lt;&lt; "n4: " &lt;&lt; i &lt;&lt; "\n"; } );
+		make_edge( n1, n2 );
+		make_edge( n1, n3 );
+		make_edge( n2, n4 );
+		make_edge( n3, n4 );
+		n1.try_put(continue_msg());
+		h.wait_for_all();
+		return i;
+	} );
+	function_node&lt; int, int &gt; b( g, unlimited, [&amp;]( int i ) -&gt; int {
+		m1.try_put(i);
+		h.wait_for_all(); // h は破棄されないため、これはオプション
+		return i;
+	} );
+	make_edge( a, b );
+	for ( int i = 0; i &lt; 3; ++i ) {
+		a.try_put(i);
+	}
+	g.wait_for_all();
+</pre><p>内部グラフが完了するまで b のボディーをブロックする場合は、変更後のコードで <span class="keyword">b</span> のボディーの呼び出しの最後に <span class="keyword">h.wait_for_all()</span> を呼び出す必要があります。<span class="keyword">b</span> の最初の実装では、グラフがスコープの最後で破棄されていたため、各呼び出しの最後に <span class="keyword">h.wait_for_all</span> を呼び出す必要がありました。上記の b のボディーでは、<span class="keyword">m1.try_put(i)</span> を呼び出した後、<span class="keyword">h</span> がアイドル状態になるのを待つことなくリターンできます。 
+	 </p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Flow_Graph_nested_parallelism_tips.html">入れ子の並列処理におけるフローグラフのヒント</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="use_nested_algorithms.html#use_nested_algorithms">入れ子のアルゴリズムを使用したスケーラビリティーの向上</a></div></div></div>
+</body>
+</html>

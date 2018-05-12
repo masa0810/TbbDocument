@@ -1,0 +1,276 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="gfx_factory クラス"/>
+<meta name="DC.subject" content="gfx_factory クラス"/>
+<meta name="keywords" content="gfx_factory クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../../reference/appendices/preview_features/flow_graph_features.html"/>
+<meta name="DC.Relation" scheme="URI" content="streaming_node_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="gfx_factory_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../../intel_css_styles.css"/>
+<title>gfx_factory クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="gfx_factory_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(4);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">gfx_factory クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p><samp class="codeph">gfx_factory</samp> クラスは、インテル&reg; TBB ベースのプログラムの汎用計算でインテル&reg; グラフィックス・テクノロジーの使用を簡略化する、<samp class="codeph">streaming_node</samp> の Factory コンセプトを実装します。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p><samp class="codeph">gfx_factory</samp> の現在の実装は、メモリー・バッファー・オブジェクトを同時に使用することを許可していません。そのため、<samp class="codeph">gfx_factory</samp> でカスタマイズされた複数のストリーミング・ノードを互いに接続することはできません。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>
+class gfx_factory;
+</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>
+#define TBB_PREVIEW_FLOW_GRAPH_NODES 1
+#define TBB_PREVIEW_FLOW_GRAPH_FEATURES 1
+#include "tbb/gfx_factory.h"
+</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">gfx_factory</samp> は、インテル&reg; TBB フローグラフからインテル&reg; プロセッサー・グラフィックスの低レベルの機能を使用した処理 (ターゲットへの入力データをアップロードして、ターゲットでカーネルを実行し、結果をグラフへ返す) を行います。</p>
+<p><samp class="codeph">gfx_factory</samp> は、インテル&reg; C++ コンパイラーで提供される API の上に実装され、キューに追加されたユーザー定義のカーネル関数のオフロード、および CPU とプロセッサー・グラフィックス間のデータ共有を制御します。<samp class="codeph">gfx_factory</samp> を使用するには、インテル&reg; C++ コンパイラー 16.0 以降が必要です。</p>
+<p>API の詳細は、『インテル&reg; C++ コンパイラー 18.0 デベロッパー・ガイドおよびリファレンス』の<strong>「最適化およびプログラミング・ガイド」 &gt; 「インテル&reg; グラフィックス・テクノロジー」 &gt; 「インテル&reg; グラフィックス・テクノロジー向けのプログラミング」 &gt; 「概要: API ベースのオフロード」</strong>を参照してください。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">カーネル関数</h2><p><samp class="codeph">gfx_factory</samp> とともに使用するカーネル関数は、インテル&reg; Cilk&#8482; Plus を使用して記述されたデータ並列セクションを含む個別のユーザー定義関数です。関数は、プロセッサー・グラフィックス実行のカーネル・エントリー・ポイントに変換される <samp class="codeph">__declspec(target(gfx_kernel))</samp> で注釈を付ける必要があります。</p>
+<p><strong>サンプル</strong></p>
+<pre>
+static __declspec(target(gfx_kernel))
+void vector_square(int *v, size_t n) {
+    cilk_for(size_t i = 0; i &lt; n; ++i) {
+        v[i] = v[i] * v[i];
+    }
+}
+</pre></div>
+<div class="section"><h2 class="sectiontitle">GFX バッファー</h2><p><samp class="codeph">gfx_factory</samp> は、データ配列の抽象化である <samp class="codeph">gfx_buffer</samp> テンプレート・クラスを使用します。このクラスは、計算オフロードカーネルがプロセッサー・グラフィックスで実行されている間、ホストとターゲット間でデータ配列を共有する処理を行います。</p>
+<pre>
+template &lt;typename T&gt;
+class gfx_buffer {
+public:
+
+  typedef <em>implementation-defined</em> iterator;
+  typedef <em>implementation-defined</em> const_iterator;
+
+  typedef std::size_t size_type;
+
+  gfx_buffer();
+  gfx_buffer(size_type size);
+
+  T* data();
+  const T* data() const;
+
+  size_type size() const;
+
+  const_iterator cbegin() const;
+  const_iterator cend() const;
+  iterator begin();
+  iterator end();
+
+  T&amp; operator[](size_type pos);
+  const T&amp; operator[](size_type pos) const;
+};
+</pre><p>次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl1" width="100%" frame="hsides" border="1" rules="all"><thead align="left"><tr><th class="cellrowborder" valign="top" id="d16222e106"><p>メンバー</p>
+</th>
+<th class="row-nocellborder" valign="top" id="d16222e109"><p>説明</p>
+</th>
+</tr>
+</thead>
+<tbody><tr valign="top"><td class="cellrowborder" valign="top" headers="d16222e106 "><p><samp class="codeph">iterator;</samp></p>
+<p><samp class="codeph">const_iterator;</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d16222e109 "><p>実装により定義されるイテレーター型。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d16222e106 "><p><samp class="codeph">gfx_buffer();</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d16222e109 "><p>空の gfx_buffer を作成するコンストラクター。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d16222e106 "><p><samp class="codeph">gfx_buffer(size_type size);</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d16222e109 "><p>特定サイズの gfx_buffer を作成するコンストラクター。要素は <samp class="codeph">T()</samp> を呼び出して初期化される値です。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d16222e106 "><p><samp class="codeph">T* data();</samp></p>
+<p><samp class="codeph">const T* data() const;</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d16222e109 "><p>データ格納配列のポインターを返します。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d16222e106 "><p><samp class="codeph">size_type size() const;</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d16222e109 "><p>バッファーの要素の数を返します。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d16222e106 "><p><samp class="codeph">iterator begin();</samp></p>
+<p><samp class="codeph">const_iterator cbegin() const;</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d16222e109 "><p>コンテナーの最初の要素のイテレーターを返します。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d16222e106 "><p><samp class="codeph">iterator end();</samp></p>
+<p><samp class="codeph">const_iterator cend() const;</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d16222e109 "><p>コンテナーの最後の要素に続く要素のイテレーターを返します。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d16222e106 "><p><samp class="codeph">T&amp; operator[](size_type pos);</samp></p>
+<p><samp class="codeph">const T&amp; operator[](size_type pos) const;</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d16222e109 "><p>指定した位置の要素の参照を返します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">Device Selector</h2><p><samp class="codeph">streaming_node</samp> には、特定の計算をオフロードするデバイスを選択するファンクター (Device Selector) が必要です。しかし、基本的な API はインテル&reg; プロセッサー・グラフィックスでのみ動作するため、特定のデバイスを選択するオプションはありません。このため、Factory により提供されるダミーの Device Selector、<samp class="codeph">gfx_factory::dummy_device_selector()</samp> を使用する必要があります。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>次のコードは、単純なベクトル 2 乗のサンプルです。</p>
+<pre>
+#include &lt;iostream&gt;
+
+#include &lt;cilk/cilk.h&gt;
+
+#include "tbb/flow_graph.h"
+#include "tbb/gfx_factory.h"
+
+static __declspec(target(gfx_kernel))
+void vector_square(int *v, size_t n) {
+    cilk_for(size_t i = 0; i &lt; n; ++i) {
+        v[i] = v[i] * v[i];
+    }
+}
+
+int main() {
+    using namespace tbb::flow;
+
+    typedef tuple&lt; gfx_buffer&lt;int&gt;, size_t &gt; kernel_args;
+    typedef streaming_node&lt; kernel_args, queueing, gfx_factory &gt; gfx_node;
+
+    graph g;
+    gfx_factory factory(g);
+
+    gfx_node squaring(g, vector_square, gfx_factory::dummy_device_selector(), factory);
+
+
+    function_node&lt; gfx_buffer&lt;int&gt; &gt; 
+        validation(g, unlimited, 
+            [](const gfx_buffer&lt;int&gt;&amp; buffer) {
+                bool is_correct = std::all_of(buffer.cbegin(), buffer.cend(),
+                                                  [](int i) {return i == 4; });
+                if (is_correct) {
+                    std::cout &lt;&lt; "結果は正しい"  &lt;&lt; std::endl;
+                }
+            });
+
+    make_edge(output_port&lt;0&gt;(squaring), validation);
+
+    const size_t array_size = 1000000;
+    gfx_buffer&lt;int&gt; buffer(array_size);
+    std::fill(buffer.begin(), buffer.end(), 2);
+
+    squaring.set_args(port_ref&lt;0, 1&gt;);
+    input_port&lt;0&gt;(squaring).try_put(buffer);
+    input_port&lt;1&gt;(squaring).try_put(array_size);
+
+    g.wait_for_all();
+}
+</pre></div>
+<div class="section"><h2 class="sectiontitle">パブリックメンバー</h2><p><samp class="codeph">gfx_factory</samp> クラスは、<samp class="codeph">streaming_node</samp> で定義される Factory コンセプトを実装します。</p>
+<p>詳細は、<samp class="codeph">streaming_node</samp> の説明を参照してください。</p>
+<pre>
+namespace tbb {
+namespace flow {
+
+class gfx_factory {
+public:
+
+  typedef <em>implementation-defined</em> device_type;
+  typedef <em>implementation-defined</em> kernel_type;
+
+  gfx_factory(tbb::flow::graph&amp; g);
+
+  template &lt;typename ...Args&gt;
+  void send_data(device_type device, Args&amp;... args);
+
+  template &lt;typename ...Args&gt;
+  void send_kernel(device_type device, const kernel_type&amp; kernel, Args&amp;... args);
+
+  template &lt;typename FinalizeFn, typename ...Args&gt;
+  void finalize(device_type device, FinalizeFn fn, Args&amp;... args);
+
+  class dummy_device_selector;
+};
+
+}
+}
+</pre><p>次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl2" width="100%" frame="hsides" border="1" rules="all"><thead align="left"><tr><th class="cellrowborder" valign="top" id="d16222e243"><p>メンバー</p>
+</th>
+<th class="row-nocellborder" valign="top" id="d16222e246"><p>説明</p>
+</th>
+</tr>
+</thead>
+<tbody><tr valign="top"><td class="cellrowborder" valign="top" headers="d16222e243 "><p><samp class="codeph">device_type;</samp></p>
+<p><samp class="codeph">kernel_type;</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d16222e246 "><p>実装により定義される型。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d16222e243 "><p><samp class="codeph">gfx_factory(tbb::flow::graph&amp; g);</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d16222e246 "><p>メイン・コンストラクター。グラフとデバイス間の同期のためにグラフの参照を格納します。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d16222e243 "><p><samp class="codeph">template &lt;typename ...Args&gt;</samp></p>
+<p><samp class="codeph">void send_data(device_type device, Args&amp;... args);</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d16222e246 "><p>デバイスとデータを共有します。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d16222e243 "><p><samp class="codeph">template &lt;typename ...Args&gt;</samp></p>
+<p><samp class="codeph">void send_kernel(device_type device, const kernel_type&amp; kernel, Args&amp;... args);</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d16222e246 "><p>カーネルをインオーダー・オフロード・キューに入れます。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d16222e243 "><p><samp class="codeph">template &lt;typename FinalizeFn, typename ...Args&gt;</samp></p>
+<p><samp class="codeph">void finalize(device_type device, FinalizeFn fn, Args&amp;... args);</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d16222e246 "><p>ノードのサクセサーが存在しない場合、カーネル実行をファイナライズします。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d16222e243 "><p><samp class="codeph">class dummy_device_selector;</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d16222e246 "><p>ダミーのデバイス・セレクター・ファンクター。<samp class="codeph">streaming_node</samp> コンストラクターに渡す必要があります。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../../reference/appendices/preview_features/flow_graph_features.html">フローグラフ</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="streaming_node_cls.html">streaming_node</a></div></div></div>
+</body>
+</html>

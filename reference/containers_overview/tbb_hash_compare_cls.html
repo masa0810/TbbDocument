@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="tbb_hash_compare クラスと tbb_hash クラス"/>
+<meta name="DC.subject" content="tbb_hash_compare クラス, tbb_hash クラス"/>
+<meta name="keywords" content="tbb_hash_compare クラス, tbb_hash クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/containers_overview.html"/>
+<meta name="DC.Relation" scheme="URI" content="concurrent_hash_map_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="concurrent_unordered_map_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="concurrent_unordered_set_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tbb_hash_compare_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>tbb_hash_compare クラスと tbb_hash クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tbb_hash_compare_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">tbb_hash_compare クラスと tbb_hash クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>インテル&reg; TBB によって提供される結合コンテナー用のハッシュ・サポート・クラス。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><p><pre>template&lt;typename Key&gt; struct tbb_hash_compare;
+template&lt;typename Key&gt; struct tbb_hash;
+</pre></p>
+</div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">tbb_hash_compare&lt;Key&gt;</samp> は、<samp class="codeph">concurrent_hash_map</samp> テンプレート・クラスの <samp class="codeph">HashCompare</samp> 引数のデフォルトです。<samp class="codeph">tbb_hash&lt;Key&gt;</samp> は、<samp class="codeph">concurrent_unordered_[multi]map</samp> および <samp class="codeph">concurrent_unordered_[multi]set</samp> テンプレート・クラスの <samp class="codeph">Hasher</samp> 引数のデフォルトです。メンバーの説明で示すように、ビルトインの定義は <samp class="codeph">operator==</samp> と <samp class="codeph">tbb_hasher</samp> に依存します。独自の型で、<samp class="codeph">tbb_hash_compare</samp> や <samp class="codeph">tbb_hash</samp> テンプレートの特殊化、または <samp class="codeph">tbb_hasher</samp> のオーバーロードを定義できます。</p>
+<p>次の Key 型については、<samp class="codeph">tbb_hasher</samp> のビルトインの定義があります。</p>
+<ul><li><p><samp class="codeph">static_cast&lt;T&gt;</samp> で <samp class="codeph">size_t</samp> に変換可能な型</p>
+</li>
+<li><p>ポインター型</p>
+</li>
+<li><p><samp class="codeph">std::basic_string</samp></p>
+</li>
+<li><p><samp class="codeph">std::pair&lt;<em>K1,K2</em>&gt;</samp> (<samp class="codeph"><em>K1</em></samp> および <samp class="codeph"><em>K2</em></samp> は <samp class="codeph">tbb_hasher</samp> を使用してハッシュされる)</p>
+</li>
+</ul>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+    template&lt;typename T&gt; 
+    size_t tbb_hasher(const T&amp;);
+
+    template&lt;typename T&gt; 
+    size_t tbb_hasher(T*);
+
+    template&lt;typename T, typename Traits, typename Alloc&gt;
+    size_t tbb_hasher(const std::basic_string&lt;T, Traits,Alloc&gt;&amp;);
+
+    template&lt;typename T1, typename T2&gt;
+    size_t tbb_hasher(const std::pair&lt;T1,T2&gt;&amp; );
+
+    template&lt;typename Key&gt;
+    struct tbb_hash_compare {
+        static size_t hash(const Key&amp; k) {
+            return tbb_hasher(k);
+        }
+        static bool equal(const Key&amp; k1, const Key&amp; k2) {
+            return k1==k2;
+        }
+    };
+
+    template&lt;typename Key&gt;
+    struct tbb_hash {
+        tbb_hash() {}
+        size_t operator()(const Key&amp; k) const {
+            return tbb_hasher(k);
+        }
+    };
+}</pre></div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/containers_overview.html">コンテナーの概要</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="concurrent_hash_map_cls.html">concurrent_hash_map テンプレート・クラス</a></div>
+<div><a href="concurrent_unordered_map_cls.html">concurrent_unordered_map テンプレート・クラスと concurrent_unordered_multimap テンプレート・クラス</a></div>
+<div><a href="concurrent_unordered_set_cls.html">concurrent_unordered_set テンプレート・クラスと concurrent_unordered_multiset テンプレート・クラス</a></div></div></div>
+</body>
+</html>

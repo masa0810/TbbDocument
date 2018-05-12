@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="C++03 モードで atomic&lt;T&gt; にコンストラクターがない理由"/>
+<meta name="DC.subject" content="atomic&lt;T&gt; コンストラクター, コンストラクター, atomic&lt;T&gt;"/>
+<meta name="keywords" content="atomic&lt;T&gt; コンストラクター, コンストラクター, atomic&lt;T&gt;"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Atomic_Operations.html"/>
+<meta name="DC.Relation" scheme="URI" content="Atomic_Operations.html#tutorial_Atomic_Operations"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Why_atomic_T_Has_No_Constructors"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>C++03 モードで atomic&lt;T&gt; にコンストラクターがない理由</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Why_atomic_T_Has_No_Constructors">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">C++03 モードで atomic&lt;T&gt; にコンストラクターがない理由</h1>
+<div><p>C++03 モードでは、<samp class="codeph">atomic&lt;<var>T</var>&gt;</samp> テンプレート・クラスには意図的にコンストラクターが用意されていません。これは、「アトミック操作」セクションの <samp class="codeph">GetUniqueInteger</samp> の例のように、すべてのファイルスコープ・コンストラクターが呼び出される前であっても、正常に動作する必要があるためです。<samp class="codeph">atomic&lt;<var>T</var>&gt;</samp> にコンストラクターがあると、ファイルスコープ・インスタンスが参照された後で初期化される可能性があります。</p>
+<p>コンストラクターのない C++ クラスでは、<samp class="codeph">atomic&lt;<var>T</var>&gt;</samp> 型のオブジェクト <var>X</var> は、次のコンテキストで自動的にゼロに初期化されます。</p>
+<ul><li><p><var>X</var> は、ファイルスコープ変数またはクラスのスタティック・データ・メンバーとして宣言されている</p>
+</li>
+<li><p><span class="keyword">x</span> はクラスのメンバーで、コンストラクターの初期化子リストに明示的にリストされている</p>
+</li>
+</ul>
+<p>下記のコードは、これらのポイントを示しています。</p>
+<pre>atomic&lt;int&gt; x;  // ファイルスコープにあるためゼロで初期化
+ 
+class Foo {
+    atomic&lt;int&gt; y;
+    atomic&lt;int&gt; notzeroed;
+    static atomic&lt;int&gt; z;
+public:
+    Foo() :
+        y()     // y をゼロで初期化
+    {
+        // ゼロでない場合は無指定の値がある
+    }
+};
+ 
+atomic&lt;int&gt; Foo::z; // スタティック・メンバーであるためゼロで初期化</pre><p>C++11 モードでは、<samp class="codeph">atomic&lt;<var>T</var>&gt;</samp> テンプレート・クラスには 2 つのコンストラクターが用意されています。 
+	 </p>
+<ul><li><p><samp class="codeph">atomic() = default;</samp> コンパイラーによって生成されるデフォルト・コンストラクター。このコンストラクターは、ユーザー定義コンストラクターが何も宣言されていない場合と同じように動作します。このコンストラクターは、C++03 モードとの後方互換性があります (グローバル・オブジェクトのゼロ初期化など)。</p>
+</li>
+<li><p><samp class="codeph">constexpr atomic(<var>T</var> arg);</samp> このコンストラクターは、引数が変換時定数の場合、変換時にアトミック変数を初期化します。その他の場合、初期化は実行時に行われます。</p>
+</li>
+</ul>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Atomic_Operations.html">アトミック操作</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Atomic_Operations.html#tutorial_Atomic_Operations">アトミック操作</a></div></div></div>
+</body>
+</html>

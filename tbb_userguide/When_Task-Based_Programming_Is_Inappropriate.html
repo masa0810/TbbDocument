@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="タスクベースのプログラミングが適切ではない場合"/>
+<meta name="DC.subject" content="タスクベースのプログラミングが適切ではない場合"/>
+<meta name="keywords" content="タスクベースのプログラミングが適切ではない場合"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/The_Task_Scheduler.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_When_Task-Based_Programming_Is_Inappropriate"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>タスクベースのプログラミングが適切ではない場合</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_When_Task-Based_Programming_Is_Inappropriate">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">タスクベースのプログラミングが適切ではない場合</h1>
+<div><p>タスク・スケジューラーの使用は、パフォーマンスの向上を目的としたスレッド化のアプローチとしては最も優れた方法ですが、内蔵のタスク・スケジューラーを使用することが適切でない場合もあります。タスク・スケジューラーは、非ブロックタスクで構成されるハイパフォーマンスなアルゴリズム用ですが、まれにタスクがブロックする場合でも動作します。ただし、スレッドが頻繁にブロックする場合、スレッドがブロックされている間は何も行えないため、タスク・スケジューラーを使用する際にパフォーマンス・ロスが発生します。ブロックは、長い間 I/O や mutex を待つことで発生します。1 つのスレッドが長い間 mutex を保持する場合、ほかに多くのスレッドがあったとしてもコードのパフォーマンスは向上しません。ブロックタスクがある場合は、必要な条件を備えたスレッドを使用すると良いでしょう。タスク・スケジューラーは、作成したスレッドとインテル&reg; TBB のタスクを安全に混在使用できるように設計されています。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/The_Task_Scheduler.html">タスク・スケジューラー</a></div>
+</div>
+<div/>
+</body>
+</html>

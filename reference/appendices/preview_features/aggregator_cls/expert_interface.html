@@ -1,0 +1,154 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="aggregator クラスの高度なインターフェイス"/>
+<meta name="DC.subject" content="aggregator クラスの高度なインターフェイス"/>
+<meta name="keywords" content="aggregator クラスの高度なインターフェイス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../../reference/appendices/preview_features/aggregator_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="basic_interface.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="expert_interface"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../../intel_css_styles.css"/>
+<title>aggregator クラスの高度なインターフェイス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="expert_interface">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(4);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">aggregator クラスの高度なインターフェイス</h1>
+<div><div class="section"><h2 class="sectiontitle">構文</h2><pre>template&lt;typename handler_type&gt;
+class aggregator_ext;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#define TBB_PREVIEW_AGGREGATOR 1
+#include "tbb/aggregator.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">aggregator</samp> の高度な使用のために、拡張 <samp class="codeph">aggregator</samp> インターフェイスが提供されています。このインターフェイスを使用することで、<samp class="codeph">aggregator</samp> に渡される操作と <samp class="codeph">aggregator</samp> での処理方法をより細かく制御できます。特に、特定の関数を <samp class="codeph">execute</samp> メソッドを使用して渡す代わりに、(<samp class="codeph">aggregator_operation</samp> から派生した) どのようなデータでも渡すことができる <samp class="codeph">process</samp> メソッドがあります (詳細は以下を参照)。さらに、ユーザーは、<samp class="codeph">process</samp> メソッドで渡されたデータによって指定された操作を実行するカスタム関数オブジェクトを指定する必要があります。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+  class aggregator_operation {
+   public:
+    enum aggregator_operation_status {agg_waiting=0,agg_finished};
+    aggregator_operation();
+    void start();
+    void finish();
+    aggregator_operation* next();
+    void set_next(aggregator_operation* n);
+  };
+
+  template&lt;typename handler_type&gt;
+  class aggregator_ext {
+   public:
+    aggregator_ext(const handler_type&amp; h);
+    void process(aggregator_operation *op);
+  };
+}</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このクラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d14245e70">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d14245e72">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d14245e70 "><span class="keyword">aggregator_ext(const handler_type&amp; h)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d14245e72 "><p>操作の処理にハンドラー <span class="keyword">h</span> を使用する <span class="keyword">aggregator_ext</span> オブジェクトを構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d14245e70 "><span class="keyword">void process(aggregator_operation* op)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d14245e72 "><p>互いに排他的に実行されるように <span class="keyword">op</span> の操作に関するデータを <span class="keyword">aggregator_ext</span> に渡します。<span class="keyword">op</span> の処理が完了するとリターンします。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d14245e70 "><span class="keyword">aggregator_operation::aggregator_operation()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d14245e72 "><p>基本 <span class="keyword">aggregator_operation</span> オブジェクトを構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d14245e70 "><span class="keyword">void aggregator_operation::start()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d14245e72 "><p>処理するための <span class="keyword">aggregator_operation</span> オブジェクトを準備します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d14245e70 "><span class="keyword">void aggregator_operation::finish()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d14245e72 "><p>オリジナルのスレッドへ解放するために <span class="keyword">aggregator_operation</span> オブジェクトを準備をします。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d14245e70 "><span class="keyword">aggregator_operation* aggregator_operation::next()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d14245e72 "><p><span class="keyword">this</span> の次の <span class="keyword">aggregator_operation</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d14245e70 "><span class="keyword">void aggregator_operation::set_next(aggregator_operation* n)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d14245e72 "><p><span class="keyword">n</span> を <span class="keyword">this</span> の次の <span class="keyword">aggregator_operation</span> にします。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>次のサンプルは、<samp class="codeph">aggregator_ext</samp> を使用して、コンカレントでない <samp class="codeph">std::priority_queue</samp> コンテナーを安全に処理します。</p>
+<pre>typedef priority_queue&lt;value_type, vector&lt;value_type&gt;, compare_type&gt; pq_t;
+pq_t my_pq;
+value_type elem = 42;
+
+// aggregator_node から派生したデータ
+class op_data : public aggregator_node
+ public:
+  value_type* elem;
+  bool success, is_push;
+  op_data(value_type* e, bool push=false) : 
+    elem(e), success(false), is_push(push) {}
+};
+
+// aggregator_ext テンプレートに渡すハンドラー
+class my_handler_t {
+  pq_t *pq;
+ public:
+  my_handler_t() {}
+  my_handler_t(pq_t *pq_) : pq(pq_) {}
+  void operator()(aggregator_node* op_list) {
+    op_data* tmp;
+    while (op_list) {
+      tmp = (op_data*)op_list;
+      op_list = op_list-&gt;next();
+      tmp-&gt;start();
+      if (tmp-&gt;is_push) pq-&gt;push(*(tmp-&gt;elem));
+      else {
+        if (!pq-&gt;empty()) {
+          tmp-&gt;success = true;
+          *(tmp-&gt;elem) = pq-&gt;top();
+          pq-&gt;pop();
+        }
+      }
+      tmp-&gt;finish();
+    }
+  }
+};
+
+// aggregator_ext を作成してハンドラー・インスタンスで初期化
+aggregator_ext&lt;my_handler_t&gt; my_aggregator(my_handler_t(my_pq));
+
+// 要素をプライオリティー・キューに格納
+op_data my_push_op(&amp;elem, true);
+my_aggregator.process(&amp;my_push_op);
+
+// 要素をプライオリティー・キューから取得
+bool result;
+op_data my_pop_op(&amp;elem);
+my_aggregator.process(&amp;my_pop_op);
+result = my_pop_op.success;</pre><p>このサンプルには、重要な点がいくつかあります。  最も重要なのはハンドラー・アルゴリズムです。上記に合致していなければなりません。  特に、ハンドラーは <samp class="codeph">aggregator_nodes</samp> のリンクリストを受け取り、リスト中のすべてのノードを処理する必要があります。  任意の順序で処理できますが、ハンドラーがリターンする前にすべてのノードが処理されなければなりません。  
+リスト中のすべてのノード操作で、<samp class="codeph">aggregator_node</samp> に対して <samp class="codeph">next</samp> および <samp class="codeph">set_next</samp> メソッドを使用するべきです。</p>
+<p>さらに、<samp class="codeph">aggregator_node</samp> を処理するため、ノードで最初に <samp class="codeph">start</samp> メソッドを呼び出す必要があります。そして、あらゆる方法でノードに関連する操作を処理します。処理が完了したら、ノードで <samp class="codeph">finish</samp> メソッドを呼び出す必要があります。<samp class="codeph">finish</samp> メソッドは、ノードをオリジナルのスレッドに解放し、オリジナルのスレッドによる <samp class="codeph">process</samp> メソッドの呼び出しがリターンします。</p>
+<p>上記のサンプルで使用されている <samp class="codeph">handler</samp> 関数は、このプロセスを最も単純な方法で示しています。各操作を処理するリストを順番にループして、ノードに含まれる情報を処理する前に <samp class="codeph">start</samp> を呼び出し、ノードでの処理が完了したら <samp class="codeph">finish</samp> を呼び出しています。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../../reference/appendices/preview_features/aggregator_cls.html">aggregator クラス</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="basic_interface.html">aggregator クラスの基本インターフェイス</a></div></div></div>
+</body>
+</html>

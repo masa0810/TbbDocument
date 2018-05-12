@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="wait_for_all() を常に使用する"/>
+<meta name="DC.subject" content="フローグラフのヒント, wait_for_all を常に使用, wait_for_all の使用, wait_for_all"/>
+<meta name="keywords" content="フローグラフのヒント, wait_for_all を常に使用, wait_for_all の使用, wait_for_all"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Flow_Graph_waiting_tips.html"/>
+<meta name="DC.Relation" scheme="URI" content="destroy_graphs_outside_main_thread.html#avoid_dynamic_node_removal"/>
+<meta name="DC.Relation" scheme="URI" content="avoid_dynamic_node_removal.html#avoid_dynamic_node_removal"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="always_use_wait4all"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>wait_for_all() を常に使用する</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="always_use_wait4all">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">wait_for_all() を常に使用する</h1>
+<div><p>フローグラフのプログラミングでよくあるミスの 1 つは、<span class="keyword">wait_for_all</span> の呼び出しを忘れることです。<span class="keyword">graph::wait_for_all</span> 関数は、グラフでスポーンされたすべてのタスクが完了するまでブロックします。<span class="keyword">wait_for_all</span> は、計算が完了するまで待つときに便利なだけでなく、グラフやそのノードを破棄する前には呼び出す必要があります。  例えば、次の関数を実行するとプログラムは失敗します。</p>
+<pre>void no_wait_for_all() {
+	graph g;
+	function_node&lt; int, int &gt; f( g, 1, []( int i ) -&gt; int {
+		return spin_for(i);
+	} );
+	f.try_put(1);
+
+	// f のボディーは完了していないため、f と g がスコープの
+	// 最後で破棄されるとプログラムは失敗する
+}
+</pre><p>上記の関数で、グラフ <span class="keyword">g</span> とそのノード <span class="keyword">f</span> は関数のスコープの最後で破棄されます。
+		しかし、<span class="keyword">f</span> のボディーを実行するためにスポーンされたタスクはまだ実行中です。タスクが完了すると、タスクはノードに接続されているサクセサーを探しますが、その前にグラフとノードはどちらも削除されています。関数の最後に <span class="keyword">g.wait_for_all()</span> を置くことで、グラフとノードが先に破棄されなくなります。 
+	 </p>
+<p>フローグラフを使用していて動作がおかしい場合は、<span class="keyword">wait_for_all</span> を呼び出しているかどうかを最初に確認してください。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Flow_Graph_waiting_tips.html">フローグラフの待機と破棄におけるフローグラフのヒント</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="destroy_graphs_outside_main_thread.html#avoid_dynamic_node_removal">メインスレッド外で実行するグラフの破棄</a></div>
+<div><a href="avoid_dynamic_node_removal.html#avoid_dynamic_node_removal">動的なノード削除の回避</a></div></div></div>
+</body>
+</html>

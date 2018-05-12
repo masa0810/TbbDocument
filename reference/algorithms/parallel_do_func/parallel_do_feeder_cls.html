@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="parallel_do_feeder&lt;item&gt; クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/algorithms/parallel_do_func.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="parallel_do_feeder_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>parallel_do_feeder&lt;item&gt; クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="parallel_do_feeder_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">parallel_do_feeder&lt;item&gt; クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><samp class="codeph">parallel_do</samp> にワークアイテムを追加します。</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/parallel_do.h" </pre></div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>template&lt;typename Item&gt; 
+class parallel_do_feeder;
+</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">parallel_do_feeder</samp> は、<samp class="codeph">parallel_do</samp> のボディーを有効にして、ワークアイテムを追加します。</p>
+<p><samp class="codeph">parallel_do</samp> クラスのみが <samp class="codeph">parallel_do_feeder</samp> を作成または破棄できます。ほかのコードは、<samp class="codeph">parallel_do_feeder</samp> に対して <samp class="codeph">parallel_do_feeder::add</samp> メソッドの呼び出しのみ行うことができます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+    template&lt;typename Item&gt;
+    struct parallel_do_feeder {
+        void add( const Item&amp; item );
+        // C++11 からサポート
+        void add( Item&amp;&amp; item );
+    };
+}
+</pre></div>
+<div class="section">
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d1948e62">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d1948e64">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d1948e62 "><span class="keyword">void add( const Item&amp; item )()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d1948e64 "><p><strong>要件</strong>: <samp class="codeph">parallel_do</samp> によって作成された <em>body</em> .<samp class="codeph">operator()</samp> への呼び出しから呼び出されること。その他の場合、<samp class="codeph">operator()</samp> メソッドの終了セマンティクスは未定義です。</p>
+<p><strong>効果</strong>: 処理するワークアイテムのコレクションにアイテムを追加します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d1948e62 "><span class="keyword">void add( Item&amp;&amp; item )()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d1948e64 "><p>C++11 からサポート。上記と同じですが利用可能な場合は <samp class="codeph">Item</samp> の move コンストラクターを使用します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/algorithms/parallel_do_func.html">parallel_do テンプレート関数</a></div>
+</div>
+<div/>
+</body>
+</html>

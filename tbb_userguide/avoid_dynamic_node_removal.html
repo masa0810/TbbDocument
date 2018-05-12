@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="動的なノード削除の回避"/>
+<meta name="DC.subject" content="フローグラフのヒント, 動的なノード削除の回避"/>
+<meta name="keywords" content="フローグラフのヒント, 動的なノード削除の回避"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Flow_Graph_waiting_tips.html"/>
+<meta name="DC.Relation" scheme="URI" content="always_use_wait_for_all.html#always_use_wait4all"/>
+<meta name="DC.Relation" scheme="URI" content="destroy_graphs_outside_main_thread.html#avoid_dynamic_node_removal"/>
+<meta name="DC.Relation" scheme="URI" content="use_make_edge.html#use_make_edge"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="avoid_dynamic_node_removal"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>動的なノード削除の回避</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="avoid_dynamic_node_removal">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">動的なノード削除の回避</h1>
+<div><p>ノードとエッジに関する基本的なガイドラインは次のとおりです。<ul><li><p>動的なノード削除の回避</p>
+</li>
+<li><p>エッジとノードの追加は可能</p>
+</li>
+<li><p>エッジの削除は可能</p>
+</li>
+</ul>
+</p>
+<p>ノードがグラフのメッセージを処理しているときに、フローグラフに新しいノードとエッジを追加したり、フローグラフから古いエッジを削除することは可能です。しかし、ノードの削除は行わないでください。グラフで処理されているメッセージがある場合にグラフやそのノードを破棄すると、グラフのタスクが後で参照するメモリーが先に削除され、プログラムが失敗することがあります。グラフがアイドル状態でないときにノードを削除すると、プログラムが断続的に失敗し、原因の特定が困難になるため、ノードの削除は行うべきではありません。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Flow_Graph_waiting_tips.html">フローグラフの待機と破棄におけるフローグラフのヒント</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="always_use_wait_for_all.html#always_use_wait4all">wait_for_all() を常に使用する</a></div>
+<div><a href="destroy_graphs_outside_main_thread.html#avoid_dynamic_node_removal">メインスレッド外で実行するグラフの破棄</a></div>
+<div><a href="use_make_edge.html#use_make_edge">make_edge と remove_edge の使用</a></div></div></div>
+</body>
+</html>

@@ -1,0 +1,205 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="enumerable_thread_specific テンプレート・クラス"/>
+<meta name="DC.subject" content="enumerable_thread_specific テンプレート・クラス"/>
+<meta name="keywords" content="enumerable_thread_specific テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/thread_local_storage.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/thread_local_storage/enumerable_thread_specific_cls/whole_container_operations_specific_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/thread_local_storage/enumerable_thread_specific_cls/concurrent_operations1.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/thread_local_storage/enumerable_thread_specific_cls/combining.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/thread_local_storage/enumerable_thread_specific_cls/parallel_literation_specific_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/thread_local_storage/enumerable_thread_specific_cls/iterators_specific_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="enumerable_thread_specific_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>enumerable_thread_specific テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="enumerable_thread_specific_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">enumerable_thread_specific テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>スレッド・ローカル・ストレージ用のテンプレート・クラス。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><p><pre>
+enum ets_key_usage_type {
+    ets_key_per_instance,
+    ets_no_key
+};
+
+template &lt;typename T,
+    typename Allocator=cache_aligned_allocator&lt;T&gt;,
+    ets_key_usage_type ETS_key_type=ets_no_key&gt;
+class enumerable_thread_specific;</pre></p>
+</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><p><pre>#include "tbb/enumerable_thread_specific.h"</pre></p>
+</div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">enumerable_thread_specific</samp> は、<samp class="codeph">T</samp> 型の要素にスレッド・ローカル・ストレージ (TLS) を提供します。<samp class="codeph">enumerable_thread_specific</samp> は、すべてのスレッドローカル要素のイテレーターと範囲を提供することにより、コンテナーとして動作します。</p>
+<p>スレッドローカル要素は遅れて作成されます。新しく作成された <samp class="codeph">enumerable_thread_specific</samp> には要素がありません。スレッドが <samp class="codeph">enumerable_thread_specific</samp> へのアクセスを要求すると、そのスレッドに対応する要素が作成されます。要素の数は、アプリケーションで使用するスレッドの数ではなく、<samp class="codeph">enumerable_thread_specific</samp> にアクセスする (個別の) スレッドの数と同じです。<samp class="codeph">enumerable_thread_specific</samp> を消去すると、要素がすべて削除されます。</p>
+<p><samp class="codeph">ETS_key_usage_type</samp> 引数は、ネイティブの TLS キーを消費しない実装と、より高いパフォーマンスを提供するが <samp class="codeph">enumerable_thread_specific</samp> のインスタンスごとに 1 つのネイティブな TLS キーを消費する特別な実装の選択に使用します。<samp class="codeph">ETS_key_usage_type</samp> 引数が提供されない場合、<samp class="codeph">ets_no_key</samp> がデフォルトで使用されます。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>ネイティブ TLS の数は非常に小さな数 (例えば、64 または 128) に制限されます。このため、最もパフォーマンス・クリティカルなケースにのみ <samp class="codeph">ets_key_per_instance</samp> の特別な実装の使用を制限することを推奨します。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p><samp class="codeph">enumerable_thread_specific</samp> は、<samp class="codeph">tbb::this_tbb_thread::get_id()</samp> が返す OS 固有の値を使用してスレッドを識別します。この値は、スレッドの寿命を除いて一意であることは保証されません。新しく作成されたスレッドには、すでに破棄されたスレッドと同じ OS 固有の ID が割り当てられます。このため、<samp class="codeph">enumerable_thread_specific</samp> の要素数は <samp class="codeph">local()</samp> を呼び出した実際の (個別の) スレッド数よりも少ないことがあります。また、スレッドによる最初の参照で <samp class="codeph">enumerable_thread_specific</samp> に返された要素は新しく構築されないことがあります。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>次のコードは、<samp class="codeph">enumerable_thread_specific</samp> を使用する単純な例を示しています。<samp class="codeph">null_parallel_for_body::operator()</samp> の呼び出しの数および実行される反復数の合計は、<samp class="codeph">parallel_for</samp> に参加する各スレッドによってカウントされます。これらのカウントはメインの最後で出力されます。</p>
+<pre>#include &lt;cstdio&gt;
+#include &lt;utility&gt;
+
+#include "tbb/task_scheduler_init.h"
+#include "tbb/enumerable_thread_specific.h"
+#include "tbb/parallel_for.h"
+#include "tbb/blocked_range.h"
+
+typedef tbb::enumerable_thread_specific&lt; std::pair&lt;int,int&gt; &gt; CounterType;
+CounterType MyCounters (std::make_pair(0,0));
+
+struct Body {
+     void operator()(const tbb::blocked_range&lt;int&gt; &amp;r) const {
+          CounterType::reference my_counter = MyCounters.local();
+          ++my_counter.first;
+          for (int i = r.begin(); i != r.end(); ++i)
+              ++my_counter.second;
+     }
+};
+
+int main() {
+     tbb::parallel_for( tbb::blocked_range&lt;int&gt;(0, 100000000), Body());
+
+     for (CounterType::const_iterator i = MyCounters.begin();
+          i != MyCounters.end(); ++i)
+     {
+            printf("Thread stats:\n");
+            printf("     calls to operator(): %d", i-&gt;first);
+            printf("     total # of iterations executed: %d\n\n",
+                   i-&gt;second);
+    }
+}</pre></div>
+<div class="section"><h2 class="sectiontitle">ラムダ式のサンプル</h2><p><samp class="codeph">enumerable_thread_specific</samp> の <samp class="codeph">combine(<em>f</em>)</samp> メソッドは、ラムダ式を使用して記述できるバイナリー・ファンクター <em>f</em> を使用してリダクションを行います。例えば、前のサンプルは、<samp class="codeph">main</samp> 関数の最後に次の行を追加することにより、スレッドローカル値を合計するように拡張できます。</p>
+<pre>std::pair&lt;int,int&gt; sum =
+    MyCounters.combine([](std::pair&lt;int,int&gt; x,
+                          std::pair&lt;int,int&gt; y) {
+        return std::make_pair(x.first+y.first,
+                              x.second+y.second);
+    });
+printf("Total calls to operator() = %d, "
+         "total iterations = %d\n", sum.first, sum.second);</pre></div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+    template &lt;typename T,
+        typename Allocator=cache_aligned_allocator&lt;T&gt;,
+        ets_key_usage_type ETS_key_type=ets_no_key &gt;
+    class enumerable_thread_specific {
+    public:
+        // 基本型
+        typedef Allocator allocator_type;
+        typedef T value_type;
+        typedef T&amp; reference;
+        typedef const T&amp; const_reference;
+        typedef T* pointer;
+        typedef <em>implementation-dependent</em> size_type;
+        typedef <em>implementation-dependent</em> difference_type;
+
+        // イテレーター型
+        typedef <em>implementation-dependent</em> iterator;
+        typedef <em>implementation-dependent</em> const_iterator;
+
+        // 並列範囲型
+        typedef <em>implementation-dependent</em> range_type;
+        typedef <em>implementation-dependent</em> const_range_type;
+
+        // 構築および破棄
+        enumerable_thread_specific();
+        template &lt;typename Finit&gt;
+        explicit enumerable_thread_specific( Finit finit );
+        explicit enumerable_thread_specific( const T&amp; exemplar );
+        // Supported since C++11
+        explicit enumerable_thread_specific( T&amp;&amp; exemplar );
+        template &lt;typename... Args&gt;
+        enumerable_thread_specific( Args&amp;&amp;... args );
+        ~enumerable_thread_specific();
+
+        // コピー・コンストラクターと代入演算子
+        enumerable_thread_specific(
+            const enumerable_thread_specific&amp; other
+        );
+        template&lt;typename Alloc, ets_key_usage_type Cachetype&gt;
+        enumerable_thread_specific(
+            const enumerable_thread_specific&lt;T, Alloc, Cachetype&gt;&amp; other
+        );
+        enumerable_thread_specific&amp; 
+        operator=( const enumerable_thread_specific&amp; other );
+        template&lt;typename Alloc, ets_key_usage_type Cachetype&gt;
+        enumerable_thread_specific&amp;
+        operator=( const enumerable_thread_specific&lt;T, Alloc, Cachetype&gt;&amp; other );
+
+        // C++11 からサポートされた move コンストラクターと代入演算子
+        enumerable_thread_specific(
+            enumerable_thread_specific&amp;&amp; other
+        );
+        template&lt;typename Alloc, ets_key_usage_type Cachetype&gt;
+        enumerable_thread_specific(
+            enumerable_thread_specific&lt;T, Alloc, Cachetype&gt;&amp;&amp; other
+        );
+        enumerable_thread_specific&amp;
+        operator=( enumerable_thread_specific&amp;&amp; other );
+        template&lt;typename Alloc, ets_key_usage_type Cachetype&gt;
+        enumerable_thread_specific&amp;
+        operator=( enumerable_thread_specific&lt;T, Alloc, Cachetype&gt;&amp;&amp; other );
+
+        // その他のコンテナー全体の操作
+        void clear();
+
+        // 並列操作
+        reference local();
+        reference local( bool&amp; exists );
+        size_type size() const;
+        bool empty() const;
+
+        // 結合
+        template&lt;typename FCombine&gt; T combine( FCombine fcombine );
+        template&lt;typename Func&gt; void combine_each( Func f );
+
+        // 並列反復
+        range_type range( size_t grainsize=1 );
+        const_range_type range( size_t grainsize=1 ) const;
+
+        // イテレーター
+        iterator begin();
+        iterator end();
+        const_iterator begin() const;
+        const_iterator end() const;
+    };
+}</pre></div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/thread_local_storage.html">スレッド・ローカル・ストレージ</a></div>
+</div>
+<div>
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../../reference/thread_local_storage/enumerable_thread_specific_cls/whole_container_operations_specific_cls.html">コンテナー全体の操作</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/thread_local_storage/enumerable_thread_specific_cls/concurrent_operations1.html">並列操作</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/thread_local_storage/enumerable_thread_specific_cls/combining.html">組み合わせ</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/thread_local_storage/enumerable_thread_specific_cls/parallel_literation_specific_cls.html">並列反復</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/thread_local_storage/enumerable_thread_specific_cls/iterators_specific_cls.html">イテレーター</a><br/>
+</li>
+</ul>
+</div>
+</body>
+</html>

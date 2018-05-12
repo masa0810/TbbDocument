@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="事前定義ノードタイプ"/>
+<meta name="DC.subject" content="ノード, 事前定義タイプ, 事前定義ノードタイプ"/>
+<meta name="keywords" content="ノード, 事前定義タイプ, 事前定義ノードタイプ"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Flow_Graph.html"/>
+<meta name="DC.Relation" scheme="URI" content="broadcast_or_send.html#broadcast_or_send"/>
+<meta name="DC.Relation" scheme="URI" content="Nodes.html#Nodes"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="predefined_node_types"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>事前定義ノードタイプ</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="predefined_node_types">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">事前定義ノードタイプ</h1>
+<div><p><span class="keyword">graph_node</span> クラス、<span class="keyword">sender</span> クラス、<span class="keyword">receiver</span> クラスから継承して独自のノードタイプを定義することもできますが、<span class="keyword">flow_graph.h</span> の事前定義ノードタイプを使用してグラフを作成できます。次の表は、すべての事前定義ノードタイプと説明の一覧です。各ノードの詳細については、デベロッパー・リファレンスを参照してください。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><thead align="left"><tr><th class="cellrowborder" valign="top" width="20.40816326530612%" id="d107745e41">事前定義ノードタイプ</th>
+<th class="cellrowborder" valign="top" width="79.59183673469387%" id="d107745e43">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="20.40816326530612%" headers="d107745e41 "><span class="keyword">source_node </span></td>
+<td class="cellrowborder" valign="top" width="79.59183673469387%" headers="d107745e43 ">単一出力のノード。1 つの汎用出力タイプがあります。ユーザーボディーを実行して出力を生成します。ダウンストリームのノードが以前に生成された出力を受け付けた場合、そのボディーが呼び出されます。受け付けない場合、ダウンストリームを受け付けてボディーが再び呼び出されるまで、以前の出力は一時的にバッファーされます。</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="20.40816326530612%" headers="d107745e41 "><span class="keyword">function_node </span></td>
+<td class="cellrowborder" valign="top" width="79.59183673469387%" headers="d107745e43 ">出力をすべてのサクセサーにブロードキャストする、単一入力、単一出力のノード。1 つの汎用入力タイプと出力タイプがあります。ユーザーボディーを実行し、制御可能な並列レベルとバッファーポリシーを含みます。1 つの入力につき、1 つの出力が返されます。</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="20.40816326530612%" headers="d107745e41 "><span class="keyword">continue_node</span></td>
+<td class="cellrowborder" valign="top" width="79.59183673469387%" headers="d107745e43 ">出力をすべてのサクセサーにブロードキャストする、単一入力、単一出力のノード。1 つ以上の <span class="keyword">continue_msg</span> 型の入力を要求し、1 つの汎用出力タイプがあります。入力で <span class="keyword">N continue_msg</span> オブジェクトを受け取るとユーザーボディーを実行します。<span class="keyword">N</span> は、プレデセッサーの数に、構築時に割り当てられた追加オフセットを加えた値です。</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="20.40816326530612%" headers="d107745e41 "><span class="keyword">multifunction_node</span></td>
+<td class="cellrowborder" valign="top" width="79.59183673469387%" headers="d107745e43 ">単一入力、複数出力のノード。1 つの汎用入力タイプと複数の汎用出力タイプがあります。ユーザーボディーを実行し、制御可能な並列レベルとバッファーポリシーを含みます。ボディーは、各出力ポートで 0 以上のメッセージを出力できます。</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="20.40816326530612%" headers="d107745e41 "><span class="keyword">broadcast_node </span></td>
+<td class="cellrowborder" valign="top" width="79.59183673469387%" headers="d107745e43 ">受け取った各メッセージをすべてのサクセサーにブロードキャストする、単一入力、単一出力のノード。入力と出力は同じ汎用タイプです。メッセージをバッファーしません。</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="20.40816326530612%" headers="d107745e41 "><span class="keyword">buffer_node</span>、<span class="keyword">queue_node</span>、<span class="keyword">priority_queue_node</span>、および <span class="keyword">sequencer_node</span></td>
+<td class="cellrowborder" valign="top" width="79.59183673469387%" headers="d107745e43 ">メッセージをバッファーして出力を 1 つのサクセサーに送る、単一入力、単一出力のノード。メッセージが送られる順序はノード固有です (デベロッパー・リファレンスを参照)。これらのノードは、すべてのサクセサーではなく 1 つのサクセサーにのみメッセージを送るという点で独特です。</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="20.40816326530612%" headers="d107745e41 "><span class="keyword">join_node</span></td>
+<td class="cellrowborder" valign="top" width="79.59183673469387%" headers="d107745e43 ">複数入力、単一出力のノード。複数の汎用入力タイプがあり、出力タイプはこれらの汎用タイプのタプルです。ノードは、各入力ポートから 1 つのメッセージを組み合わせて、すべてのサクセサーにブロードキャストするタプルを作成します。メッセージの組み合わせに使用されるポリシーは、queueing、reserving、または tag_matching から選択します。</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="20.40816326530612%" headers="d107745e41 "><span class="keyword">split_node</span></td>
+<td class="cellrowborder" valign="top" width="79.59183673469387%" headers="d107745e43 ">単一入力、複数出力のノード。入力タイプは汎用タイプのタプルで、タプルの各タイプに 1 つの出力ポートがあります。ノードは値のタプルを受け取り、対応する出力ポートにタプルの各要素を出力します。</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="20.40816326530612%" headers="d107745e41 "><span class="keyword">write_once_node</span>、<span class="keyword">overwrite_node</span></td>
+<td class="cellrowborder" valign="top" width="79.59183673469387%" headers="d107745e43 ">単一メッセージをバッファーして出力をすべてのサクセサーにブロードキャストする、単一入力、単一出力のノード。ブロードキャストの後、ノードは受け取った最後のメッセージを保持しているため、将来のサクセサーに利用できます。<span class="keyword">write_once_node</span> は、受け取った最初のメッセージのみ受け付けます。<span class="keyword">overwrite_node</span> は、すべてのメッセージを受け付け、すべてのサクセサーにブロードキャストして、古い値を新しい値に置換します。</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="20.40816326530612%" headers="d107745e41 "><span class="keyword">limiter_node</span></td>
+<td class="cellrowborder" valign="top" width="79.59183673469387%" headers="d107745e43 ">出力をすべてのサクセサーにブロードキャストする、複数入力、単一出力のノード。メイン入力タイプと出力タイプは同じ汎用タイプです。メッセージをブロードキャストするとき、ノードは内部カウンターをインクリメントします。ユーザー定義のしきい値に達すると、それ以上メッセージをブロードキャストしません。さらにメッセージをブロードキャストするには、特別な入力ポートを使用して内部カウンターをデクリメントします。ノードはメッセージをバッファーしません。</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="20.40816326530612%" headers="d107745e41 "><span class="keyword">indexer_node</span></td>
+<td class="cellrowborder" valign="top" width="79.59183673469387%" headers="d107745e43 ">出力メッセージをすべてのサクセサーにブロードキャストする、複数入力、単一出力のノード。入力タイプは汎用タイプのリストで、出力タイプは <span class="keyword">tagged_msg</span>。メッセージは入力にリストされたタイプの 1 つで、タグはメッセージを受け取ったポートを識別します。入力ポートに届いたメッセージは個別にブロードキャストされます。</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="20.40816326530612%" headers="d107745e41 "><span class="keyword">composite_node</span></td>
+<td class="cellrowborder" valign="top" width="79.59183673469387%" headers="d107745e43 ">0、1 または複数の入力ポートと出力ポートを含むノード。<span class="keyword">composite_node</span> はほかのノードのグループをパッケージして接するポートへの参照のタプルを保持します。これにより、<span class="keyword">composite_node</span> の対応するポートを使用して、これまで <span class="keyword">composite_node</span> の実際のノードから作成されていたエッジを作成できます。</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="20.40816326530612%" headers="d107745e41 "><span class="keyword">async_node (プレビュー機能)</span></td>
+<td class="cellrowborder" valign="top" width="79.59183673469387%" headers="d107745e43 ">フローグラフとユーザーまたは別のランタイムによって管理される外部処理の通信を可能にするノード。このノードは汎用タイプのメッセージを受け取り、メッセージを外部処理に渡すためユーザー定義ボディーを呼び出します。外部処理は、特別なインターフェイスを使用して、汎用タイプを返し、<span class="keyword">async_node</span> のすべてのサクセサーに配置することができます。</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Flow_Graph.html">データフローと依存関係グラフの並列化</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="broadcast_or_send.html#broadcast_or_send">1 つまたは複数のサクセサーへの送信</a></div>
+<div><a href="Nodes.html#Nodes">ノード</a></div></div></div>
+</body>
+</html>

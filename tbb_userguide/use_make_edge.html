@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="make_edge と remove_edge の使用"/>
+<meta name="DC.subject" content="フローグラフのヒント, make_edge と remove_edge の使用"/>
+<meta name="keywords" content="フローグラフのヒント, make_edge と remove_edge の使用"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Flow_Graph_making_edges_tips.html"/>
+<meta name="DC.Relation" scheme="URI" content="broadcast_or_send.html#broadcast_or_send"/>
+<meta name="DC.Relation" scheme="URI" content="communicate_with_nodes.html#communicate_with_nodes"/>
+<meta name="DC.Relation" scheme="URI" content="use_source_node.html#use_source_node"/>
+<meta name="DC.Relation" scheme="URI" content="avoiding_data_races.html#avoiding_data_races"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="use_make_edge"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>make_edge と remove_edge の使用</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="use_make_edge">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">make_edge と remove_edge の使用</h1>
+<div><p>エッジの作成と削除には基本的なガイドラインがあります。<ul><li><p><span class="keyword">make_edge</span> と <span class="keyword">remove_edge</span> を使用する。</p>
+</li>
+<li><p><span class="keyword">register_successor</span> と <span class="keyword">register_predecessor</span> を使用しない。</p>
+</li>
+<li><p><span class="keyword">remove_successor</span> と <span class="keyword">remove_predecessor</span> を使用しない。</p>
+</li>
+</ul>
+</p>
+<p>トポロジーと通信する場合は、<span class="keyword">flow::make_edge</span> 関数と <span class="keyword">flow::remove_edge</span> 関数のみを使用してください。ランタイム・ライブラリーは、これらのエッジを作成するために <span class="keyword">sender&lt;T&gt;::register_successor</span> のようなノード関数を使用しますが、これらの関数は直接呼び出すべきではありません。ランタイム・ライブラリーは、ランタイムにトポロジー上の最適化を実装するために、これらのノード関数を直接呼び出します。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Flow_Graph_making_edges_tips.html">エッジの作成におけるフローグラフのヒント</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="broadcast_or_send.html#broadcast_or_send">1 つまたは複数のサクセサーへの送信</a></div>
+<div><a href="communicate_with_nodes.html#communicate_with_nodes">グラフ間の通信</a></div>
+<div><a href="use_source_node.html#use_source_node">source_node の使用</a></div>
+<div><a href="avoiding_data_races.html#avoiding_data_races">データ競合の回避</a></div></div></div>
+</body>
+</html>

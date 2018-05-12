@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="spin_mutex クラス"/>
+<meta name="DC.subject" content="spin_mutex クラス"/>
+<meta name="keywords" content="spin_mutex クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/synchronization/mutexes.html"/>
+<meta name="DC.Relation" scheme="URI" content="mutex_concept.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="spin_mutex_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>spin_mutex クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="spin_mutex_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">spin_mutex クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>スピンロックを使用して Mutex コンセプトをモデル化するクラス。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>class spin_mutex;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/spin_mutex.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">spin_mutex</samp> は、Mutex コンセプトをモデル化します。<samp class="codeph">spin_mutex</samp> は、スケーラブル、フェア、または再帰的ではありません。ロックがわずかに競合していて、少数の機械語命令のために保持されている場合に理想的です。スレッドが <samp class="codeph">spin_mutex</samp> の取得を待つ必要がある場合、ビジーウェイトを行うため、ウェイトが長くなるとシステムのパフォーマンスに影響します。しかし、ウェイトが短い場合、<samp class="codeph">spin_mutex</samp> は、ほかの mutex よりも大幅にパフォーマンスを向上させます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><p>「Mutex コンセプト」を参照してください。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/synchronization/mutexes.html">mutex</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="mutex_concept.html">Mutex コンセプト</a></div></div></div>
+</body>
+</html>

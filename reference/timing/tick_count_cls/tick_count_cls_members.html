@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="tick_count クラスのメンバー"/>
+<meta name="DC.subject" content="tick_count クラスのメンバー"/>
+<meta name="keywords" content="tick_count クラスのメンバー"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/timing/tick_count_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="thread_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>tick_count クラスのメンバー</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="thread_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">tick_count クラスのメンバー</h1>
+<div><div class="section">
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d90754e23">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d90754e25">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d90754e23 "><span class="keyword">static tick_count now()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d90754e25 "><p>現在の時計時間タイムスタンプ。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d90754e23 "><span class="keyword">static double resolution()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d90754e25 "><p>時計の分解能 (秒単位)。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d90754e23 "><span class="keyword">tick_count::interval_t operator-( const tick_count&amp; t1, const tick_count&amp; t0 )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d90754e25 "><p>t1 が t0 の後に発生した相対時間。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>Microsoft* Windows* オペレーティング・システムでは、現在の実装は <samp class="codeph">QueryPerformanceCounter</samp> 関数を使用します。一部のシステムでは、基本入出力システム (BIOS) またはハードウェア抽象化レイヤー (HAL) に、異なるプロセッサーに異なる時間を返す不具合が含まれている場合があります。</p>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/timing/tick_count_cls.html">tick_count クラス</a></div>
+</div>
+<div/>
+</body>
+</html>

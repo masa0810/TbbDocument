@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="タスクの一般的な非循環グラフ"/>
+<meta name="DC.subject" content="タスクの一般的な非循環グラフ"/>
+<meta name="keywords" content="タスクの一般的な非循環グラフ"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/The_Task_Scheduler.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_General_Acyclic_Graphs_of_Tasks"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>タスクの一般的な非循環グラフ</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_General_Acyclic_Graphs_of_Tasks">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">タスクの一般的な非循環グラフ</h1>
+<div><p>タスクグラフはこれまで、各タスクに完了を待っている 1 つのサクセサー <samp class="codeph">task::parent()</samp> があるツリー構造であると考えられていました。1 つのタスクに複数のサクセサーがある、より複雑なグラフを扱えるように、インテル&reg; TBB 2.2 以降には、タスクの参照カウントを直接操作できるメソッドが用意されています。</p>
+<p>例えば、タスクが左と上のタスクに依存する MxN 配列のタスクを考えてみます。次の図は、この例を示しています。</p>
+<div class="fignone" id="fig11"><span class="figcap">1 つのタスクに複数のサクセサーがあるタスクグラフ</span><br/><img src="Images/image018.jpg" width="216" height="120"/><br/></div>
+<p>次のコードは、各タスクで左からの入力と上からの入力の合計を計算するタスクグラフを評価します。</p>
+<pre>const int M=3, N=4;
+ 
+class DagTask: public tbb::task {
+public:
+    const int i, j;
+    // input[0] = 上からの合計、input[1] = 左からの合計
+    double input[2];
+    double sum;
+    // successor[0] = 下のサクセサー、successor[1] = 右のサクセサー
+    DagTask* successor[2];
+    DagTask( int i_, int j_ ) : i(i_), j(j_) {
+        input[0] = input[1] = 0;
+    }
+    task* execute() {
+        __TBB_ASSERT( ref_count()==0, NULL );
+        sum = i==0 &amp;&amp; j==0 ? 1 : input[0]+input[1];
+        for( int k=0; k&lt;2; ++k )
+            if( DagTask* t = successor[k] ) {
+                t-&gt;input[k] = sum;
+                if( t-&gt;decrement_ref_count()==0 )
+                    spawn( *t );
+            }
+        return NULL;
+    }
+};
+ 
+double BuildAndEvaluateDAG() {
+    DagTask* x[M][N];
+    for( int i=M; --i&gt;=0; )
+        for( int j=N; --j&gt;=0; ) {
+            x[i][j] = new( tbb::task::allocate_root() ) DagTask(i,j);
+            x[i][j]-&gt;successor[0] = i+1&lt;M ? x[i+1][j] : NULL;
+            x[i][j]-&gt;successor[1] = j+1&lt;N ? x[i][j+1] : NULL;
+            x[i][j]-&gt;set_ref_count((i&gt;0)+(j&gt;0));
+        }
+    // 最後のタスクは spawn_and_wait_for_all で待機するため
+    // 追加の参照を追加
+    x[M-1][N-1]-&gt;increment_ref_count();
+    // 最後のタスク以外のすべてのタスクが完了するのを待つ
+    x[M-1][N-1]-&gt;spawn_and_wait_for_all(*x[0][0]);
+    // 最後のタスクは暗黙的に実行されないため明示的に実行
+    x[M-1][N-1]-&gt;execute();
+    double result = x[M-1][N-1]-&gt;sum;
+    // 最後のタスクを破棄
+    task::destroy(*x[M-1][N-1]);
+    return result;
+}</pre><p><samp class="codeph">BuildAndEvaluateDAG</samp> 関数は、<samp class="codeph">DagTask</samp> の配列を最初に作成します。<samp class="codeph">task::parent()</samp> はサクセサーとの関係の記録に使用しないため、各タスクをルートタスクとして割り当てます。各タスクの参照カウントは、プレデセッサー・タスクの数に初期化します。初期タスク <samp class="codeph">x[0][0]</samp> を作成し、<samp class="codeph">x[M-1][N-1]</samp> が完了するのを待つことで、グラフを評価します。各タスクが完了すると、サクセサーの参照カウントをデクリメントして、カウントがゼロになるサクセサーを作成します。十分な数のプロセッサーが提供されると、グラフの左上から右下に向かって、波のように対角線上に実行されます。
+	 </p>
+<p><samp class="codeph">BuildAndEvaluateDAG</samp> で特別な処理を行うため、最後のタスク <samp class="codeph">x[M-1][N-1]</samp> は特別な制御が必要です。</p>
+<ul><li><p>最後のタスクは、ほかのタスクが完了するのを明示的に待つために使用されます。<samp class="codeph">wait_for_all</samp> メソッドでは、最後のタスクの参照カウントをプレデセッサー・タスクの数よりも 1 つ多く設定します。このため、最後のタスクはプレデセッサー・タスクが完了しても暗黙で実行されません。</p>
+</li>
+<li><p><samp class="codeph">sum</samp> の値は、最後のタスクが破棄される前に取得する必要があります。</p>
+</li>
+</ul>
+<p>例では、最後のタスクを明示的に実行し、sum を取得した後で、最後のタスクを破棄しています。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/The_Task_Scheduler.html">タスク・スケジューラー</a></div>
+</div>
+<div/>
+</body>
+</html>

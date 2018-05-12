@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="parallel_do テンプレート関数"/>
+<meta name="DC.subject" content="parallel_do テンプレート関数"/>
+<meta name="keywords" content="parallel_do テンプレート関数"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/algorithms.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/algorithms/parallel_do_func/parallel_do_feeder_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../task_scheduler/task_group_context.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="parallel_do_func"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>parallel_do テンプレート関数</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="parallel_do_func">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">parallel_do テンプレート関数</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>ワークアイテムを並列に処理するテンプレート関数。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><p><pre> #include "tbb/parallel_do.h"</pre></p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>template&lt;typename InputIterator, typename Body&gt; 
+void parallel_do( InputIterator first, InputIterator last,
+                  Body body[, task_group_context&amp; group] );
+
+template&lt;typename Container, typename Body&gt;
+void parallel_do( Container c, Body body[, task_group_context&amp; group] );
+                </pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">parallel_do</samp> テンプレートには 2 つの形式があります。</p>
+<p>シーケンス形式 <samp class="codeph">parallel_do(<em>first,last,body</em>)</samp> は、シーケンス [<samp class="codeph"><em>first,last</em></samp>) の関数オブジェクト <samp class="codeph"><em>body</em></samp> に適用されます。アイテムは並列に処理されます。追加のワークアイテムは、<samp class="codeph">parallel_do_feeder</samp> 型の第 2 引数がある場合、ボディーによって追加できます。<samp class="codeph">body(<em>x</em>)</samp> が入力シーケンスまたは <samp class="codeph">parallel_do_feeder::add</samp> メソッドによって追加されたすべてのアイテム <samp class="codeph"><em>x</em></samp> について返されると、関数は終了します。</p>
+<p>コンテナー形式 <samp class="codeph">parallel_do(<em>c,body</em>)</samp> は、<samp class="codeph">parallel_do(std::begin(c),std::end(c),body)</samp> と等価です。</p>
+<p>入力イテレーターの要件は、ISO C++ 標準の第 24 章で定義されています。以下の表は、<samp class="codeph"><em>Body</em></samp> 型の要件を示しています。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">parallel_do Body と T 型の引数に対する要件</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" id="d1460e99"><p>擬似署名</p>
+</th>
+<th class="row-nocellborder" valign="top" id="d1460e102"><p>意味</p>
+</th>
+</tr>
+</thead>
+<tbody><tr valign="top"><td class="cellrowborder" valign="top" headers="d1460e99 "><pre> Body::operator()(
+   <em>cv-qualifiers<sub>opt</sub></em> T <em>reference<sub>opt</sub></em> item,
+   parallel_do_feeder&lt;T&gt;&amp; feeder
+ ) const
+<strong>または</strong>
+ Body::operator()(
+   <em>cv-qualifiers<sub>opt</sub></em> T <em>reference<sub>opt</sub></em> item
+ ) const
+				  </pre></td>
+<td class="row-nocellborder" valign="top" headers="d1460e102 "><p>ワークアイテムを処理します。<samp class="codeph">parallel_do</samp> は、同じボディー・オブジェクトで <samp class="codeph"><em>item</em></samp> が異なる <samp class="codeph">operator()</samp> を同時に呼び出します。</p>
+<p><samp class="codeph"><em>item</em></samp> を値または参照 (rvalue 参照を含む) で受け付けます。</p>
+<p><samp class="codeph"><em>feeder</em></samp> の署名は、ワークアイテムの追加を許可します。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p><samp class="codeph">operator()</samp> の引数が 1 つの形式と引数が 2 つの形式の両方を定義することはできません。</p>
+</div>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d1460e99 "><p><samp class="codeph"> T( const T&amp; ) </samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d1460e102 "><p>C++11 からのオプション。ワークアイテムをコピーします。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d1460e99 "><p><samp class="codeph"> T( T&amp;&amp; ) </samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d1460e102 "><p>C++11 からオプションでサポート。ワークアイテムを移動します。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d1460e99 "><p><samp class="codeph"> ~T::T() </samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d1460e102 "><p>ワークアイテムを破棄します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p><samp class="codeph"><em>T</em></samp> 型の引数はコピー構築可能、移動構築可能、または両方でなければなりません。型がコピー構築可能でない場合、追加の使用上の制限があります。</p>
+<ul><li><p><samp class="codeph">Body::operator()</samp> が引数を値で受け付ける場合、または <samp class="codeph"><em>InputIterator</em></samp> 型が前方イテレーターの要件を満たさない場合、<samp class="codeph"><em>InputIterator</em></samp> を逆参照すると rvalue 参照が生成されます。</p>
+</li>
+<li><p>追加のワークアイテムは、(例えば、<samp class="codeph">std::move</samp> 関数を使用して) rvalue としてフィーダーに渡します。</p>
+</li>
+</ul>
+</div>
+<p><samp class="codeph">task_group_context</samp> オブジェクトを渡して、タスクがこのグループで実行されるようなアルゴリズムにすることができます。デフォルトでは、アルゴリズムは自身がバインドされているグループで実行されます。</p>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>優れたパフォーマンスを得るには、<samp class="codeph">Body::operator()</samp> を少なくとも 100,000 クロックサイクル実行します。クロックサイクルが少ない場合、<samp class="codeph">parallel_do</samp> のオーバーヘッドがパフォーマンスの利点よりも上回ることがあります。</p>
+<p>すべてのアイテムがランダムアクセスのない入力ストリームから読み込まれる場合、<samp class="codeph">parallel_do</samp> の並列処理はスケーラブルではありません。スケーリングを達成するには、次のいずれかを行います。</p>
+<ul><li><p>ランダムアクセス・イテレーターを使用して入力ストリームを指定します。<samp class="codeph">parallel_for</samp> を使用することも検討してください。</p>
+</li>
+<li><p>ボディーがワークの断片を 2 つ以上追加するようなアルゴリズムを設計します。</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>次のコードは、引数が 2 つの形式の <samp class="codeph">operator(</samp>) のボディーを示します。</p>
+<pre>struct MyBody {
+    void operator()(item_t item, 
+                    parallel_do_feeder&lt;item_t&gt;&amp; feeder ) {
+        for each new piece of work implied by item do {
+            item_t new_item = initializer;
+            feeder.add(new_item);
+        }
+    } 
+};
+		</pre></div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/algorithms.html">アルゴリズム</a></div>
+</div>
+<div class="See Also">
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../../reference/algorithms/parallel_do_func/parallel_do_feeder_cls.html">parallel_do_feeder&lt;item&gt; クラス</a><br/>
+</li>
+</ul>
+<h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../task_scheduler/task_group_context.html">バインドされているグループ (task_group_context クラス)</a></div></div></div>
+</body>
+</html>

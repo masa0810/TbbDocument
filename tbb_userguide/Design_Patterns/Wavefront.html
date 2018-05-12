@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="ウェーブフロント"/>
+<meta name="DC.subject" content="ウェーブフロント"/>
+<meta name="keywords" content="ウェーブフロント"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/Design_Patterns.html"/>
+<meta name="DC.Relation" scheme="URI" content="General_References.html#General_References"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="Wavefront"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>ウェーブフロント</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="Wavefront">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">ウェーブフロント</h1>
+<div><div class="section"><h2 class="sectiontitle">問題</h2><p>プレデセッサー・アイテムの計算結果を使用してデータセットのアイテムの計算を行う。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">コンテキスト</h2><p>計算間の依存関係により閉路のないグラフが形成されます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">影響</h2><ul><li><p>アイテム間の依存関係の制約により閉路のないグラフが形成されます。</p>
+</li>
+<li><p>グラフの直前のプレデセッサーの数はあらかじめ分かっているか、最後のプレデセッサーが完了する前に決定されます。</p>
+</li>
+</ul>
+</div>
+<div class="section"><h2 class="sectiontitle">ソリューション</h2><p>アイテムの処理に <samp class="codeph">tbb::parallel_do</samp> を使用して、トポロジカル・ソートを並列に行います。各アイテムにアトミックカウンターを関連付けます。各カウンターをプレデセッサーの数に初期化します。tbb::parallel_do を呼び出してプレデセッサーのないアイテム (カウントがゼロ) を処理します。アイテムが処理されたら、そのサクセサーのカウンターをデクリメントします。サクセサーのカウンターがゼロになったら、「feeder」によりサクセサーを <samp class="codeph">tbb::parallel_do</samp> に追加します。</p>
+<p>プレデセッサーの数があらかじめ決定できない場合、「既知のプレデセッサーの数 (know number of predecessors)」をプレデセッサー項目として扱います。プレデセッサーの数が分かったら、この概念的なプレデセッサーを完了したとして扱います。</p>
+<p>個々のアイテムをカウントするオーバーヘッドが大きい場合、複数のアイテムを凝集化して、そのブロックに対してウェーブフロントを行います。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>最長共通部分列アルゴリズムのシリアルカーネルを次に示します。引数は文字列 <samp class="codeph">x</samp> と<samp class="codeph"> y</samp> (長さは <samp class="codeph">xlen</samp> と <samp class="codeph">ylen</samp>) です。</p>
+<pre>int F[MAX_LEN+1][MAX_LEN+1];
+
+void SerialLCS( const char* x, size_t xlen, const char* y, size_t ylen )
+{
+   for( size_t i=1; i&lt;=xlen; ++i )
+       for( size_t j=1; j&lt;=ylen; ++j )
+           F[i][j] = x[i-1]==y[j-1] ? F[i-1][j-1]+1:
+                                      max(F[i][j-1],F[i-1][j]);
+}</pre><p>カーネルは、<samp class="codeph">x[0..i-1]</samp> および <samp class="codeph">y[0..j-1]</samp> で共有される最長共通部分列の長さに <samp class="codeph">F[i][j]</samp> をセットします。F[0][0..ylen] および <samp class="codeph">F[0..xlen][0]</samp> はすでにゼロに初期化されていると仮定します。 
+		</p>
+<p>次の図は、<samp class="codeph">F[i][j]</samp> 計算のデータの依存関係を示しています。</p>
+<div class="fignone" id="fig3"><span class="figcap">最長共通部分文字列計算のデータの依存関係</span><br/><img width="122" height="122" src="Images/image005a.jpg"/><br/></div>
+<p>次の図で示されているように、灰色の対角線の依存関係はほかの依存関係の推移閉鎖です。このため、並列化に際しこの依存関係を無視できます。</p>
+<div class="fignone" id="fig4"><span class="figcap">対角線の依存関係は冗長</span><br/><img width="122" height="122" src="Images/image006a.jpg"/><br/></div>
+<p>アトミックカウントは依存関係を考慮するコストがかかるため、冗長な依存関係を考慮しないようにすることは一般に良い方法です。</p>
+<p>もう 1 つ考慮すべき点は粒度です。<samp class="codeph">F[i][j]</samp>  の要素計算を別々にスケジュールするのはコストがかかりすぎます。複数の要素を連続するブロックに擬集化して、ブロックのコンテンツを連続して処理するほうが適切です。ブロックの依存関係のパターンは同じですが、ブロックはスケールします。このため、スケジュールのオーバーヘッドを考慮してもメリットがあります。</p>
+<p>並列コードを次に示します。各ブロックは <samp class="codeph">N×N</samp> の要素で構成されます。各ブロックにはアトミックカウンターが関連付けられています。配列 <samp class="codeph">Count</samp> は、簡単に調査するためこれらのカウンターを構成します。コードはカウンターを初期化した後、<samp class="codeph">parallel_do</samp> を使用して、ウェーブフロントを処理します (predecessor がないため最初のブロックから開始)。</p>
+<pre>const int N = 64;
+tbb::atomic&lt;char&gt; Count[MAX_LEN/N+1][MAX_LEN/N+1];
+ 
+void ParallelLCS( const char* x, size_t xlen, const char* y, size_t ylen ) {
+   // ブロックの predecessor カウントを初期化
+   size_t m = (xlen+N-1)/N;
+   size_t n = (ylen+N-1)/N;
+   for( int i=0; i&lt;m; ++i )
+       for( int j=0; j&lt;n; ++j )
+           Count[i][j] = (i&gt;0)+(j&gt;0);
+   // ウェーブフロントを原点から回転
+   typedef pair&lt;size_t,size_t&gt; block;
+   block origin(0,0);
+   tbb::parallel_do( &amp;origin, &amp;origin+1,
+       [=]( const block&amp; b, tbb::parallel_do_feeder&lt;block&gt;&amp;feeder ) {
+           // ブロックの境界を抽出
+           size_t bi = b.first;
+           size_t bj = b.second;
+           size_t xl = N*bi+1;
+           size_t xu = min(xl+N,xlen+1);
+           size_t yl = N*bj+1;
+           size_t yu = min(yl+N,ylen+1);
+           // ブロックを処理
+           for( size_t i=xl; i&lt;xu; ++i )
+               for( size_t j=yl; j&lt;yu; ++j )
+                   F[i][j] = x[i-1]==y[j-1] ? F[i-1][j-1]+1:
+                                              max(F[i][j-1],F[i-1][j]);
+           // successor を考慮
+           if( bj+1&lt;n &amp;&amp; ‐‐Count[bi][bj+1]==0 )
+               feeder.add( block(bi,bj+1) );
+           if( bi+1&lt;m &amp;&amp; ‐‐Count[bi+1][bj]==0 )
+               feeder.add( block(bi+1,bj) );       }
+   );
+}</pre><p>規則的な構造はウェーブフロントの実装を単純化しますが、必須ではありません。<samp class="codeph">examples/parallel_do/parallel_preorder</samp> の並列前順走査では、predecessor が走査された後にノードが走査されるという制約に従って、ウェーブフロント・パターンをグラフの各ノードの走査を並列に処理します。このサンプルで、グラフ中の各ノードは predecessor のカウントを格納します。 
+		</p>
+</div>
+<div class="section"><h2 class="sectiontitle">参考資料</h2><p>Eun-Gyu Kim および Mark Snir、"Wavefront Pattern"、<a href="http://web.engr.illinois.edu/~snir/patterns/wavefront.pdf" target="_blank">http://web.engr.illinois.edu/~snir/patterns/wavefront.pdf</a></p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../tbb_userguide/Design_Patterns/Design_Patterns.html">デザインパターン</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="General_References.html#General_References">全般的な参考資料</a></div></div></div>
+</body>
+</html>

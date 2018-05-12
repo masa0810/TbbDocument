@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="付録 A: タイムスライスのコスト"/>
+<meta name="DC.subject" content="付録 A: タイムスライスのコスト"/>
+<meta name="keywords" content="付録 A: タイムスライスのコスト"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/title.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_appendix_A"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>付録 A: タイムスライスのコスト</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_appendix_A">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">付録 A: タイムスライスのコスト</h1>
+<div><p>タイムスライスでは、物理スレッドよりも多くの論理スレッドが有効になります。各論理スレッドは、物理スレッドによって「タイムスライス」で実行されます。スレッドがタイムスライスよりも長時間実行される場合、次の順番がくるまでその物理スレッドは停止されます。この付録では、タイムスレッドによって発生するコストについて説明します。</p>
+<p>最も明白なコストは、論理スレッド間の「コンテキストの切り替え」にかかる時間です。コンテキスト・スイッチでは、プロセッサーで前に実行していた論理スレッドのすべてのレジスターを退避し、次に実行する論理スレッドの情報を含むレジスターをロードする必要があります。</p>
+<p>また、それよりもコストが多いものに「キャッシュの冷却」と呼ばれる現象があります。プロセッサーは、最近アクセスされたデータをキャッシュに保存します。キャッシュはメインメモリーに比べると、非常に高速ですが、容量は小さいものです。プロセッサーは、キャッシュメモリーを使い果たすと、キャッシュからデータを追い出し、メインメモリーに戻します。この際、通常はキャッシュの中で最も古いデータが選ばれます   (実際には、セット・アソシエーティブ (連想方式) キャッシュはもう少し複雑です)。論理スレッドがタイムスライスを取得し、データを初めて参照すると、数百サイクルを消費しメモリーからデータはキャッシュに読み込まれます。データが頻繁に参照され、退避されない場合、後続の参照はキャッシュ中のデータを利用できるため、数サイクルを要するだけです。そのようなデータは、"キャッシュでホット" と呼ばれます。タイムスライスでは、スレッド A がそのタイムスライスを終了し、後続のスレッド B が同じ物理スレッドで実行されると、両方のスレッドでそのデータが必要でない限り、B は A が利用したキャッシュでホットだったデータを立ち退かせる傾向があります。スレッド A が次のタイムスライスを取得すると、それぞれのキャッシュミスに数百サイクルを費やして、退避されたデータを再びロードします。さらに、スレッド A の次のタイムスライスは、異なるキャッシュを持つ異なる物理スレッド上にある可能性があります。</p>
+<p>また、「ロック・プリエンプション」という問題もあります。この現象は、スレッドがロックを取得し、そのタイムスライスが、ロックを解放する前に時間切れになったときに発生する現象です。スレッドがロックをどれだけ短時間保持するように意図されていても、次のタイムスライスの順番になるまで保持されることになります。ロック上で待機している別のスレッドは、無駄にビジーウェイトになったり、あるいは残りのタイムスライスを失うことになります。これは、前のプリエンプトされたスレッドの実行が再開されるのを "数珠つなぎ" に待つため、「コンボイ」と呼ばれます。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/title.html">インテル&reg; TBB デベロッパー・ガイド</a></div>
+</div>
+<div/>
+</body>
+</html>

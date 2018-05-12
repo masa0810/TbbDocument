@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="例外とキャンセル"/>
+<meta name="DC.subject" content="例外とキャンセル"/>
+<meta name="keywords" content="例外とキャンセル"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/title.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Cancellation_Without_An_Exception.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Cancellation_and_Nested_Parallelism.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Exceptions_and_Cancellation"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>例外とキャンセル</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Exceptions_and_Cancellation">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">例外とキャンセル</h1>
+<div><p>インテル&reg; TBB は、例外とキャンセルをサポートしています。インテル&reg; TBB アルゴリズム内部のコードが例外をスローすると、一般に次のステップが発生します。</p>
+<ol><li><p>例外がキャプチャーされます。アルゴリズム内部のほかの例外は無視されます。</p>
+</li>
+<li><p>アルゴリズムがキャンセルされます。保留中の反復は実行されません。<strong>「キャンセルと入れ子の並列処理」</strong>で説明されているように、内部で入れ子になっているインテル&reg; TBB の並列処理がある場合は、入れ子になっている並列処理もキャンセルされます。</p>
+</li>
+<li><p>アルゴリズムのすべての部分が停止すると、アルゴリズムを呼び出したスレッドで例外がスローされます。</p>
+</li>
+</ol>
+<p>ステップ 3 でスローされる例外は、オリジナルの例外、または <samp class="codeph">captured_exception</samp> 型のサマリーです。スレッド間の例外を伝えるには C++ <samp class="codeph">std::exception_ptr</samp> 機能のサポートが必要になるため、現在のシステムでは通常は後者が発生します。この機能のサポートがコンパイラーに含まれるようになれば、インテル&reg; TBB の将来のバージョンではオリジナルの例外をスローするようになるでしょう。このため、コードでいずれか一方の例外をキャッチできることを確認してください。次のコードは、例外処理のサンプルです。</p>
+<pre>#include "tbb/tbb.h"
+#include &lt;vector&gt;
+#include &lt;iostream&gt;
+ 
+using namespace tbb;
+using namespace std;
+ 
+vector&lt;int&gt; Data;
+ 
+struct Update {
+    void operator()( const blocked_range&lt;int&gt;&amp; r ) const {
+        for( int i=r.begin(); i!=r.end(); ++i )
+            Data.at(i) += 1;
+    }
+};
+ 
+int main() {
+    Data.resize(1000);
+    try {
+        parallel_for( blocked_range&lt;int&gt;(0, 2000), Update());
+    } catch( captured_exception&amp; ex ) {
+       cout &lt;&lt; "captured_exception: " &lt;&lt; ex.what() &lt;&lt; endl;
+    } catch( out_of_range&amp; ex ) {
+       cout &lt;&lt; "out_of_range: " &lt;&lt; ex.what() &lt;&lt; endl;
+    }
+    return 0;
+}</pre><p><samp class="codeph">parallel_for</samp> は、要素が 1000 個のベクトルで 2000 個の要素を反復しようとします。このため、式 <samp class="codeph">Data.at(i)</samp> はアルゴリズムの実行中に例外 <samp class="codeph">std::out_of_range</samp> をスローすることがあります。
+		例外が発生すると、アルゴリズムはキャンセルされ、呼び出し側で例外が <samp class="codeph">parallel_for</samp> にスローされます。 
+	 </p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/title.html">インテル&reg; TBB デベロッパー・ガイド</a></div>
+</div>
+<div>
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../tbb_userguide/Cancellation_Without_An_Exception.html">例外なしのキャンセル</a><br/>
+</li>
+<li class="ulchildlink"><a href="../tbb_userguide/Cancellation_and_Nested_Parallelism.html">キャンセルと入れ子の並列処理</a><br/>
+</li>
+</ul>
+</div>
+</body>
+</html>

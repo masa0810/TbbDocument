@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="完了までの並列化: parallel_do"/>
+<meta name="DC.subject" content="完了までの並列化: parallel_do"/>
+<meta name="keywords" content="完了までの並列化: parallel_do"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Parallelizing_Complex_Loops.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Cook_Until_Done_parallel_do"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>完了までの並列化: parallel_do</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Cook_Until_Done_parallel_do">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">完了までの並列化: parallel_do</h1>
+<div><p>一部のループでは、反復空間の最後が不明であるか、あるいはループが終了する前にループボディーが反復を追加することがあります。どちらの場合も、<span class="option">tbb::parallel_do</span> テンプレート・クラスを使用することで対処できます。</p>
+<p>リンクリストは、終端が不明な反復空間の例です。並列プログラミングでは、リンクリストのアイテムへのアクセスは本質的にシリアルであるため、リンクリストの代わりに動的配列を使用するほうが効率的です。しかし、リンクリストを使用する必要があり、アイテムが安全に並列処理可能で、各アイテムの処理に少なくとも数千命令がかかる場合、<samp class="codeph">parallel_do</samp> を使用して一部を並列処理します。</p>
+<p>例えば、次のシリアルコードについて考えてみます。</p>
+<pre>void SerialApplyFooToList( const std::list&lt;Item&gt;&amp; list ) {
+    for( std::list&lt;Item&gt;::const_iterator i=list.begin() i!=list.end(); ++i ) 
+        Foo(*i);
+}</pre><p><samp class="codeph">Foo</samp> の実行に少なくとも数千個の命令が費やされる場合、<samp class="codeph">parallel_do</samp> を使用するようにループを変換することで、並列処理を高速化できます。そのためには、<samp class="codeph">const</samp> 修飾された <samp class="codeph">operator()</samp> を使用してオブジェクトを定義します。これは、<samp class="codeph">operator()</samp> が <samp class="codeph">const</samp> でなければならない点を除いて、C++ 標準ヘッダー <samp class="codeph">&lt;functional&gt;</samp> の C++ 関数オブジェクトと似ています。
+  </p>
+<pre>class ApplyFoo {
+public:
+    void operator()( Item&amp; item ) const {
+        Foo(item);
+    }
+};</pre><p><samp class="codeph">SerialApplyFooToList</samp> の並列形式は次のようになります。
+  </p>
+<pre>void ParallelApplyFooToList( const std::list&lt;Item&gt;&amp; list ) {
+    parallel_do( list.begin(), list.end(), ApplyFoo() ); 
+}</pre><p><samp class="codeph">parallel_do</samp> を呼び出しても、2 つのスレッドは同時に入力イテレーターで動作しません。シリアルプログラムの入力イテレーターの定義は正しく動作します。ワークのフェッチはシリアルであるため、<samp class="codeph">parallel_do</samp> はスケーラブルでなくなります。しかし、多くの状況では、シリアルに処理した場合よりも高速化されます。
+  </p>
+<p><samp class="codeph">parallel_do</samp> でワークをスケーラブルに取得する方法は 2 つあります。</p>
+<ul><li><p>イテレーターをランダムアクセス・イテレーターにします。</p>
+</li>
+<li><p><samp class="codeph">parallel_do</samp> のボディー引数は、第 2 引数が型 <samp class="codeph">parallel_do&lt;Item&gt;&amp;</samp> の「フィーダー」の場合、<samp class="codeph"><em>feeder</em>.add(<em>item</em>)</samp> を呼び出すことで、より多くのワークを追加できます。例えば、ツリーのノードを処理することは、その子孫を処理するための前提条件です。<samp class="codeph">parallel_do</samp> では、ノードを処理した後、<samp class="codeph"><var>feeder</var>.add</samp> を使用して子孫ノードを追加できます。<samp class="codeph">parallel_do</samp> のインスタンスは、すべてのアイテムが処理されるまで終了しません。</p>
+</li>
+</ul>
+<div class="section"><h2 class="sectiontitle">コードサンプル</h2><p><samp class="codeph">examples/parallel_do/parallel_preorder</samp> ディレクトリーには、<samp class="codeph">parallel_do</samp> を使用して、非巡回有向グラフの並列の前順走査を行う小さなアプリケーションが含まれています。このサンプルは、<samp class="codeph">parallel_do_feeder</samp> を使用してより多くのワークを追加する方法を示しています。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Parallelizing_Complex_Loops.html">複雑なループの並列化</a></div>
+</div>
+<div/>
+</body>
+</html>

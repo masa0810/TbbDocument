@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="デバッグ機能の有効化"/>
+<meta name="DC.subject" content="デバッグ機能の有効化, TBB_USE_DEBUG, TBB_USE_ASSERT, TBB_USE_THREADING_TOOLS, TBB_USE_PERFORMANCE_WARNINGS"/>
+<meta name="keywords" content="デバッグ機能の有効化, TBB_USE_DEBUG, TBB_USE_ASSERT, TBB_USE_THREADING_TOOLS, TBB_USE_PERFORMANCE_WARNINGS"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/environment.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="enabling_debugging_features"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>デバッグ機能の有効化</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="enabling_debugging_features">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">デバッグ機能の有効化</h1>
+<div><div class="section"><p>4 つのマクロが特定のデバッグ機能を制御します。これらの機能はパフォーマンスを低下させる可能性があるため、一般に、開発コードではオン、製品コードではオフにしてコンパイルすると便利です。次の表は、マクロとそのデフォルト値を要約したものです。値が 1 の場合は対応する機能が有効になり、0 の場合は無効になります。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl6" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">デバッグマクロ</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="288.0px" id="d43828e38"><p><strong>マクロ</strong></p>
+</th>
+<th class="cellrowborder" valign="top" width="250.0px" id="d43828e42"><p><strong>デフォルト値</strong></p>
+</th>
+<th class="row-nocellborder" valign="top" width="275.0px" id="d43828e46"><p><strong>機能</strong></p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" rowspan="2" valign="top" width="288.0px" headers="d43828e38 "><p><samp class="codeph">TBB_USE_DEBUG</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="250.0px" headers="d43828e42 "><p>Windows*:</p>
+<p><samp class="codeph">_DEBUG</samp> が定義されている場合は 1。</p>
+<p>その他の場合は 0。</p>
+</td>
+<td class="row-nocellborder" rowspan="2" valign="top" width="275.0px" headers="d43828e46 "><p>この表のほかのすべてのマクロのデフォルト値になります。</p>
+</td>
+</tr>
+<tr><td class="row-nocellborder" valign="top" width="250.0px" headers="d43828e42 "><p>その他のシステム: 0。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="288.0px" headers="d43828e38 "><p><samp class="codeph">TBB_USE_ASSERT</samp></p>
+</td>
+<td class="cellrowborder" rowspan="3" valign="top" width="250.0px" headers="d43828e42 "><p><samp class="codeph">TBB_USE_DEBUG</samp></p>
+<p> </p>
+</td>
+<td class="row-nocellborder" valign="top" width="275.0px" headers="d43828e46 "><p>アサーションの内部チェックを有効にします。パフォーマンスが大幅に低下します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="288.0px" headers="d43828e38 "><p><samp class="codeph">TBB_USE_THREADING_TOOLS</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="275.0px" headers="d43828e46 "><p>インテル&reg; Parallel Studio XE の解析ツールのフルサポートを有効にします。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="288.0px" headers="d43828e38 "><p><samp class="codeph">TBB_USE_PERFORMANCE_WARNINGS</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="275.0px" headers="d43828e46 "><p>パフォーマンスの問題に関する警告を有効にします。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle"><samp class="codeph">TBB_USE_ASSERT</samp> マクロ</h2><p><samp class="codeph">TBB_USE_ASSERT</samp> マクロは、エラーチェックをヘッダーファイルで有効にするかどうかを制御します。エラーチェックを有効にするには、<samp class="codeph">TBB_USE_ASSERT</samp> を <samp class="codeph">1</samp> として定義してください。</p>
+<p>エラーが検出されると、ライブラリーはエラーメッセージを <samp class="codeph">stderr</samp> に出力して標準 C ルーチン <samp class="codeph">abort</samp> を呼び出します。内部エラーチェックがエラーを検出したときにプログラムを停止するには、<samp class="codeph">tbb::assertion_failure</samp> にブレークポイントをセットしてください。</p>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>Windows* オペレーティング・システムでデバッグビルドを行うと、デフォルトで <samp class="codeph">TBB_USE_ASSERT</samp> は 1 に暗黙的に設定されます。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle"><samp class="codeph">TBB_USE_THREADING_TOOLS</samp> マクロ</h2><p><samp class="codeph">TBB_USE_THREADING_TOOLS</samp> マクロは、インテル&reg; Inspector およびインテル&reg; VTune&#8482; Amplifier のサポートを制御します。</p>
+<p>これらのツールのフルサポートを有効にするには、<samp class="codeph">TBB_USE_THREADING_TOOLS</samp> を <samp class="codeph">1</samp> として定義してください。リリースビルドでツールの一部のサポートをオフにしてパフォーマンスを最大にするには、<samp class="codeph">TBB_USE_THREADING_TOOLS</samp> を未定義のままにしておくか、0 として定義してください。</p>
+</div>
+<div class="section"><h2 class="sectiontitle"><samp class="codeph">TBB_USE_PERFORMANCE_WARNINGS</samp> マクロ</h2><p><samp class="codeph">TBB_USE_PERFORMANCE_WARNINGS</samp> マクロは、パフォーマンスの警告を制御します。警告を有効にするには、1 に定義します。現在、次の警告が影響を受けます。</p>
+<ul><li><p><samp class="codeph">concurrent_hash_map</samp> 用の効率の悪いハッシュ関数に関するいくつかの警告。警告を有効にするとパフォーマンスに影響する可能性があります。</p>
+</li>
+<li><p>インテル&reg; プロセッサー向けの 32 ビット・プログラムにおける、アライメントされていない 8 バイトのアトミックストア操作に関する警告。</p>
+</li>
+</ul>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/environment.html">環境</a></div>
+</div>
+<div/>
+</body>
+</html>

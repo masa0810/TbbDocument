@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="タスク・スケジュールの動作"/>
+<meta name="DC.subject" content="タスク・スケジュールの動作"/>
+<meta name="keywords" content="タスク・スケジュールの動作"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/The_Task_Scheduler.html"/>
+<meta name="DC.Relation" scheme="URI" content="Scheduler_Bypass.html"/>
+<meta name="DC.Relation" scheme="URI" content="Simple_Example_Fibonacci_Numbers.html#tutorial_Simple_Example_Fibonacci_Numbers"/>
+<meta name="DC.Relation" scheme="URI" content="Continuation_Passing.html#tutorial_Continuation_Passing"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_How_Task_Scheduling_Works"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>タスク・スケジュールの動作</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_How_Task_Scheduling_Works">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">タスク・スケジュールの動作</h1>
+<div><p>スケジューラーは、「タスクグラフ」を評価します。グラフは、ノードがタスクを表す有向グラフで、それぞれ「親」を指しています。親は、自身の完了を待っている別のタスクか、NULL のいずれかです。<span class="option">task::parent</span><samp class="codeph">()</samp> メソッドは、親ポインターの読み取り専用アクセスをプログラマーに提供します。各タスクには、そのタスクを親として持つタスク数をカウントする <em>refcount</em> があります。グラフは、時間とともに進化します。</p>
+<div class="fignone" id="fig7"><span class="figcap">フィボナッチ例のタスクグラフ</span><br/><img src="Images/image014.jpg"/><br/></div>
+<p>上記の図は、フィボナッチ例のタスクグラフを示しています。</p>
+<ul><li><p>タスク A、B、C は、タスクが待っている子タスクを生成しました。タスク A、B、C の <em>refcount</em> 値は、子の数 +1 になります。+1 は、このセクションの後で説明する明示的な待機の規則の一部です。</p>
+</li>
+<li><p>タスク D は実行していますが、子を生成していないため、まだ参照カウントを設定する必要はありません。</p>
+</li>
+<li><p>タスク E、F、G は生成されましたが、まだ実行を開始していません。</p>
+</li>
+</ul>
+<p>スケジューラーは、メモリー容量とスレッド間通信の両方を最小限に抑える方法でタスクを実行します。このためには、深さ優先の実行と幅優先の実行のバランスをとる必要があります。ツリーが有限であると仮定すると、シリアル実行には深さ優先が最も良い方法です。これには、次のような理由があります。</p>
+<ul><li><p><strong>キャッシュは熱い (ホット) うちに打つ</strong>。最も深いタスクは、最も新しく生成されたタスクで、キャッシュで最もホットな状態です。また、それらのタスクが完了できる場合、タスク C は実行を続けることができ、キャッシュで最もホットではありませんが、その上にある古いタスクよりホットな (新しい) 状態です。</p>
+</li>
+<li><p><strong>空間を最小限に抑える</strong>。最も浅いタスクを実行すると、幅優先のツリー展開になります。この結果、同時に共存するノードが大量に作成されます。一方、深さ優先の実行では同じ数のノードが作成されますが、ほかの準備ができているタスク (図では、E、F、G) をスタックしてしまうため、直線方向のノード数のみが同時に共存できます。</p>
+</li>
+</ul>
+<p>幅優先の実行はメモリーを消費するという問題がありますが、物理スレッドの数が無限にある場合は、並列処理を最大限に引き出す実行方法です。しかし、物理スレッドは限られているため、利用可能なプロセッサーを常に稼動状態にできる分だけ幅優先の実行を使用すると良いでしょう。</p>
+<p>スケジューラーは、深さ優先の実行と幅優先の実行を組み合わせて実装します。各スレッドには、実行する準備ができているタスクのデック<a href="#ftn8"><sup><sup>[8]</sup></sup></a> があります。スレッドがタスクを生成すると、自身のデックの下部にタスクをプッシュします。次の図は、上記のタスクグラフに対応するスレッドのデックを示しています。</p>
+<div class="fignone" id="fig8"><span class="figcap">スレッドのデック</span><br/><img src="Images/image015.jpg" width="222" height="93"/><br/></div>
+<p>スレッドがタスクグラフ評価に入ると、スレッドは次の規則のうち一番最初に当てはまる規則で取得されたタスクを続けて実行します。</p>
+<ol><li><p id="Execution_Rules">前のタスクの <samp class="codeph">execute</samp> メソッドによって返されたタスクを使用する。この規則は、<samp class="codeph">execute</samp> が <samp class="codeph">NULL</samp> を返した場合には適用されません。</p>
+</li>
+<li><p>「自身の」デックの「下部」からタスクをポップする。この規則は、デックが空の場合は適用されません。</p>
+</li>
+<li><p>無作為に選択された「別の デックの上部」からタスクをスチールする。選択されたデックが空の場合、スレッドはこの規則が当てはまるまで実行します。</p>
+</li>
+</ol>
+<p>規則 1 は、<strong>「スケジューラーのバイパス」</strong>で説明されています。規則 2 の全体への影響は、スレッドに生成された「最も若い」タスクを実行することです。スレッドがタスクを実行できなくなるまで、深さ優先の実行が行われます。その後、規則 3 が適用されます。スレッドは別のスレッドで生成された「最も古い」タスクをスチールし、潜在的な並列処理を実際の並列処理に変換する幅優先の実行が一時的に行われます。</p>
+<p>タスクの取得は常に自動で、タスクグラフ評価の一部として行われます。タスクのデックへの格納は、明示的または暗黙的です。スレッドは常に、タスクを自身のデックの下部にプッシュします。別のスレッドのデックには決してプッシュしません。あるスレッドで生成したタスクを別のスレッドに転送できるのはスチールだけです。</p>
+<p>スレッドがタスクを自身のデックにプッシュする 3 つの条件があります。</p>
+<ul><li><p>タスクが <samp class="codeph">spawn</samp> メソッドなどによって明示的に作成される。</p>
+</li>
+<li><p><samp class="codeph">task::recycle_to_reexecute</samp> メソッドでタスクに再実行のマークが付けられている。</p>
+</li>
+<li><p>スレッドが最後の子タスクの実行を完了して、<strong>かつ</strong>子タスクの完了時に暗黙的にデクリメントされた後でタスクの参照カウントがゼロになる。この場合、スレッドは親タスクを自身のデックの下部に暗黙的にプッシュします。参照カウントに追加の参照が含まれている場合、最後の子を完了しても参照カウントはゼロになりません。</p>
+</li>
+</ul>
+<p><strong>「フィボナッチ数」</strong>の例では、子の完了を明示的に待っているため、暗黙的なプッシュは行われません。2 つの子があるタスクには、<samp class="codeph">set_ref_count(3)</samp> を使用しています。この追加の参照により、親が暗黙的にプッシュされることを防いでいます。<strong>「継続渡し」</strong>にも、暗黙的なプッシュを使用する同様の例があります。2 つの子があるタスクに <samp class="codeph">set_ref_count(2)</samp> を使用しているため、子が完了するとそのタスクが自動的に実行されます。</p>
+<p>要約すると、タスク・スケジューラーの基本的な手法は、"幅優先のスチールと深さ優先のワーク" です。幅優先のスチール規則は、スレッドが十分に稼動状態であるような並列処理をもたらします。幅優先のワーク規則では、いったん十分なワークを取得してしまえば、スレッドがそれを効率良く操作できるようにします。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/The_Task_Scheduler.html">タスク・スケジューラー</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Scheduler_Bypass.html">スケジューラーのバイパス</a></div>
+<div><a href="Simple_Example_Fibonacci_Numbers.html#tutorial_Simple_Example_Fibonacci_Numbers">簡単な例: フィボナッチ数</a></div>
+<div><a href="Continuation_Passing.html#tutorial_Continuation_Passing"/></div></div></div><p class="tfootnote"><a id="ftn8"><sup>[8]</sup></a>  両端キュー。</p>
+</body>
+</html>

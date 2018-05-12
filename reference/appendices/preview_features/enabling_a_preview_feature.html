@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="プレビュー機能の有効化"/>
+<meta name="DC.subject" content="プレビュー機能の有効化"/>
+<meta name="keywords" content="プレビュー機能の有効化"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/appendices/preview_features.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="enabling_a_preview_feature"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>プレビュー機能の有効化</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="enabling_a_preview_feature">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">プレビュー機能の有効化</h1>
+<div><p>プレビュー機能は、ヘッダーファイルで定義することができます。場合によっては、ライブラリーで追加定義が必要になることがあります。</p>
+<p>ヘッダーファイルで完全に定義されているプレビュー機能の場合、機能固有マクロはヘッダーファイルをインクルードする前に定義する必要があります。</p>
+<p>サンプル</p>
+<pre>#define TBB_PREVIEW_FOO 1
+ #include "tbb/foo.h"</pre><p>ライブラリーで追加定義が必要なプレビュー機能の場合、アプリケーションに追加のライブラリーをリンクする必要があります。</p>
+<p>別のヘッダー、機能固有マクロ、別のライブラリーを使用することで、ほかの製品機能に対するプレビュー機能の影響が緩和されます。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>プレビュー機能は、上記の方法で明示的に有効にしない限り、アプリケーションに対して効果がありません。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/appendices/preview_features.html">プレビュー機能</a></div>
+</div>
+<div/>
+</body>
+</html>

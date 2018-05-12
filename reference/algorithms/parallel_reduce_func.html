@@ -1,0 +1,213 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="parallel_reduce テンプレート関数"/>
+<meta name="DC.subject" content="parallel_reduce テンプレート関数"/>
+<meta name="keywords" content="parallel_reduce テンプレート関数"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/algorithms.html"/>
+<meta name="DC.Relation" scheme="URI" content="../task_scheduler/task_scheduler_init_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="parallel_reduce_func"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>parallel_reduce テンプレート関数</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="parallel_reduce_func">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">parallel_reduce テンプレート関数</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>範囲のリダクションを計算します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/parallel_reduce.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>
+template&lt;typename Range, typename Value,
+         typename Func, typename Reduction&gt;
+Value parallel_reduce( const Range&amp; range, const Value&amp; identity,
+                       const Func&amp; func, const Reduction&amp; reduction,
+                       [, partitioner[, task_group_context&amp; group]] );
+
+template&lt;typename Range, typename Body&gt;
+void parallel_reduce( const Range&amp; range, Body&amp; body
+                      [, partitioner[, task_group_context&amp; group]] );
+</pre><p>
+                オプションの <samp class="codeph">partitioner</samp> は、「パーティショナー」セクションのパーティショナー表の列 1 にある任意のパーティショナーを宣言します。
+            </p>
+</div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">parallel_reduce</samp> テンプレートには 2 つの形式があります。関数形式は、簡単にラムダ式と組み合わせて使用できるように設計されています。命令形式は、データのコピーを最小限に抑えるように設計されています。</p>
+<p>関数形式 <samp class="codeph">parallel_reduce(range,identity,func,reduction)</samp> は、サブ範囲に <em>func</em> を適用し、2 項演算子 <em>reduction</em> を使用して結果をレデュースすることで、並列リダクションを行い、リダクションの結果を返します。<em>func</em> 引数と <em>reduction</em> 引数には、ラムダ式を指定することができます。以下の表は、<em>identity</em>、<em>func</em>、および <em>reduction</em> の型要件を要約したものです。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">Func と Reduction の要件</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" id="d3830e80"><p>擬似署名</p>
+</th>
+<th class="row-nocellborder" valign="top" id="d3830e83"><p>意味</p>
+</th>
+</tr>
+</thead>
+<tbody><tr valign="top"><td class="cellrowborder" valign="top" headers="d3830e80 "><p><samp class="codeph">Value Identity</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d3830e83 "><p><samp class="codeph">Func::operator()</samp> の左単位元。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d3830e80 "><p><samp class="codeph">Value Func::operator()(const Range&amp; range, const Value&amp; x)</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d3830e83 "><p>初期値 <samp class="codeph">x</samp> から開始して、サブ範囲の結果を累積します。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d3830e80 "><p><samp class="codeph">Value Reduction::operator()(const Value&amp; x, const Value&amp; y)</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d3830e83 "><p>結果 <samp class="codeph">x</samp> と <samp class="codeph">y</samp> を組み合わせます。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>命令形式 <samp class="codeph">parallel_reduce(<em>range</em>,<em>body</em>)</samp> は、<em>range</em> の各値について <em>body</em> の並列リダクションを行います。<samp class="codeph">Range</samp> 型は、Range コンセプトをモデル化しなければなりません。ボディーは、以下の表の要件をモデル化しなければなりません。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">parallel_reduce の Body の要件</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" id="d3830e150"><p>擬似署名</p>
+</th>
+<th class="row-nocellborder" valign="top" id="d3830e153"><p>意味</p>
+</th>
+</tr>
+</thead>
+<tbody><tr valign="top"><td class="cellrowborder" valign="top" headers="d3830e150 "><p><samp class="codeph">Body::Body( Body&amp;, split )</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d3830e153 "><p>分割コンストラクター。<samp class="codeph">operator()</samp> および <samp class="codeph">join</samp> メソッドと同時に実行できなければなりません。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d3830e150 "><p><samp class="codeph"> Body::~Body()</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d3830e153 "><p>デストラクター。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d3830e150 "><p><samp class="codeph">void Body::operator()(const Range&amp; range)</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d3830e153 "><p>サブ範囲の結果を累積します。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d3830e150 "><p><samp class="codeph"> void Body::join( Body&amp; rhs )</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d3830e153 "><p>結果を結合します。rhs の結果は <samp class="codeph">this</samp> の結果にマージしてください。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><samp class="codeph">parallel_reduce</samp> は、<samp class="codeph">is_divisible()</samp> が各サブ範囲で false になるポイントまで、範囲をサブ範囲に再帰的に分割します。<samp class="codeph">parallel_reduce</samp> は、分割コンストラクターを使用して各スレッドのボディーの 1 つ以上のコピーを構築します。ボディーの <samp class="codeph">operator()</samp> または join メソッドが同時に実行している間、ボディーをコピーします。プログラマーは、この並列性の安全を保証する責任を負います。一般的な使用方法では、安全性のために労力を費やす必要ありません。</p>
+<p>ワーカースレッドが利用可能な場合、<samp class="codeph">parallel_reduce</samp> はボディーに対して分割コンストラクターを呼び出します。そのようなボディーの各分割について、ボディーから結果をマージするために join メソッドを呼び出します。this が this と rhs の累積された結果を表すように join を定義します。リダクション操作は結合でなければなりませんが、可換的である必要はありません。非可換演算 <em>op</em> では、"<samp class="codeph"><em>left</em>.join(<em>right</em>)</samp>)" は <em>left</em> を <em>left op right</em> の結果になるように更新します。</p>
+<p>ボディーは範囲が分割している場合のみ分割されますが、逆は必ずしもそうではありません。以下の図は、<samp class="codeph">parallel_reduce</samp> のサンプルの実行を表しています。ルートは、半開区間 [0,20) に適用されているオリジナルボディー b<sub>0</sub> を表します。範囲は各レベルで 2 つのサブ範囲へ再帰分割されます。サンプルの粒度は 5 で、4 つのリーフ範囲が生成されます。斜線 (/) は、どこでボディー分割コンストラクターによってボディーのコピー (b<sub>1</sub> および b<sub>2</sub>) が作成されたかを示します。ボディー b<sub>0</sub> および b<sub>1</sub> は、それぞれ 1 つのリーフを評価します。ボディー b<sub>2</sub> は、リーフ [10,15) および [15,20) を順に評価します。ツリーを戻る途中で、<samp class="codeph">parallel_reduce</samp> は b<sub>0</sub>.join(b<sub>1</sub>) と b<sub>0</sub>.join(b<sub>2</sub>) を呼び出してリーフの結果をマージします。</p>
+<p><strong>blocked_range&lt;int&gt;(0,20,5) での parallel_reduce の実行</strong></p>
+<img id="image_5E29BE34010E45D982CC687AE7BA97D8" src="../Resources/parll_red.jpg"/><p>上記の図は、可能性のある 1 つの実行パスを示しているにすぎません。ほかの有効な実行には、b<sub>2</sub> から b<sub>2</sub> および b<sub>3</sub> に分割すること、または全く分割しないことがあります。分割しない場合、b<sub>0</sub> は、<samp class="codeph">join</samp> を呼び出すことなく、各リーフを左から右に順に評価します。ボディーは、常に左から右の順でサブ範囲を評価します。例えば、上記の図では、ボディー b<sub>2</sub> は [10,15) を [15,20) の前に評価することが保証されています。ボディーのインスタンスでは左から右へのプロパティーを想定してもかまいませんが、ボディー分割の際に特定のサブ範囲が選択されることや、ボディー・オブジェクトによって処理されるサブ範囲が連続していることを当てにしてはなりません。<samp class="codeph">parallel_reduce</samp> は、ボディーの分割を非決定性で行います。</p>
+<p><strong>Body b<sub>0</sub> が連続しないサブ範囲を処理するサンプル</strong></p>
+<img id="image_F63A9E8F7D5743878142989C0D8A9143" src="../Resources/non_consq_rng.jpg"/><p><samp class="codeph">join</samp> がない場合、指定されたボディーによって評価されるサブ範囲は連続していません。結合された情報は、評価されたサブ範囲間のギャップの処理を表します。上記の図は、その例を示しています。ボディー b<sub>0</sub> は、次の操作のシーケンスを実行します。</p>
+<ol><li>b<sub>0</sub>( [0,5) )</li>
+<li>b<sub>0</sub>.<samp class="codeph">join</samp>()( b<sub>1</sub> ) この時点で、b<sub>1</sub> は [5,10) を処理済み</li>
+<li>b<sub>0</sub>( [10,15) )</li>
+<li>b<sub>0</sub>( [15,20) )</li>
+</ol>
+<p>つまり、ボディー b<sub>0</sub> は、各リーフを直接処理するか、同様の方法で 1 つ以上のリーフに関する情報を収集したボディーに対して結合操作を行い、すべてのリーフのサブ範囲に関する情報を左から右の順で収集します。ワーカースレッドが利用できない場合、<samp class="codeph">parallel_reduce</samp> は <samp class="codeph">parallel_for</samp> と同じ方法で左から右に順に実行します。シーケンシャル実行は、分割コンストラクターや join メソッドを呼び出しません。</p>
+<p>すべてのオーバーロードを <samp class="codeph">task_group_context</samp> オブジェクトを渡して、アルゴリズムのタスクがこのグループで実行されるようにすることができます。デフォルトでは、アルゴリズムは自身がバインドされているグループで実行されます。</p>
+<p><strong>計算量</strong></p>
+<p>範囲とボディーが <em>O(1)</em> 空間を使用して範囲をほぼ等しい断片に分割する場合、空間計算量は <em>O(P×log(N))</em> です。ここで、<em>N</em> は範囲のサイズ、P はスレッド数です。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル (命令形式)</h2><p>次のコードは、配列の値を合計します。</p>
+<p><pre>
+#include "tbb/parallel_reduce.h"
+#include "tbb/blocked_range.h"
+
+using namespace tbb;
+
+struct Sum {
+    float value;
+    Sum() : value(0) {}
+    Sum( Sum&amp; s, split ) {value = 0;}
+    void operator()( const blocked_range&lt;float*&gt;&amp; r ) {
+        float temp = value;
+        for( float* a=r.begin(); a!=r.end(); ++a ) {
+            temp += *a;
+        }
+        value = temp;
+    }
+    void join( Sum&amp; rhs ) {value += rhs.value;}
+};
+
+float ParallelSum( float array[], size_t n ) {
+    Sum total;
+    parallel_reduce( blocked_range&lt;float*&gt;( array, array+n ),
+                     total );
+    return total.value;
+}
+</pre></p>
+<p>
+                任意の結合操作 <em>op</em> でのリダクションのために、サンプルを次のように一般化します。
+            </p>
+<ul><li>0 を <em>op</em> の単位元に置換します。</li>
+<li>+= を <em>op</em>= またはその論理的同値に置換します。</li>
+<li>名前 <samp class="codeph">Sum</samp> を <em>op</em> でより適切な名前に変更します。</li>
+</ul>
+<p>演算は非可換であってもかまいません。例えば、<em>op</em> は行列乗算であってもかまいません。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">ラムダ式のサンプル</h2><p>次のサンプルは、前述のサンプルに似ていますが、ラムダ式と <samp class="codeph">parallel_reduce</samp> の関数形式を使用して記述されています。</p>
+<p><pre>
+#include "tbb/parallel_reduce.h"
+#include "tbb/blocked_range.h"
+
+using namespace tbb;
+
+float ParallelSum( float array[], size_t n ) {
+    return parallel_reduce(
+        blocked_range&lt;float*&gt;( array, array+n ),
+        0.f,
+        [](const blocked_range&lt;float*&gt;&amp; r, float init)-&gt;float {
+            for( float* a=r.begin(); a!=r.end(); ++a )
+                init += *a;
+            return init;
+        },
+        []( float x, float y )-&gt;float {
+            return x+y;
+        }
+    );
+}
+</pre></p>
+<p>
+                STL の一般化された算術演算と関数オブジェクトを使用して、次のように、このサンプルをより簡潔に記述することもできます。
+            </p>
+<p><pre>
+#include &lt;numeric&gt;
+#include &lt;functional&gt;
+#include "tbb/parallel_reduce.h"
+#include "tbb/blocked_range.h"
+
+using namespace tbb;
+
+float ParallelSum( float array[], size_t n ) {
+    return parallel_reduce(
+        blocked_range&lt;float*&gt;( array, array+n ),
+        0.f,
+        [](const blocked_range&lt;float*&gt;&amp; r, float value)-&gt;float {
+            return std::accumulate(r.begin(),r.end(),value);
+        },
+        std::plus&lt;float&gt;()
+    );
+}
+</pre></p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/algorithms.html">アルゴリズム</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../task_scheduler/task_scheduler_init_cls.html">task_scheduler_init クラス</a></div></div></div>
+</body>
+</html>

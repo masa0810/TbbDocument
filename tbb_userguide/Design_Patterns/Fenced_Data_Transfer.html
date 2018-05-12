@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="フェンス付きデータ転送"/>
+<meta name="DC.subject" content="フェンス付きデータ転送"/>
+<meta name="keywords" content="フェンス付きデータ転送"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/Design_Patterns.html"/>
+<meta name="DC.Relation" scheme="URI" content="Lazy_Initialization.html#Lazy_Initialization"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="Fenced_Data_Transfer"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>フェンス付きデータ転送</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="Fenced_Data_Transfer">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">フェンス付きデータ転送</h1>
+<div><div class="section"><h2 class="sectiontitle">問題</h2><p>順序に一貫性がないメモリーモデルのハードウェアで、メモリーにメッセージを書き込んでいるときに、別のプロセッサーがそのメッセージを読み取る。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">コンテキスト</h2><p>この問題は、同期されていない複数のスレッドがメモリーの同じ場所に同時にアクセスしたとき、または読み取りと書き込みを使用して同期を行う際にのみ発生します。高レベルの同期には、不必要な順序変更を防ぐメカニズムが含まれています。</p>
+<p>最近のハードウェアやコンパイラーは、スレッドの操作の順序を保存してメモリー操作の順序を変更することができますが、これはほかのスレッドではなくそのスレッドの観点から行われます。シリアルコードでは、次のコードに示すように、メッセージを書き込んでから準備ができたことを通知します。</p>
+<pre>bool Ready;
+std::string Message;
+ 
+void Send( const std::string&amp; src ) {.// スレッド 1 で実行
+   Message=src;
+   Ready = true;
+}
+ 
+bool Receive( std::string&amp; dst ) {    // スレッド 2 で実行
+   bool result = Ready;
+   if( result ) dst=Message;
+   return result;              // メッセージを受け取ると true を返す
+}</pre><p>このコードの重要な仮定は次の 2 つです。 
+		</p>
+<ol class="abc"><li><p><samp class="codeph">Message</samp> が書き込まれるまで <samp class="codeph">Ready</samp> は true になりません。</p>
+</li>
+<li><p><samp class="codeph">Ready</samp> が true になるまで <samp class="codeph">Message</samp> は読み取れません。</p>
+</li>
+</ol>
+<p>これらの仮定は単一プロセッサー・システムではもちろん当てはまります。しかし、マルチプロセッサー・システムでは当てはまりません。ハードウェアやコンパイラーで順序変更を行うと、送信者の書き込みが順序どおりに行われない (条件 a に当てはまらなくなる)、あるいは受信者の読み取りが順序どおりに行われない (条件 b に当てはまらなくなる) ことがあります。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">影響</h2><ul><li><p>読み取りと書き込みの同期を行います。</p>
+</li>
+</ul>
+</div>
+<div class="section"><h2 class="sectiontitle">関連項目</h2><ul><li>遅延初期化</li>
+</ul>
+</div>
+<div class="section"><h2 class="sectiontitle">ソリューション</h2><p>メッセージの準備ができたことを知らせるフラグを <samp class="codeph">bool</samp> から <samp class="codeph">tbb::atomic&lt;bool&gt;</samp> に変更します。以前のサンプルを修正したサンプル (変更点を<samp class="codeph"><span class="color(blue)" style="color:blue"><strong>太字</strong></span></samp>で表示) を次に示します。</p>
+<pre><span class="color(blue)" style="color:blue"><strong>tbb::atomic&lt;</strong></span>bool<span class="color(blue)" style="color:blue"><strong>&gt;</strong></span> Ready;
+std::string Message;
+ 
+void Send( const std::string&amp; src ) {.// スレッド 1 で実行
+   Message=src;
+   Ready = true;
+}
+ 
+bool Receive( std::string&amp; dst ) {    // スレッド 2 で実行
+   bool result = Ready;
+   if( result ) dst=Message;
+   return result;              // メッセージを受け取ると true を返す
+}</pre><p>値 <samp class="codeph">tbb::atomic</samp> への書き込みには <em>release</em> (解放) セマンティクスが用いられ、書き込みを解放する前にその前の書き込みがすべて行われます。値 <samp class="codeph">tbb::atomic</samp> からの読み取りには <em>acquire</em> (取得) セマンティクスが用いられ、読み取りを取得した後にその後の読み取りがすべて行われます。<samp class="codeph">tbb::atomic</samp> を実装することで、コンパイラーとハードウェアの両方がこれらの順序条件を確認することが保証されます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">バリエーション</h2><p>高レベルの同期には通常、必要な <em>acquire</em> と <em>release</em> フェンスが含まれています。例えば、mutex は通常、ロックの取得に <em>acquire</em> セマンティクス、ロックの解放に <em>release</em> セマンティクスを用いて実装されます。このため、mutex でロックを取得するスレッドは常に、その mutex のロックを解放する前に別のスレッドによって行われるすべてのメモリー書き込みを確認します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">誤ったソリューション</h2><p>よく提案される誤ったソリューションについて、なぜそのソリューションが間違っているか理解しておくと良いでしょう。</p>
+<p>よくある誤りは、<samp class="codeph">volatile</samp> キーワードを使用してフラグを宣言することで問題が解決すると仮定することです。<samp class="codeph">volatile</samp> キーワードは直ちに書き込みを行うように制御しますが、一般にほかのメモリー操作に関連してその書き込みの順序には見た目上の効果はありません。</p>
+<p>別の誤りは、条件をテストする前にその条件によって実行されるコードがないと仮定することです。コンパイラーやハードウェアによっては、条件の前にその条件付きコードを投機的に実行する可能性があります。</p>
+<p>同様に、プロセッサーがポインターを読む前にポインターのターゲットを読むことができないと仮定することも誤りです。最近のプロセッサーはメインメモリーから個々の値を読むのではなく、キャッシュラインを読みます。ポインターを読む前に、ポインターのターゲットがすでに読み込まれ、キャッシュラインにある場合、プロセッサーがポインターのターゲットを先に読むことは起こりえます。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../tbb_userguide/Design_Patterns/Design_Patterns.html">デザインパターン</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Lazy_Initialization.html#Lazy_Initialization">遅延初期化</a></div></div></div>
+</body>
+</html>

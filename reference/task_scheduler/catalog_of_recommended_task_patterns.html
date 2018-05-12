@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="推奨するタスクパターンのカタログ"/>
+<meta name="DC.subject" content="推奨するタスクパターンのカタログ"/>
+<meta name="keywords" content="推奨するタスクパターンのカタログ"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/task_scheduler.html"/>
+<meta name="DC.Relation" scheme="URI" content="empty_task_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="catalog_of_recommended_task_patterns"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>推奨するタスクパターンのカタログ</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="catalog_of_recommended_task_patterns">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">推奨するタスクパターンのカタログ</h1>
+<div><div class="section"><p>このセクションでは、推奨するタスクパターンを説明します。各パターンで、T クラスは <samp class="codeph">task</samp> クラスから派生すると仮定されます。サブタスクは、t<sub>1</sub>、t<sub>2</sub>、... t<sub>k</sub> と表記します。添字は、並列処理できない場合にサブタスクを実行する順序を示します。並列処理が可能な場合、サブタスクの実行順は、t<sub>1</sub> が生成されるスレッドによって実行されることが保証される以外、実行の順番に再現性はありません。</p>
+<p>再帰タスクパターンは、タスク・スケジューラーが潜在的な並列処理を明らかにして利用可能な並列処理にできるため、効率的でスケーラブルな並列処理に推奨されます。再帰タスクパターンは、ルートタスク t<sub>0</sub> を作成して次のように実行することで始まります。</p>
+<pre> T&amp; t<sub>0</sub> = *new(allocate_root()) T(...);
+ task::spawn_root_and_wait(t<sub>0</sub>);</pre><p>ルートタスクの <samp class="codeph">execute()</samp> メソッドは、この後に記述されているように多くのタスクを再帰的に作成します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">ブロックスタイルと <em>k</em> の子</h2><p>次のコードは、各レベルが <em>k</em> の子を生成する <em>T</em> 型の再帰タスクの推奨スタイルを示しています。</p>
+<pre> task* T::execute() {
+     if( not recursing any further ) {
+         ...
+     } else {
+         set_ref_count(k+1);
+         task&amp; t<sub>k</sub> = *new(allocate_child()) T(...);  spawn(t<sub>k</sub>);
+         task&amp; t<sub>k-1</sub>= *new(allocate_child()) T(...);  spawn(t<sub>k-1</sub>);
+         ...
+         task&amp; t<sub>1</sub> = *new(allocate_child()) T(...);
+         spawn_and_wait_for_all(t<sub>1</sub>);
+     }
+     return NULL;
+ }</pre><p>タスクの生成前にタスクが構築される場合、子の構築と生成の順序は変更できます。</p>
+<p>このパターンの重要なポイントは次のとおりです。</p>
+<ul><li><p><samp class="codeph">set_ref_count</samp> の呼び出しはその引数として <em>k</em>+1 を使用します。追加の +1 は重要です。</p>
+</li>
+<li><p>タスクはそれぞれ <samp class="codeph">allocate_child</samp> によって割り当てられます。</p>
+</li>
+<li><p><samp class="codeph">spawn_and_wait_for_all</samp> の呼び出しは、作成と待機を組み合わせます。より統一されているが多少効率が落ちる別の方法として、spawn ですべてのタスクを作成し、<samp class="codeph">wait_for_all</samp> を呼び出して待機する方法があります。</p>
+</li>
+</ul>
+</div>
+<div class="section"><h2 class="sectiontitle">継続渡しスタイルと <em>k</em> の子</h2><p>2 つの推奨するスタイルがあります。これらのスタイルは、継続して親を再利用するほうが便利なのか、子として親を再利用するほうが便利なのかという点で異なります。継続と子のどちらがより親のように働くか、という判断に基づいて決定します。</p>
+<p>次の例では、オプションで、子を作成する代わりに子の 1 つのポインターを返すことができます。ポインターを返すようにした場合、親がリターンした直後に子が実行されます。タスクプールにタスクを格納して取り出す無意味なオーバーヘッドをスキップできるため、このオプションを選択すると効率が向上することがあります。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">継続して親を再利用</h2><p>継続が親の状態の多くを継承する必要があり、子が状態を必要としない場合、このスタイルが便利です。継続は親と同じ型を持っていなければなりません。</p>
+<pre> task* T::execute() {
+     if( not recursing any further ) {
+         ...
+         return NULL;
+     } else {
+         set_ref_count(k);
+         recycle_as_continuation();
+         task&amp; t<sub>k </sub> = *new(allocate_child()) T(...); spawn(t<sub>k</sub>);
+         task&amp; t<sub>k</sub><sub class="sub_1">-</sub><sub>1 </sub>= *new(allocate_child()) T(...); spawn(t<sub>k</sub><sub class="sub_1">-</sub><sub>1</sub>);
+         ...
+         // 不必要なオーバーヘッドを削除するため、タスクを
+         // 作成する代わりに最初の子のポインターを返す
+         task&amp; t<sub>1</sub> = *new(allocate_child()) T(...);
+         return &amp;t<sub>1</sub>;
+     }
+ }</pre><p>このパターンの重要なポイントは次のとおりです。</p>
+<ul><li><p><samp class="codeph">set_ref_count</samp> の呼び出しはその引数として <em>k</em> を使用します。ブロックスタイルであった追加の +1 はありません。</p>
+</li>
+<li><p>子タスクはそれぞれ <samp class="codeph">allocate_child</samp> によって割り当てられます。</p>
+</li>
+<li><p>継続は親を再利用し、コピー操作を行わずに親の状態を取得します。</p>
+</li>
+</ul>
+</div>
+<div class="section"><h2 class="sectiontitle">子として親を再利用</h2><p>子が親からのその状態の多くを継承し、継続が親の状態を必要としない場合、このスタイルが便利です。子は親の型を持っていなければなりません。例では、C は継続の型で、<samp class="codeph">task</samp> クラスから派生します。C が、すべての子が完了するのを待つ以外に何もしない場合、C は <samp class="codeph">empty_task</samp> クラスです。</p>
+<pre> task* T::execute() {
+     if( not recursing any further ) {
+         ...
+         return NULL;
+     } else {
+         // 継続を構築
+         C&amp; c = allocate_continuation();
+         c.set_ref_count(k);
+         // 最初の子として自身を再利用
+         task&amp; t<sub>k</sub> = *new(c.allocate_child()) T(...); spawn(t<sub>k</sub>);
+         task&amp; t<sub>k</sub><sub class="sub_1">-</sub><sub>1 </sub>= *new(c.allocate_child()) T(...); spawn(t<sub>k</sub><sub class="sub_1">-</sub><sub>1</sub>);
+         ...
+         task&amp; t<sub>2</sub> = *new(c.allocate_child()) T(...);  spawn(t<sub>2</sub>);
+         // タスク t<sub>1</sub> は再利用された自身
+         recycle_as_child_of(c);
+         t<sub>1</sub> で解決される下位の問題のために *this のフィールドを更新
+         return this;
+     }
+ }</pre><p>このパターンの重要なポイントは次のとおりです。</p>
+<ul><li><p><samp class="codeph">set_ref_count</samp> の呼び出しはその引数として <em>k</em> を使用します。ブロックスタイルであった追加の +1 はありません。</p>
+</li>
+<li><p>t<sub>1</sub> を除く子タスクはそれぞれ c.<samp class="codeph">allocate_child</samp> によって割り当てられます。<samp class="codeph">(*this).allocate_child</samp> ではなく <samp class="codeph">c.allocate_child</samp> を使用することが重要です。そうしないと、タスクグラフに誤りが生じます。</p>
+</li>
+<li><p>タスク t<sub>1</sub> は親から再利用され、コピー操作を行わずに親の状態を取得します。子を表すように状態を更新することを忘れないでください。そうしないと、無限の再帰が発生します。</p>
+</li>
+</ul>
+</div>
+<div class="section"><h2 class="sectiontitle">子タスクの実行中にメインスレッドを実行する</h2><p>子タスクの実行中にメインスレッドの実行を続けることが望ましい場合があります。次の例は、ダミータスク <samp class="codeph">empty_task</samp> を使用してこの処理を行っています。</p>
+<pre> task* dummy = new( task::allocate_root() ) empty_task;
+ dummy-&gt;set_ref_count(k+1);
+ task&amp; t<sub>k</sub> = *new( dummy-&gt;allocate_child() ) T;  dummy-&gt;spawn(t<sub>k</sub>);
+ task&amp; t<sub>k-1</sub> = *new( dummy-&gt;allocate_child() ) T;  dummy-&gt;spawn(t<sub>k-1</sub>);
+ ...
+ task&amp; t<sub>1</sub> = *new( dummy-&gt;allocate_child() ) T;  dummy-&gt;spawn(t<sub>1</sub>);
+ ...その他の処理を行う...
+ dummy-&gt;wait_for_all();
+ dummy-&gt;destroy(*dummy);</pre><p>このパターンの重要なポイントは次のとおりです。</p>
+<ol><li>ダミータスクはプレースホルダーであり、動作しません。</li>
+<li><samp class="codeph">set_ref_count</samp> の呼び出しはその引数として <em>k</em>+1 を使用します。</li>
+<li>ダミータスクは明示的に破棄しなければなりません。</li>
+</ol>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/task_scheduler.html">タスク・スケジューラー</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="empty_task_cls.html">empty_task クラス</a></div></div></div>
+</body>
+</html>

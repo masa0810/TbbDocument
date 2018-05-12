@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="バケットのインターフェイス"/>
+<meta name="DC.subject" content="バケットのインターフェイス"/>
+<meta name="keywords" content="バケットのインターフェイス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/containers_overview/concurrent_unordered_map_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="bucket_interface_map_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>バケットのインターフェイス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="bucket_interface_map_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">バケットのインターフェイス</h1>
+<div><div class="section"><p>バケットのインターフェイスは、同時に挿入処理を行っている間はメソッドを安全に使用できないことを示すプリフィクス <samp class="codeph">unsafe_</samp> が追加されることを除いて、C++11 の <samp class="codeph">unordered_map</samp> クラスと <samp class="codeph">unordered_multimap</samp> クラスのバケットのインターフェイスに似ています。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>バケットのインターフェイスはデバッグ用です。並列化セーフではありません。</p>
+<p>バケットへのキーのマッピングは実装固有です。</p>
+</div>
+<p>バケットには、0 から <samp class="codeph">unsafe_bucket_count()-1</samp> の番号が付けられます。バケットを反復するには、<samp class="codeph">local_iterator</samp> または <samp class="codeph">const_local_iterator</samp> を使用します。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d30944e50">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d30944e52">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d30944e50 "><span class="keyword">size_type unsafe_bucket_count() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d30944e52 "><p><strong>戻り値</strong>: バケットの数。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d30944e50 "><span class="keyword">size_type unsafe_max_bucket_count() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d30944e52 "><p><strong>戻り値</strong>: バケット数の上限。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d30944e50 "><span class="keyword">size_type unsafe_bucket_size(size_type n)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d30944e52 "><p><strong>戻り値</strong>: バケット <samp class="codeph"><em>n</em></samp> のアイテムの数。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d30944e50 "><span class="keyword">size_type unsafe_bucket(const key_type&amp; k) const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d30944e52 "><p><strong>戻り値</strong>: キー <em>k</em> のアイテムの位置を示すバケットのインデックス。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d30944e50 "><span class="keyword">local_iterator unsafe_begin(size_type n)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d30944e52 "><p><strong>戻り値</strong>: バケット <em>n</em> の最初のアイテムを指す <samp class="codeph">local_iterator</samp>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d30944e50 "><span class="keyword">const_local_iterator unsafe_begin(size_type n) const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d30944e52 "><p><strong>戻り値</strong>: バケット <samp class="codeph"><em>n</em></samp> の最初のアイテムを指す <samp class="codeph">const_local_iterator</samp>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d30944e50 "><span class="keyword">local_iterator unsafe_end(size_type n)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d30944e52 "><p><strong>戻り値</strong>: バケット <samp class="codeph"><em>n</em></samp> の最後のアイテムの直後を指す <samp class="codeph">local_iterator</samp>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d30944e50 "><span class="keyword">const_local_iterator unsafe_end(size_type n) const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d30944e52 "><p><strong>戻り値</strong>: バケット <samp class="codeph"><em>n</em></samp> の最後のアイテムの直後を指す <samp class="codeph">const_local_iterator</samp>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d30944e50 "><span class="keyword">const_local_iterator unsafe_cbegin(size_type n) const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d30944e52 "><p><strong>戻り値</strong>: バケット <samp class="codeph"><em>n</em></samp> の最初のアイテムを指す <samp class="codeph">const_local_iterator</samp>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d30944e50 "><span class="keyword">const_local_iterator unsafe_cend(size_type n) const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d30944e52 "><p><strong>戻り値</strong>: バケット <samp class="codeph"><em>n</em></samp> の最後の 1 つ前のアイテムを指す <samp class="codeph">const_local_iterator</samp>。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/containers_overview/concurrent_unordered_map_cls.html">concurrent_unordered_map テンプレート・クラスと concurrent_unordered_multimap テンプレート・クラス</a></div>
+</div>
+<div/>
+</body>
+</html>

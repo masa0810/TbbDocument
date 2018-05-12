@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="~task_scheduler_init()"/>
+<meta name="DC.subject" content="~task_scheduler_init"/>
+<meta name="keywords" content="~task_scheduler_init"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/task_scheduler/task_scheduler_init_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="task_scheduler_init.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="task_scheduler_init_1"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>~task_scheduler_init()</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="task_scheduler_init_1">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">~task_scheduler_init()</h1>
+<div><div class="section"><p><strong>効果</strong></p>
+<p><samp class="codeph">task_scheduler_init</samp> オブジェクトがインアクティブの場合は何も起きません。その他の場合、<samp class="codeph">task_scheduler_init</samp> オブジェクトは次のように非アクティブにされます。スレッドにほかのアクティブな <samp class="codeph">task_scheduler_init</samp> オブジェクトがない場合、スレッドはタスク・オブジェクトのスケジュールに必要な内部スレッド固有のリソースを解除します。既存のスレッドにアクティブな <samp class="codeph">task_scheduler_init</samp> オブジェクトがない場合、内部ワーカースレッドは終了します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">void initialize( int max_threads=automatic )</h2><p><strong>要件</strong></p>
+<p><samp class="codeph">task_scheduler_init</samp> オブジェクトがインアクティブであること。</p>
+<p><strong>効果</strong></p>
+<p>コンストラクターに似ています。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">void terminate()</h2><p><strong>要件</strong></p>
+<p><samp class="codeph">task_scheduler_init</samp> オブジェクトがアクティブであること。</p>
+<p><strong>効果</strong></p>
+<p><samp class="codeph">task_scheduler_init</samp> オブジェクトを破棄しないで非アクティブ化します。その結果については、デストラクターの説明を参照してください。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">int default_num_threads()</h2><p><strong>戻り値</strong></p>
+<p><samp class="codeph">task_scheduler_init</samp> がデフォルトで作成するワーカースレッドの数 +1。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">bool is_active() const</h2><p><strong>戻り値</strong></p>
+<p><samp class="codeph">*this</samp> が「task_scheduler_init クラス」セクションで説明されているようにアクティブな場合は true、アクティブでない場合は false。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">OpenMP* との混在使用</h2><p>インテル&reg; TBB は、OpenMP* との混在使用をサポートしています。2 つの並列処理が入れ子になっている場合、OpenMP* またはインテル&reg; TBB を単体で使用したときよりもパフォーマンスは多少低くなります。</p>
+<p>タスク・スケジューラーを使用する OpenMP* 並列領域はインテル&reg; TBB にとって未知の新しいスレッドを作成するため、並列領域の内部で <samp class="codeph">task_scheduler_init</samp> を作成する必要があります。これらの新しい OpenMP スレッドはそれぞれ、ネイティブスレッドのように、インテル&reg; TBB のアルゴリズムを使用する前に <samp class="codeph">task_scheduler_init</samp> オブジェクトを作成しなければなりません。次に例を示します。</p>
+<pre>void OpenMP_Calls_TBB( int n ) {
+#pragma omp parallel
+     {
+         task_scheduler_init init;
+#pragma omp for
+         for( int i=0; i&lt;n; ++i ) {
+             ...task  クラスまたは 
+                インテル&reg; TBB アルゴリズムを使用 ...
+         }
+     }
+}</pre></div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/task_scheduler/task_scheduler_init_cls.html">task_scheduler_init クラス</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="task_scheduler_init.html">task_scheduler_init(int max_threads=automatic, stack_size_type thread_stack_size=0)</a></div></div></div>
+</body>
+</html>

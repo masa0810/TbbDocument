@@ -1,0 +1,291 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="転送、バッファー、受信ポリシー"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/flow_graph.html"/>
+<meta name="DC.Relation" scheme="URI" content="message_passing_protocol.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="sender_and_buffer_policy"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>転送、バッファー、受信ポリシー</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="sender_and_buffer_policy">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">転送、バッファー、受信ポリシー</h1>
+<div><div class="section"><p>インテル&reg; TBB の flow::graph で、サクセサーにメッセージを転送するノードは、プロパティーにおいて次の 2 つの転送ポリシーのいずれかが指定されています。<ul><li><strong>broadcast-push</strong> - メッセージは受け付けるすべてのサクセサーに push されます。メッセージを受け付けるサクセサーがない場合、メッセージはノードのバッファーポリシーに応じて処理されます。</li>
+<li><strong>single-push</strong> - 1 つのサクセサーがメッセージを受け付けると、そのメッセージはそれ以上 push されません。このポリシーは、<samp class="codeph">buffer_node</samp>、<samp class="codeph">queue_node</samp>、<samp class="codeph">priority_queue_node</samp>、および <samp class="codeph">sequencer_node</samp> に固有です。メッセージを受け付けるサクセサーがない場合、メッセージは将来の push/pull に備えて保持されます。</li>
+</ul>
+</p>
+<p>サクセサーに push できないメッセージを処理するためのポリシーは 2 つあります。<ul><li><strong>buffering</strong> - メッセージを受け付けるサクセサーがない場合、メッセージは後続のノード処理が使用できるように格納されます。以下の表の "try_get()?" 列が ○ のノードは出力をバッファーします。</li>
+<li><strong>discarding</strong> - メッセージを受け付けるサクセサーがない場合、メッセージは破棄され、以降のグラフの実行には影響しません。以下の表で "try_get()?" 列が X のノードは出力を破棄します。</li>
+</ul>
+</p>
+<p>ノードがメッセージの受信を処理するためのポリシーは 2 つあります。<ul><li><strong>accept</strong> - push されるメッセージをすべて処理します。</li>
+<li><strong>switch</strong> - メッセージを受け付けず、エッジの状態を push から pull に変更します。</li>
+</ul>
+</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> 一部のサクセサーノードは、ノードの並列処理能力が十分かどうかに応じて、あるいはノードのポリシーに基づいて、メッセージを受け付けます。例えば、&lt;rejecting&gt; ポリシーを持つ並列処理が制限されていない <samp class="codeph">function_node</samp> では、ノードにメッセージが push されると、ノードのボディーを実行するためのタスクが作成されるため、エッジが push から pull に切り替わることはありません。ノードの並列処理が制限されており、その制限に達した場合、プレデセッサーがメッセージを push しようとすると、ノードは入力エッジを push から pull に変更します。</div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> 以下の表で受信ポリシーが "switch" のノードは、プレデセッサーから pull を試みます。メッセージが失われないようにするには、プレデセッサーの "try_get()?" が ○ でなければなりません。</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> reserving <samp class="codeph">join_node</samp> は常に入力メッセージを予約します。reserving <samp class="codeph">join_node</samp> への入力はすべて予約をサポートすべきです (以下の表で "try_reserve()?" が ○ でなければなりません)。</div>
+<p>以下の表は、各ノードのポリシーの一覧です。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="buffer_forward_tbl" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">入力バッファー、出力バッファー、予約、および転送ポリシー</span></caption><thead align="left"><tr><th class="cellrowborder" align="center" valign="top" width="40%" id="d60331e108"><p>ノード</p>
+</th>
+<th class="cellrowborder" align="center" valign="top" width="15%" id="d60331e111"><p>受信ポリシー</p>
+</th>
+<th class="cellrowborder" align="center" valign="top" width="15%" id="d60331e114"><p>try_get()?</p>
+</th>
+<th class="cellrowborder" align="center" valign="top" width="15%" id="d60331e117"><p>try_reserve()?</p>
+</th>
+<th class="cellrowborder" align="center" valign="top" width="15%" id="d60331e120"><p>転送</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="40%" headers="d60331e108 "><p><strong>機能ノード</strong></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="40%" headers="d60331e108 "><p><span class="keyword">source_node</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e111 "><p>--</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e114 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e117 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e120 "><p>broadcast-push</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="40%" headers="d60331e108 "><p><span class="keyword">function_node&lt;rejecting&gt;</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e111 "><p>accept/switch</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e114 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e117 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e120 "><p>broadcast-push</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="40%" headers="d60331e108 "><p><span class="keyword">function_node&lt;queueing&gt;</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e111 "><p>accept</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e114 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e117 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e120 "><p>broadcast-push</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="40%" headers="d60331e108 "><p><span class="keyword">continue_node</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e111 "><p>accept</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e114 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e117 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e120 "><p>broadcast-push</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="40%" headers="d60331e108 "><p><span class="keyword">multifunction_node&lt;rejecting&gt;</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e111 "><p>accept/switch</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e114 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e117 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e120 "><p>broadcast-push</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="40%" headers="d60331e108 "><p><span class="keyword">multifunction_node&lt;queueing&gt;</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e111 "><p>accept</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e114 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e117 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e120 "><p>broadcast-push</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="40%" headers="d60331e108 "><p><strong>バッファーノード</strong></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="40%" headers="d60331e108 "><p><span class="keyword">buffer_node</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e111 "><p>accept</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e114 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e117 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e120 "><p>single-push</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="40%" headers="d60331e108 "><p><span class="keyword">priority_queue_node</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e111 "><p>accept</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e114 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e117 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e120 "><p>single-push</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="40%" headers="d60331e108 "><p><span class="keyword">queue_node</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e111 "><p>accept</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e114 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e117 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e120 "><p>single-push</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="40%" headers="d60331e108 "><p><span class="keyword">sequencer_node</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e111 "><p>accept</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e114 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e117 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e120 "><p>single-push</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="40%" headers="d60331e108 "><p><span class="keyword">overwrite_node</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e111 "><p>accept</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e114 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e117 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e120 "><p>broadcast-push</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="40%" headers="d60331e108 "><p><span class="keyword">write_once_node</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e111 "><p>accept once</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e114 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e117 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e120 "><p>broadcast-push</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="40%" headers="d60331e108 "><p><strong>分割/結合ノード</strong></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="40%" headers="d60331e108 "><p><span class="keyword">join_node&lt;queueing&gt;</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e111 "><p>accept</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e114 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e117 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e120 "><p>broadcast-push</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="40%" headers="d60331e108 "><p><span class="keyword">join_node&lt;reserving&gt;</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e111 "><p>switch</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e114 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e117 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e120 "><p>broadcast-push</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="40%" headers="d60331e108 "><p><span class="keyword">join_node&lt;tag_matching&gt;</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e111 "><p>accept</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e114 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e117 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e120 "><p>broadcast-push</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="40%" headers="d60331e108 "><p><span class="keyword">split_node</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e111 "><p>accept</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e114 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e117 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e120 "><p>broadcast-push</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="40%" headers="d60331e108 "><p><span class="keyword">indexer_node</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e111 "><p>accept</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e114 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e117 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e120 "><p>broadcast-push</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="40%" headers="d60331e108 "><p><strong>その他のノード</strong></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="40%" headers="d60331e108 "><p><span class="keyword">broadcast_node</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e111 "><p>accept</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e114 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e117 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e120 "><p>broadcast-push</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="40%" headers="d60331e108 "><p><span class="keyword">limiter_node</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e111 "><p>accept/switch</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e114 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e117 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="15%" headers="d60331e120 "><p>broadcast-push</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/flow_graph.html">フローグラフ</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="message_passing_protocol.html">メッセージ・パッシング・プロトコル</a></div></div></div>
+</body>
+</html>

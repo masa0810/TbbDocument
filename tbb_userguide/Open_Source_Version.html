@@ -1,0 +1,207 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="オープンソース・バージョン"/>
+<meta name="DC.subject" content="オープンソース・バージョン"/>
+<meta name="keywords" content="オープンソース・バージョン"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Package_Contents.html"/>
+<meta name="DC.Relation" scheme="URI" content="windows_os_ug.html#tutorial_Windows_OS"/>
+<meta name="DC.Relation" scheme="URI" content="Linux_OS.html#tutorial_Linux_OS"/>
+<meta name="DC.Relation" scheme="URI" content="OS_X_Systems.html#tutorial_OS_X_Systems"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Open_Source_Version"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>オープンソース・バージョン</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Open_Source_Version">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">オープンソース・バージョン</h1>
+<div><p>次の表は、ライブラリーのオープンソース・バージョンの一般的なサブディレクトリー構造を示したものです。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl7" width="100%" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">インテル&reg; TBB の一般的なサブディレクトリー (オープンソース・バージョン)</span></caption><tbody><tr><td class="cellrowborder" valign="top" width="20%"><p>インクルード・ファイル</p>
+</td>
+<td class="cellrowborder" valign="top" width="80%"><p><samp class="codeph">include/tbb/*.h</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="20%"><p>ソースファイル</p>
+</td>
+<td class="cellrowborder" valign="top" width="80%"><p><samp class="codeph">src/</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="20%"><p>内部ビルド・インフラストラクチャー</p>
+</td>
+<td class="cellrowborder" valign="top" width="80%"><p><samp class="codeph">build/, jni/</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="20%"><p>ドキュメント</p>
+</td>
+<td class="cellrowborder" valign="top" width="80%"><p><samp class="codeph">doc/</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="20%"><p>環境スクリプト</p>
+</td>
+<td class="cellrowborder" valign="top" width="80%"><p><samp class="codeph">bin/*.{sh,csh,bat}</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="20%"><p>バイナリー</p>
+</td>
+<td class="cellrowborder" valign="top" width="80%"><p>Windows*:</p>
+<p><samp class="codeph">bin/&lt;<var>arch</var>&gt;/<var>vc</var>&lt;<var>vcversion</var>&gt;/&lt;<var>lib</var>&gt;&lt;<var>variant</var>&gt;.{dll,pdb}</samp></p>
+<p><samp class="codeph">lib/&lt;<var>arch</var>&gt;/<var>vc</var>&lt;<var>vcversion</var>&gt;/&lt;<var>lib</var>&gt;&lt;<var>variant</var>&gt;.{def,lib,pdb}</samp></p>
+<p>説明:</p>
+<p>
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="border" border="1" cellspacing="0" rules="all"><thead align="left"><tr><th class="cellrowborder" valign="top" width="16.666666666666664%" id="d105851e121"><p>&lt;<var>arch</var>&gt;</p>
+</th>
+<th class="cellrowborder" valign="top" width="16.666666666666664%" id="d105851e127"><p>&lt;<var>vcversion</var>&gt;</p>
+</th>
+<th class="cellrowborder" valign="top" width="33.33333333333333%" id="d105851e133"><p>&lt;<var>lib</var>&gt;</p>
+</th>
+<th class="cellrowborder" valign="top" width="33.33333333333333%" id="d105851e139"><p>&lt;<var>variant</var>&gt;</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="16.666666666666664%" headers="d105851e121 "><p>ia32</p>
+<p>intel64</p>
+</td>
+<td class="cellrowborder" valign="top" width="16.666666666666664%" headers="d105851e127 "><p>12, 12_ui</p>
+<p>14, 14_uwp, 14_uwd</p>
+</td>
+<td class="cellrowborder" valign="top" width="33.33333333333333%" headers="d105851e133 "><p>tbb</p>
+<p>tbbmalloc</p>
+<p>tbbmalloc_proxy</p>
+<p>tbb_preview</p>
+</td>
+<td class="cellrowborder" valign="top" width="33.33333333333333%" headers="d105851e139 "><p>(なし)</p>
+<p>_debug</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</p>
+<p>Linux*:</p>
+<p><samp class="codeph">lib/&lt;<var>arch</var>&gt;/&lt;<var>gccversion</var>&gt;/<var>lib</var>&lt;<var>lib</var>&gt;&lt;<em>variant</em>&gt;.{so,so2}</samp></p>
+<p>説明:</p>
+<p>
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="border" border="1" cellspacing="0" rules="all"><thead align="left"><tr><th class="cellrowborder" valign="top" width="16.666666666666664%" id="d105851e202"><p>&lt;<var>arch</var>&gt;</p>
+</th>
+<th class="cellrowborder" valign="top" width="16.666666666666664%" id="d105851e208"><p>&lt;<var>gccversion</var>&gt;</p>
+</th>
+<th class="cellrowborder" valign="top" width="33.33333333333333%" id="d105851e214"><p>&lt;<var>lib</var>&gt;</p>
+</th>
+<th class="cellrowborder" valign="top" width="33.33333333333333%" id="d105851e220"><p>&lt;<var>variant</var>&gt;</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="16.666666666666664%" headers="d105851e202 "><p>ia32</p>
+</td>
+<td class="cellrowborder" rowspan="2" valign="middle" width="16.666666666666664%" headers="d105851e208 "><p>gcc4.1</p>
+<p>gcc4.4</p>
+</td>
+<td class="cellrowborder" rowspan="3" valign="middle" width="33.33333333333333%" headers="d105851e214 "><p>tbb</p>
+<p>tbbmalloc</p>
+<p>tbbmalloc_proxy</p>
+<p>tbb_preview</p>
+</td>
+<td class="cellrowborder" rowspan="3" valign="middle" width="33.33333333333333%" headers="d105851e220 "><p>(なし)</p>
+<p>_debug</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="16.666666666666664%" headers="d105851e202 "><p>intel64</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="16.666666666666664%" headers="d105851e202 "><p>mic</p>
+</td>
+<td class="cellrowborder" valign="top" width="16.666666666666664%" headers="d105851e208 "><p>なし</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</p>
+<p>macOS*:</p>
+<p><samp class="codeph">lib/<var>lib</var>&lt;<var>lib</var>&gt;&lt;<var>variant</var>&gt;.dylib</samp></p>
+<p>説明:</p>
+<p>
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="border" border="1" cellspacing="0" rules="all"><thead align="left"><tr><th class="cellrowborder" valign="top" width="50%" id="d105851e285"><p>&lt;<var>lib</var>&gt;</p>
+</th>
+<th class="cellrowborder" valign="top" width="50%" id="d105851e291"><p>&lt;<var>variant</var>&gt;</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="50%" headers="d105851e285 "><p>tbb</p>
+<p>tbbmalloc</p>
+<p>tbbmalloc_proxy</p>
+<p>tbb_preview</p>
+</td>
+<td class="cellrowborder" valign="top" width="50%" headers="d105851e291 "><p>(なし)</p>
+<p>_debug</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</p>
+<p>Android*:</p>
+<p><samp class="codeph">lib/android/&lt;<var>arch</var>&gt;/<var>lib</var>&lt;<var>lib</var>&gt;&lt;<var>variant</var>&gt;.so</samp></p>
+<p>説明:</p>
+<p>
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="border" border="1" cellspacing="0" rules="all"><thead align="left"><tr><th class="cellrowborder" valign="top" width="20%" id="d105851e340"><p>&lt;<var>arch</var>&gt;</p>
+</th>
+<th class="cellrowborder" valign="top" width="40%" id="d105851e346"><p>&lt;<var>lib</var>&gt;</p>
+</th>
+<th class="cellrowborder" valign="top" width="40%" id="d105851e352"><p>&lt;<var>variant</var>&gt;</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="20%" headers="d105851e340 "><p>(なし)</p>
+<p>x86_64</p>
+</td>
+<td class="cellrowborder" valign="top" width="40%" headers="d105851e346 "><p>tbb</p>
+<p>tbbmalloc</p>
+<p>tbb_preview</p>
+</td>
+<td class="cellrowborder" valign="top" width="40%" headers="d105851e352 "><p>(なし)</p>
+<p>_debug</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</p>
+<p/>
+<p>各バージョンの詳細は、<a href="windows_os_ug.html#tutorial_Windows_OS">Windows*</a>、<a href="Linux_OS.html#tutorial_Linux_OS">Linux*</a>、<a href="OS_X_Systems.html#tutorial_OS_X_Systems">macOS*</a> のパッケージ・コンテンツ・ページを参照してください。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="20%"><p>サンプル</p>
+</td>
+<td class="cellrowborder" valign="top" width="80%"><p><samp class="codeph">examples/<var>&lt;class&gt;</var>/*/.</samp></p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Package_Contents.html">パッケージの内容</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="windows_os_ug.html#tutorial_Windows_OS">Windows*</a></div>
+<div><a href="Linux_OS.html#tutorial_Linux_OS">Linux*</a></div>
+<div><a href="OS_X_Systems.html#tutorial_OS_X_Systems">macOS* システム</a></div></div></div>
+</body>
+</html>

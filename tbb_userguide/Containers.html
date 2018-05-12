@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="コンテナー"/>
+<meta name="DC.subject" content="コンテナー"/>
+<meta name="keywords" content="コンテナー"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/title.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/concurrent_hash_map.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/concurrent_vector_ug.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Concurrent_Queue_Classes.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Summary_of_Containers.html"/>
+<meta name="DC.Relation" scheme="URI" content="Task-Based_Programming.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Containers"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>コンテナー</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Containers">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">コンテナー</h1>
+<div><p>インテル&reg; TBB は、高レベルのコンカレント・コンテナー・クラスを提供します。これらのコンテナーは、低レベルの Windows* / Linux* スレッド、またはタスクベースのプログラミングとともに使用することができます。</p>
+<p>コンカレント・コンテナーは、複数のスレッドが同時にコンテナーのアイテムにアクセスして更新できるようにします。典型的な C++ STL コンテナーでは同時更新は許可されません。同時に更新すると、コンテナーが破損する恐れがあります。STL コンテナーは、同時アクセスで安全になるようにミューテックスでラップして、コンテナー上で一度に 1 つのスレッドのみを操作するようにします。しかし、このアプローチでは並列性が損なわれるため、並列処理によるスピードアップは制限されます。</p>
+<p>インテル&reg; TBB に含まれているコンテナーは、次の 1 つまたは両方のメソッドにより、非常に高いレベルの並列化を提供します。</p>
+<ul><li><p><strong>ファイングレイン（細粒度）ロック:</strong> 複数のスレッドは実際にロックする必要のある部分だけをロックしてコンテナー上で動作します。異なるスレッドが異なる部分にアクセスする限り、同時に処理できます。</p>
+</li>
+<li><p><strong>ロックフリー・テクニック:</strong> 異なるスレッドはほかの干渉するスレッドの影響を計算して修正します。</p>
+</li>
+</ul>
+<p>高レベルのコンカレント・コンテナーの使用にはコストがかかる点に注意してください。通常、一般的な STL コンテナーよりもオーバーヘッドが大きくなります。高レベルのコンカレント・コンテナーでの操作は、STL コンテナーでの操作よりも時間がかかります。したがって、追加の並列化が、より遅いシーケンシャル・パフォーマンスよりも重要である場合に、高レベルのコンカレント・コンテナーを使用してください。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>C++ のほとんどのオブジェクトのように、コンテナー・オブジェクトのコンストラクターやデストラクターは、同じオブジェクトの別の操作と同時に呼び出してはなりません。同時に呼び出した場合、競合が発生して、未定義のオブジェクトで操作が実行されます。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/title.html">インテル&reg; TBB デベロッパー・ガイド</a></div>
+</div>
+<div class="See Also">
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../tbb_userguide/concurrent_hash_map.html">concurrent_hash_map</a><br/>
+</li>
+<li class="ulchildlink"><a href="../tbb_userguide/concurrent_vector_ug.html">concurrent_vector</a><br/>
+</li>
+<li class="ulchildlink"><a href="../tbb_userguide/Concurrent_Queue_Classes.html">並列キュークラス</a><br/>
+</li>
+<li class="ulchildlink"><a href="../tbb_userguide/Summary_of_Containers.html">コンテナーのまとめ</a><br/>
+</li>
+</ul>
+<h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Task-Based_Programming.html">タスクベースのプログラミング</a></div></div></div>
+</body>
+</html>

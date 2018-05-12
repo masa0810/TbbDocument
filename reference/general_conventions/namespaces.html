@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="名前空間"/>
+<meta name="DC.subject" content="名前空間, tbb, tbb::interface, tbb::interfacex, tbb::internal, tbb::deprecated, tbb::strict_ppl, TBB_DEPRECATED"/>
+<meta name="keywords" content="名前空間, tbb, tbb::interface, tbb::interfacex, tbb::internal, tbb::deprecated, tbb::strict_ppl, TBB_DEPRECATED"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/general_conventions.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="namespaces"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>名前空間</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="namespaces">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">名前空間</h1>
+<div><p>このセクションでは、インテル&reg; スレッディング・ビルディング・ブロック (インテル&reg; TBB) の名前空間の規則について説明します。</p>
+<div class="section"><h2 class="sectiontitle"><samp class="codeph">tbb</samp> 名前空間</h2><p><samp class="codeph">tbb</samp> 名前空間には、プログラムで参照できる、ライブラリーにより定義されるパブリック識別子が含まれます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle"><samp class="codeph">tbb::flow</samp> 名前空間</h2><p><samp class="codeph">tbb::flow</samp> 名前空間には、ライブラリーにより定義されるパブリック識別子が含まれます。これらの識別子は、フローグラフ機能に関連するプログラムで参照できます。詳細は、<a href="../flow_graph.html#flow_graph">「フローグラフ」</a>を参照してください。</p>
+</div>
+<div class="section"><h2 class="sectiontitle"><samp class="codeph">tbb::interface<em>x</em></samp> 名前空間</h2><p><samp class="codeph">tbb::interface<em>x</em></samp> 形式の名前空間は、ライブラリーが <samp class="codeph">tbb</samp> 名前空間に追加するパブリック識別子を定義します。数値 <samp class="codeph"><em>x</em></samp> は、互換性のない定義が誤ってリンクされるのを防ぐために提供される内部バージョン番号に相当します。ユーザーコードで <samp class="codeph">tbb::interface<em>x</em></samp> 名前空間を直接参照しないでください。代わりに、<samp class="codeph">tbb</samp> 名前空間を使用して名前を参照します。</p>
+<p>例えば、ヘッダー <samp class="codeph">tbb/concurrent_hash_map.h</samp> は <samp class="codeph">concurrent_hashmap&lt;Key,T&gt;</samp> テンプレートを <samp class="codeph">tbb::version4::concurrent_hashmap&lt;Key,T&gt;</samp> として定義し、<samp class="codeph">using</samp> 宣言子を使用して <samp class="codeph">tbb</samp> 名前空間に追加します。この場合、ユーザーコードで <samp class="codeph">tbb::concurrent_hashmap&lt;Key,T&gt;</samp> として参照してください。</p>
+</div>
+<div class="section"><h2 class="sectiontitle"><samp class="codeph">tbb::internal</samp> 名前空間</h2><p><samp class="codeph">tbb::internal</samp> 名前空間は、<samp class="codeph">tbb::interface<em>x</em></samp> に似た役割を果たします。この名前空間は、ライブラリーの以前のバージョンとの後方互換性のために残されています。ユーザーコードで <samp class="codeph">tbb::internal</samp> 名前空間を直接参照しないでください。ヘッダーファイルで提供される public <samp class="codeph">typedef</samp> 経由での間接参照は可能です。</p>
+</div>
+<div class="section"><h2 class="sectiontitle"><samp class="codeph">tbb::deprecated</samp> 名前空間</h2><p>ライブラリーは、<samp class="codeph">tbb</samp> 名前空間のデフォルトの意味が異なる古い識別子に <samp class="codeph">tbb::deprecated</samp> 名前空間を使用します。<samp class="codeph">TBB_DEPRECATED=1</samp> でコンパイルすると、tbb 名前空間の相当する古い識別子に置換されます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle"><samp class="codeph">tbb::strict_ppl</samp> 名前空間</h2><p>ライブラリーは、<samp class="codeph">tbb/compat/ppl.h</samp> がインクルードされている場合、<samp class="codeph">Concurrency</samp> 名前空間に追加する識別子に <samp class="codeph">tbb::strict_ppl</samp> 名前空間を使用します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle"><samp class="codeph">std</samp> 名前空間</h2><p>ライブラリーは、<samp class="codeph">std</samp> 名前空間にいくつかの C++ の機能を実装します。ライブラリー・バージョンは、次の表の対応するヘッダーにインクルードすることにより使用できます。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl3" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">インテル&reg; TBB によりオプションで定義される C++11 機能</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="100" id="d66863e176"><p><strong>ヘッダー</strong></p>
+</th>
+<th class="cellrowborder" valign="top" width="100" id="d66863e180"><p><strong><samp class="codeph">std::</samp> に追加される識別子</strong></p>
+</th>
+<th class="row-nocellborder" valign="top" width="100" id="d66863e186"><p><strong>セクション</strong></p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="100" headers="d66863e176 "><p>tbb/compat/condition_variable</p>
+</td>
+<td class="cellrowborder" valign="top" width="100" headers="d66863e180 "><p><samp class="codeph">defer_lock_t</samp></p>
+<p><samp class="codeph">try_to_lock_t</samp></p>
+<p><samp class="codeph">adopt_lock_t</samp></p>
+<p><samp class="codeph">defer_lock</samp></p>
+<p><samp class="codeph">try_to_lock</samp></p>
+<p><samp class="codeph">adopt_lock</samp></p>
+<p><samp class="codeph">lock_guard</samp></p>
+<p><samp class="codeph">unique_lock</samp></p>
+<p><samp class="codeph">swap</samp></p>
+<p><samp class="codeph">condition_variable</samp></p>
+<p><samp class="codeph">cv_status</samp></p>
+<p><samp class="codeph">timeout</samp></p>
+<p><samp class="codeph">no_timeout</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="100" headers="d66863e186 "><p><a href="../synchronization/c_11_synchronization.html">C++11 の同期</a></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="100" headers="d66863e176 "><p>tbb/compat/thread</p>
+</td>
+<td class="cellrowborder" valign="top" width="100" headers="d66863e180 "><p><samp class="codeph">thread</samp></p>
+<p><samp class="codeph">this_thread</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="100" headers="d66863e186 "><p><a href="../threads/thread_cls.html"><samp class="codeph">thread</samp> クラス</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>これらの C++ ライブラリー機能のほかの実装と誤ってリンクすることを防ぐために、ライブラリーはほかの名前空間に識別子を定義して、<samp class="codeph">std::</samp> 名前空間に追加します。この方法では、リンカーに渡される「マングルネーム (エンコードされた名前)」は、ほかの実装で生成される「マングルネーム」と異なります。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/general_conventions.html">一般的な規則</a></div>
+</div>
+<div/>
+</body>
+</html>

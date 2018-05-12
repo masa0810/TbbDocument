@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="浮動小数点設定"/>
+<meta name="DC.subject" content="浮動小数点設定, FP 設定"/>
+<meta name="keywords" content="浮動小数点設定, FP 設定"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/task_scheduler.html"/>
+<meta name="DC.Relation" scheme="URI" content="task_group_context.html"/>
+<meta name="DC.Relation" scheme="URI" content="task_arena_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="priorities"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>浮動小数点設定</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="priorities">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">浮動小数点設定</h1>
+<div><div class="section"><p>浮動小数点計算で CPU 固有の設定を制御する必要があるアプリケーションでは、インテル&reg; TBB のタスク・スケジューラーで実行されるタスクに浮動小数点設定を伝える方法は 2 つあります。</p>
+<p><ul><li>task_arena または指定されたアプリケーションのタスク・スケジューラーが初期化されるときに、スレッドの現在の浮動小数点設定を取得します。</li>
+<li>task_group_context クラスで、現在の浮動小数点設定を取得します。</li>
+</ul>
+</p>
+<p>デフォルトでは、ワーカースレッドは、アプリケーション・スレッドの暗黙の領域または明示的な task_arena の初期化中に取得した浮動小数点設定を使用します。これらの設定は、スレッドがタスク・スケジューラーのインスタンスを終了するまで、task_arena 内またはアプリケーション・スレッドによって開始されたすべての並列計算に適用されます。スレッドがタスク・スケジューラーを後で再初期化した場合、新しい設定が取得されます。</p>
+<p>浮動小数点の動作をより細かく管理するため、スレッドはタスク・グループ・コンテキストの現在の設定を取得することができます。これは、コンストラクターに特別なフラグを渡してコンテキストを作成したときに行われます。</p>
+<p><pre>
+task_group_context ctx( task_group_context::isolated,
+                        task_group_context::default_traits | task_group_context::fp_settings );
+        </pre></p>
+<p>
+        あるいは、<samp class="codeph">capture_fp_settings</samp> メソッドの呼び出しによって行います。
+      </p>
+<p><pre>
+task_group_context ctx;
+ctx.capture_fp_settings();
+        </pre></p>
+<p>
+        タスク・グループ・コンテキストを (<samp class="codeph">flow::graph</samp> を含む) ほとんどのインテル&reg; TBB 並列アルゴリズムに渡して、そのアルゴリズムに関連するすべてのタスクで指定された浮動小数点設定の使用を保証することができます。別々のコンテキストに対して取得された異なる浮動小数点設定で並列アルゴリズムを (同時に) 実行することも可能です。
+      </p>
+<p>タスク・グループ・コンテキストに対して取得した浮動小数点設定は、タスク・スケジューラー初期化中に取得した設定よりも優先されます。このため、コンテキストが並列アルゴリズムに渡された場合、そのコンテキストに対して取得された浮動小数点設定が使用されます。コンテキストに対して浮動小数点設定が取得されていない場合、あるいはコンテキストが明示的に指定されていない場合、タスク・スケジューラー初期化中に取得した設定が使われます。</p>
+<p>明示的に浮動小数点設定が取得されたタスク・グループ・コンテキストを使用しない並列アルゴリズムへの入れ子の呼び出しでは、外側のレベルの設定が使用されます。外側のレベルのコンテキストで浮動小数点設定が取得されていない場合、タスク・スケジューラー初期化中に取得した設定が使用されます。</p>
+<p>次の点が保証されます。</p>
+<p><ul><li>タスク・グループ・コンテキストに対して取得された浮動小数点設定、あるいはタスク・スケジューラー初期化中に取得した浮動小数点設定は、タスク・スケジューラーによって実行されるすべてのタスクに適用されます。</li>
+<li>異なる設定でアルゴリズムが実行された場合でも、インテル&reg; TBB の並列アルゴリズムの呼び出しは、呼び出しスレッドの浮動小数点設定を変更しません。</li>
+</ul>
+</p>
+<p><div class="Note"><h3 class="NoteTipHead">注意</h3> 上記の保証は、次の場合にのみ適用されます。<ul><li>タスク内部のユーザーコードが浮動小数点設定を変更しない、あるいはタスクが完了する前に変更を元に戻すか以前の設定に戻す。</li>
+<li>インテル&reg; TBB のタスク・スケジューラー・オブザーバーが、浮動小数点設定のセットや変更に使用されない。</li>
+</ul>
+その他の場合、上記の保証はなく、浮動小数点設定に関連する動作は不定です。</div>
+</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/task_scheduler.html">タスク・スケジューラー</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="task_group_context.html">task_group_context クラス</a></div>
+<div><a href="task_arena_cls.html">task_arena クラス</a></div></div></div>
+</body>
+</html>

@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="タスク・スケジューラー"/>
+<meta name="DC.subject" content="タスク・スケジューラー"/>
+<meta name="keywords" content="タスク・スケジューラー"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/reference.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_scheduler/scheduling_algorithm.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_scheduler/task_scheduler_init_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_scheduler/task_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_scheduler/task_allocation.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_scheduler/explicit_task_destruction.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_scheduler/recycling_tasks.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_scheduler/synchronization_task.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_scheduler/task_context.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_scheduler/cancellation.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_scheduler/priorities.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_scheduler/fpu_settings.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_scheduler/affinity.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_scheduler/task_debugging.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_scheduler/empty_task_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_scheduler/task_list_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_scheduler/task_group_context.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_scheduler/task_arena_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_scheduler/task_scheduler_observer.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_scheduler/catalog_of_recommended_task_patterns.html"/>
+<meta name="DC.Relation" scheme="URI" content="algorithms.html"/>
+<meta name="DC.Relation" scheme="URI" content="task_groups.html"/>
+<meta name="DC.Relation" scheme="URI" content="flow_graph.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="task_scheduler"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>タスク・スケジューラー</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="task_scheduler">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">タスク・スケジューラー</h1>
+<div><div class="section"><p>インテル&reg; TBB は、アルゴリズム・テンプレートとタスクグループを動かすエンジンであるタスク・スケジューラーを提供します。直接呼び出すことも可能です。タスク・スケジューラーは多くの処理を行うため、タスクの使用は多くの場合、スレッドの使用よりも単純で効率的です。</p>
+<p>タスクは計算の論理ユニットです。スケジューラーは、物理スレッドにタスクをマップします。マッピングはノンプリエンプティブです。各タスクには <samp class="codeph">execute()</samp> メソッドがあり、スレッドが <samp class="codeph">execute()</samp> の実行を開始すると、<samp class="codeph">execute()</samp> がリターンするまで、タスクはスレッドにバインドされます。その間、スレッドは、子タスクまたは入れ子の並列構造の完了を待っている場合のみほかのタスクを処理します。待機中に、スレッドは、このスレッドまたはほかのスレッドで作成された無関係なタスクを含む、利用可能なタスクを実行します。</p>
+<p>タスク・スケジューラーは、計算主体の処理を並列化するように意図されています。タスク・オブジェクトはプリエンプティブにスケジュールされないため、スレッドがほかのタスクを処理できないときに、長い間スレッドをブロックする呼び出しを行ってはなりません。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>スケジューラーは利用可能なワーカースレッドに収まるように実際の並列処理を調整するため、「潜在的に」並列可能なタスクが「実際に」並列実行されるという保証はありません。例えば、単一のワーカースレッドが提供された場合、スケジューラーは並列処理を作成できません。さらに、生産タスクの実行中に消費タスクがこの作業を行う保証がないため、生産タスクと消費タスクの関係でタスクを使用することは安全ではありません。</p>
+</div>
+<p>潜在的な並列処理は通常、「分割/結合」パターンによって構成され、2 つの基本パターンがサポートされています。最も効率的なのは、プログラマーが明示的に "継続" タスクを構築する継続渡しです。親は子タスクを生成して、子が完了するときに実行する継続タスクを指定します。継続は親の先祖を継承します。その後、親タスクは終了します。つまり、子をブロックしません。続いて子が実行され、子 (またはその継続) が終了した後、継続タスクが実行を開始します。次の図は、一連のステップを示しています。各ステップの実行タスクは色付きで表示されています。</p>
+<div class="fignone" id="fig4"><span class="figcap">継続渡しスタイル</span><br/><img src="Resources/06000005.png"/><br/></div>
+<p>明示的な継続渡しは、タスクからスレッドのスタックを分離するので効率的です。しかし、プログラムはより難しくなります。2 つ目のパターンは、暗黙的な継続を使用する "ブロックスタイル" です。このパターンはパフォーマンスの点では効率が落ちますが、プログラムはより簡単です。このパターンでは、下記の図で示されているように、親タスクはその子が完了するまでブロックします。</p>
+<div class="fignone" id="fig5"><span class="figcap">ブロックスタイル</span><br/><img src="Resources/08000006.png"/><br/></div>
+<p>便利さには代償がつきものです。ブロックされた親タスクはスタックに残りますが、スレッドは別のタスクをスチールして実行することができます。連続したスチールとブロックはスタックを境界なしで拡張させます。この問題を解決するため、スケジューラーはスチールを停止するブロックされたスレッドを制約します。この制約は利用可能な並列処理を制限し、パフォーマンスに影響することがあります。</p>
+<p>並列アルゴリズムやフローグラフのような、タスク・スケジューラーの上でビルドされた高レベルのインテル&reg; TBB 構造は、再帰的な並列処理と並列構造全体の完了のブロックのために継続渡しを使用します。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../reference/reference.html">インテル&reg; TBB デベロッパー・リファレンス</a></div>
+</div>
+<div class="See Also">
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../reference/task_scheduler/scheduling_algorithm.html">スケジュール・アルゴリズム</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/task_scheduler/task_scheduler_init_cls.html">task_scheduler_init クラス</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/task_scheduler/task_cls.html">task クラス</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/task_scheduler/task_allocation.html">タスク割り当て</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/task_scheduler/explicit_task_destruction.html">明示的なタスクの破棄</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/task_scheduler/recycling_tasks.html">タスクの再利用</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/task_scheduler/synchronization_task.html">同期</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/task_scheduler/task_context.html">タスクのコンテキスト</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/task_scheduler/cancellation.html">キャンセル</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/task_scheduler/priorities.html">優先度</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/task_scheduler/fpu_settings.html">浮動小数点設定</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/task_scheduler/affinity.html">アフィニティー</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/task_scheduler/task_debugging.html">タスクのデバッグ</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/task_scheduler/empty_task_cls.html">empty_task クラス</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/task_scheduler/task_list_cls.html">task_list クラス</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/task_scheduler/task_group_context.html">task_group_context クラス</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/task_scheduler/task_arena_cls.html">task_arena クラスと this_task_arena 名前空間</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/task_scheduler/task_scheduler_observer.html">task_scheduler_observer クラス</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/task_scheduler/catalog_of_recommended_task_patterns.html">推奨するタスクパターンのカタログ</a><br/>
+</li>
+</ul>
+<h2>関連情報</h2>
+<div class="linklist">
+<div><a href="algorithms.html">アルゴリズム</a></div>
+<div><a href="task_groups.html">タスクグループ</a></div>
+<div><a href="flow_graph.html">フローグラフ</a></div></div></div>
+</body>
+</html>

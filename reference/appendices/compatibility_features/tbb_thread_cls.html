@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="tbb_thread クラス"/>
+<meta name="DC.subject" content="tbb_thread クラス"/>
+<meta name="keywords" content="tbb_thread クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/appendices/compatibility_features.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../general_conventions/namespaces.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tbb_thread_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>tbb_thread クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tbb_thread_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">tbb_thread クラス</h1>
+<div><p>インテル&reg; TBB 3.0 で、<samp class="codeph">std::thread</samp> クラスを定義するヘッダー <samp class="codeph">tbb/compat/thread</samp> が追加されました。以前のバージョンには、<samp class="codeph">tbb_thread</samp> クラスを定義するヘッダー <span class="filepath">tbb/tbb_thread.h</span> がありました。古いヘッダーと名前は利用できますが、次の表に示すように変更されました。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl48" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">古い名前の変更</span></caption><thead align="left"><tr><th class="cellrowborder" align="center" valign="top" width="20%" id="d12615e41"><p>エンティティー</p>
+</th>
+<th class="cellrowborder" align="center" valign="top" width="40%" id="d12615e44"><p>古い名前</p>
+</th>
+<th class="cellrowborder" align="center" valign="top" width="40%" id="d12615e47"><p>新しい名前</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" align="left" valign="top" width="20%" headers="d12615e41 "><p>ヘッダー</p>
+</td>
+<td class="cellrowborder" align="left" valign="top" width="40%" headers="d12615e44 "><p><samp class="codeph">tbb/tbb_thread.h</samp></p>
+</td>
+<td class="cellrowborder" align="left" valign="top" width="40%" headers="d12615e47 "><p><samp class="codeph">tbb/compat/thread</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" rowspan="3" valign="middle" width="20%" headers="d12615e41 "><p>識別子</p>
+</td>
+<td class="cellrowborder" align="left" valign="top" width="40%" headers="d12615e44 "><p><samp class="codeph">tbb::tbb_thread</samp></p>
+</td>
+<td class="cellrowborder" align="left" valign="top" width="40%" headers="d12615e47 "><p><samp class="codeph">std::thread</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" align="left" valign="top" width="40%" headers="d12615e44 "><p><samp class="codeph">tbb::this_tbb_thread</samp></p>
+</td>
+<td class="cellrowborder" align="left" valign="top" width="40%" headers="d12615e47 "><p><samp class="codeph">std::this_thread</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" align="left" valign="top" width="40%" headers="d12615e44 "><p><samp class="codeph">tbb::this_tbb_thread::sleep</samp></p>
+</td>
+<td class="cellrowborder" align="left" valign="top" width="40%" headers="d12615e47 "><p><samp class="codeph">std::this_tbb_thread::sleep_for</samp></p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>この変更のほとんどは、ライブラリーの C++11 機能の実装方法 (std 名前空間) の変更に伴うものです。<samp class="codeph">sleep</samp> から <samp class="codeph">sleep_for</samp> への変更は、C++11 Working Draft での変更に伴います。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/appendices/compatibility_features.html">互換性機能</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../../general_conventions/namespaces.html">std 名前空間</a></div></div></div>
+</body>
+</html>

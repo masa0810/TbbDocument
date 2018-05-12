@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="tagged_msg テンプレート・クラス"/>
+<meta name="DC.subject" content="tagged_msg テンプレート・クラス"/>
+<meta name="keywords" content="tagged_msg テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/flow_graph.html"/>
+<meta name="DC.Relation" scheme="URI" content="indexer_node_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tagged_msg_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>tagged_msg テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tagged_msg_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">tagged_msg テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>タグとメッセージで構成されるテンプレート・クラス。メッセージは定義型の 1 つにできる値です。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>template&lt;typename TagType, typename T0, typename T1...typename TN&gt;
+ class tagged_msg;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre> #include "tbb/flow_graph.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">tagged_msg</samp> テンプレート・クラスは、型が実行時に決定されるメッセージ用です。<samp class="codeph">T0, T1 ...TN</samp> 型のメッセージは、<samp class="codeph">TagType</samp> 型でタグ付けされます。タグはメッセージを識別するのに使用できます。フローグラフでは、<samp class="codeph">tagged_msg</samp> は <samp class="codeph">indexer_node</samp> の出力として使用されます。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p><samp class="codeph">tagged_msg</samp> は実装にタプルを使用しているため、タプルで保持できる型の数の制限が <samp class="codeph">tagged_msg</samp> にも適用されます。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><pre>#include&lt;iostream&gt;
+#include "tbb/flow_graph.h"
+
+typedef tbb::flow::tagged_msg&lt;size_t, int, char, double&gt; tagged_msg_type;
+
+void print_type_and_value(const tagged_msg_type &amp;tm) {
+    if (tm.tag()==1 &amp;&amp; tm.is_a&lt;int&gt;()) 
+        std::cout &lt;&lt; "Type is an int, value is : " &lt;&lt; tm.cast_to&lt;int&gt;() &lt;&lt; std::endl;
+    else if (tm.tag()==2 &amp;&amp; tbb::flow::is_a&lt;char&gt;(tm)) 
+        std::cout &lt;&lt; "Type is a char, value is : " &lt;&lt; tbb::flow::cast_to&lt;char&gt;(tm) &lt;&lt; std::endl;
+    else if (tm.tag()==3 &amp;&amp; tm.is_a&lt;double&gt;()) 
+        std::cout &lt;&lt; "Type is a double, value is : " &lt;&lt; tm.cast_to&lt;double&gt;() &lt;&lt; std::endl;
+    else std::cout &lt;&lt; "Invalid tag or type" &lt;&lt; std::endl;
+}
+
+int main() {
+    print_type_and_value(tagged_msg_type(1, 8));
+    print_type_and_value(tagged_msg_type(2, 'c'));
+    print_type_and_value(tagged_msg_type(3, 23.78));
+    print_type_and_value(tagged_msg_type(4, 12));
+    
+    return 0;
+}
+</pre><p>この例で、関数 <samp class="codeph">print_type_and_value</samp> は、<samp class="codeph">int</samp>、<samp class="codeph">char</samp> または <samp class="codeph">double</samp> のいずれかの値を保持できるタグ型 <samp class="codeph">size_t</samp> の <samp class="codeph">tagged_msg</samp> を受け取り、格納されている型と値を出力します。異なるタグおよび値の型の <samp class="codeph">tagged_msg</samp> オブジェクトが関数に渡され、タグを使用して値の識別と取得が行われます。値の取得には、<samp class="codeph">tagged_msg::cast_to</samp> テンプレート・メソッドまたは <samp class="codeph">tbb::flow::cast_to</samp> テンプレート関数のいずれかが使用されます。</p>
+<p>例を実行すると、次の出力が生成されます。<pre> 
+Type is an int, value is : 8
+Type is a char, value is : c
+Type is a double, value is : 23.78
+Invalid tag or type
+</pre></p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+namespace flow {
+    template&lt;typename TagType, typename T0, typename T1...typename TN&gt;
+    class tagged_msg {
+    public:
+        template&lt;typename T, typename R&gt;
+        tagged_msg(T const &amp;index, R const &amp;val);
+
+        TagType tag() const;
+
+        template&lt;typename V&gt;
+        const V&amp; cast_to() const;
+
+        template&lt;typename V&gt;
+        bool is_a() const; 
+
+    };
+
+    // 次の関数はテンプレート・コンテキストの tagged_msg の使用を単純化します
+
+    template&lt;typename V, typename T&gt;
+    const V&amp; cast_to(T const &amp;t);
+
+    template&lt;typename V, typename T&gt;
+    bool is_a(T const &amp;t);
+}
+}
+</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d65579e112">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d65579e114">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d65579e112 "><span class="keyword">template&lt;typename T, typename R&gt; tagged_msg(T const &amp;index, R const &amp;value) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d65579e114 "><p>タグ <samp class="codeph">index</samp> および値 <samp class="codeph">val</samp> で <samp class="codeph">tagged_msg</samp> を構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d65579e112 "><span class="keyword">TagType tag() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d65579e114 "><p>現在のタグを返します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d65579e112 "><span class="keyword">template&lt;typename V&gt; const V&amp; cast_to() const </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d65579e114 "><p><samp class="codeph">tagged_msg</samp> に格納されている値を返します。値が <samp class="codeph">V</samp> 型でない場合、std::runtime_error 例外がスローされます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d65579e112 "><span class="keyword">template&lt;typename V&gt; bool is_a() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d65579e114 "><p><samp class="codeph">V</samp> が <samp class="codeph">tagged_msg</samp> で保持されている値の型の場合は true。その他の場合は false。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<samp class="codeph">tagged_msg</samp> オブジェクトに適用される独立したテンプレート関数 <samp class="codeph">cast_to</samp> および <samp class="codeph">is_a</samp> は、そのオブジェクトの対応するメソッドの呼び出しと等価です。</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/flow_graph.html">フローグラフ</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="indexer_node_cls.html">indexer_node テンプレート・クラス</a></div></div></div>
+</body>
+</html>

@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="thread クラス"/>
+<meta name="DC.subject" content="thread クラス"/>
+<meta name="keywords" content="thread クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/threads.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/threads/thread_cls/thread_cls_members.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="thread_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>thread クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="thread_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">thread クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>実行のスレッドを表す。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>class thread;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><p><pre>#include "tbb/compat/thread"</pre></p>
+</div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">thread</samp> クラスは、ネイティブスレッドに対するプラットフォームに依存しないインターフェイスを提供します。インスタンスはスレッドを表します。プラットフォーム固有のスレッド制御は <samp class="codeph">native_handle()</samp> メソッドを使用して行います。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>
+namespace std {
+    class thread {
+    public:
+#if _WIN32||_WIN64
+        typedef HANDLE native_handle_type;
+#else
+        typedef pthread_t native_handle_type;
+#endif // _WIN32||_WIN64
+
+        class id;
+
+        thread();
+        template &lt;typename F&gt;
+        explicit thread(F f);
+        template &lt;typename F, typename X&gt;
+        thread(F f, X x);
+        template &lt;typename F, typename X, typename Y&gt;
+        thread (F f, X x, Y y);
+        thread(thread&amp;&amp; x); // C++11 からサポート
+        thread&amp; operator=(thread&amp;&amp; x); // C++11 からサポート
+        thread&amp; operator=(thread&amp; x); // C++11 より前でのみサポート
+        ~thread();
+
+        void swap(thread&amp; x);
+        bool joinable() const;
+        void join();
+        void detach();
+        id get_id() const;
+        native_handle_type native_handle();
+
+        static unsigned hardware_concurrency();
+    } // スレッド
+} // std
+</pre></div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/threads.html">スレッド</a></div>
+</div>
+<div>
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../../reference/threads/thread_cls/thread_cls_members.html">thread クラスのメンバー</a><br/>
+</li>
+</ul>
+</div>
+</body>
+</html>

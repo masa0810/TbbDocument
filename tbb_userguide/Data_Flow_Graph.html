@@ -1,0 +1,155 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="データフロー・グラフ"/>
+<meta name="DC.subject" content="データフロー・グラフ, フローグラフ"/>
+<meta name="keywords" content="データフロー・グラフ, フローグラフ"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Graph_Main_Categories.html"/>
+<meta name="DC.Relation" scheme="URI" content="Flow_Graph_resource_tips.html#flow_graph_resource_tips"/>
+<meta name="DC.Relation" scheme="URI" content="Dependence_Graph.html#Dependence_Graph"/>
+<meta name="DC.Relation" scheme="URI" content="Predifined_Node_Types.html#predefined_node_types"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="Data_Flow_Graph"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>データフロー・グラフ</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="Data_Flow_Graph">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">データフロー・グラフ</h1>
+<div><p>データフロー・グラフでは、ノードはデータメッセージの送受信を行います。一部のノードはメッセージを送るのみ、一部のノードはメッセージを受け取るのみ、一部のノードは受け取るメッセージに応じてメッセージを送ります。</p>
+<p>次のデータフロー・グラフで、左端のノードは 1 から 10 までの整数値を生成し、2 つのサクセサーノードへ渡します。上のサクセサーノードは、受け取った値の 2 乗を計算して、結果をダウンストリームへ渡します。下のサクセサーノードは、受け取った値の 3 乗を計算して、結果をダウンストリームへ渡します。右端のノードは、中央の 2 つのノードから値を受け取ります。このノードは、値を受け取ると値の合計に追加します。このアプリケーションを完了するまで実行すると、値の合計は 1 から 10 までの 2 乗と 3 乗の合計になります。</p>
+<p><div class="fignone" id="simple_data_flow_title"><span class="figcap">単純なデータフロー・グラフ</span><br/><div class="imagecenter"><img src="Images/flow_graph.jpg" alt="単純なデータフロー・グラフ" align="center"/></div><br/></div>
+</p>
+<p>次のコードは、上記の<strong>単純なデータフロー・グラフ</strong>の実装を示しています。</p>
+<pre>    int sum = 0;
+    graph g;
+    function_node&lt; int, int &gt; squarer( g, unlimited, [](const int &amp;v) { 
+        return v*v; 
+    } );
+    function_node&lt; int, int &gt; cuber( g, unlimited, [](const int &amp;v) { 
+        return v*v*v; 
+    } );
+    function_node&lt; int, int &gt; summer( g, 1, [&amp;](const int &amp;v ) -&gt; int { 
+        return sum += v; 
+    } );
+    make_edge( squarer, summer );
+    make_edge( cuber, summer );
+
+    for ( int i = 1; i &lt;= 10; ++i ) {
+      squarer.try_put(i);
+      cuber.try_put(i);
+    }
+    g.wait_for_all();
+
+    cout &lt;&lt; "Sum is " &lt;&lt; sum &lt;&lt; "\n";
+</pre><p>上記の実装では、次の <span class="keyword">function_node</span> が作成されます。 
+	 </p>
+<ul><li>squarer (値の 2 乗を計算するノード)</li>
+<li>cuber (値の 3 乗を計算するノード)</li>
+<li>summer (値を合計に追加するノード)</li>
+</ul>
+<p>squarer と cuber ノードは並列に実行しても問題ないため、同時実行数を unlimited にして作成しています。summer ノードはグローバル変数を参照して合計を更新するため、並列に実行できません。このため、同時実行数を 1 に制限して作成しています。上記の<strong>単純なデータフロー・グラフ</strong>のノード <span class="keyword">F</span> は、squarer と cuber ノードの両方にメッセージを送るループとして実装されています。</p>
+<p>最初の実装を改良するオプションの 1 つは、追加のノードタイプ、<span class="keyword">broadcast_node</span> を導入することです。<span class="keyword">broadcast_node</span> は、受け取ったメッセージをすべてのサクセサーにブロードキャストします。</p>
+<p>この変更により、ループの 2 つの <span class="keyword">try_put</span> を 1 つの <span class="keyword">try_put</span> に置換できます。</p>
+<pre>    broadcast_node&lt;int&gt; b(g);
+    make_edge( b, squarer );
+    make_edge( b, cuber );
+    for ( int i = 1; i &lt;= 10; ++i ) {
+      b.try_put(i);
+    }
+    g.wait_for_all();
+</pre><p>上記の<strong>単純なデータフロー・グラフ</strong>のような実装にする、さらに優れた方法は、<span class="keyword">source_node</span> を導入することです。<span class="keyword">source_node</span> は、メッセージを送りますがメッセージを受け取りません。コンストラクターには、3 つの引数を指定します。 
+	 </p>
+<pre>template&lt; typename Body &gt; source_node( graph &amp;<em>g</em>, Body <em>body</em>, bool <em>is_active</em>=true)</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><thead align="left"><tr><th class="cellrowborder" valign="top" width="22.727272727272727%" id="d94301e105">引数</th>
+<th class="cellrowborder" valign="top" width="77.27272727272727%" id="d94301e107">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="22.727272727272727%" headers="d94301e105 "><span class="keyword">g</span></td>
+<td class="cellrowborder" valign="top" width="77.27272727272727%" headers="d94301e107 "><p>ノードが属するグラフ</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="22.727272727272727%" headers="d94301e105 "><span class="keyword">body</span></td>
+<td class="cellrowborder" valign="top" width="77.27272727272727%" headers="d94301e107 "><p>ソースノードのボディー</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="22.727272727272727%" headers="d94301e105 "><span class="keyword">is_active </span></td>
+<td class="cellrowborder" valign="top" width="77.27272727272727%" headers="d94301e107 "><p>サクセサーがノードにアタッチされた直後にメッセージの送信を開始するか、アクティブになるまで待つかを設定します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>ボディーは、関数オペレーターを含む関数オブジェクトまたはラムダ式です。</p>
+<pre>bool Body::operator()(OutputType &amp;v );</pre><p>ランタイム・ライブラリーは、false を返すまで <span class="keyword">source_node</span> のボディーを繰り返し呼び出します。例のループは <span class="keyword">source_node</span> に置換することができます。 
+	 </p>
+<pre>    source_node&lt; int &gt; src( g, src_body(10), false );
+    make_edge( src, squarer );
+    make_edge( src, cuber );
+    src.activate();
+    g.wait_for_all();
+</pre><p>ランタイム・ライブラリーは、false を返すまで <span class="keyword">src_body</span> の関数オペレーターを繰り返し呼び出します。このため、上記の<strong>単純なデータフロー・グラフ</strong>のループのボディーのように動作するボディーを作成する必要があります。これらの変更をすべて行った後の最終的な実装を次に示します。 
+	 </p>
+<pre>    class src_body {
+        const int my_limit;
+        int my_next_value;
+    public:
+        src_body(int l) : my_limit(l), my_next_value(1) {}
+        bool operator()( int &amp;v ) {
+            if ( my_next_value &lt;= my_limit ) {
+                v = my_next_value++;
+                return true;
+            } else {
+                return false;
+            }
+        }
+    };
+
+    int main() {
+      int sum = 0;
+      graph g;
+      function_node&lt; int, int &gt; squarer( g, unlimited, [](const int &amp;v) { 
+          return v*v; 
+      } );
+      function_node&lt; int, int &gt; cuber( g, unlimited, [](const int &amp;v) { 
+          return v*v*v; 
+      } );
+      function_node&lt; int, int &gt; summer( g, 1, [&amp;](const int &amp;v ) -&gt; int { 
+          return sum += v; 
+      } );
+      make_edge( squarer, summer );
+      make_edge( cuber, summer );
+      source_node&lt; int &gt; src( g, src_body(10), false );
+      make_edge( src, squarer );
+      make_edge( src, cuber );
+      src.activate();
+      g.wait_for_all();
+      cout &lt;&lt; "Sum is " &lt;&lt; sum &lt;&lt; "\n";
+    }
+</pre><p>この最終的なコードには、上記の<strong>単純なデータフロー・グラフ</strong>のノードとエッジがすべて含まれます。この単純な例では、明示的なループで <span class="keyword">source_node</span> を用いる利点はあまりありません。しかし、<span class="keyword">source_node</span> はダウンストリーム・ノードの動作に反応できるため、より複雑なグラフでのメモリーの使用を制限できます。詳細は、<a href="create_token_based_system.html#create_token_based_system">「トークンベース・システムの作成」</a>を参照してください。 
+	 </p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Graph_Main_Categories.html">グラフ・アプリケーションのカテゴリー</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Flow_Graph_resource_tips.html#flow_graph_resource_tips">リソース消費を制限するためのフローグラフのヒント</a></div>
+<div><a href="Dependence_Graph.html#Dependence_Graph">依存関係グラフ</a></div>
+<div><a href="Predifined_Node_Types.html#predefined_node_types">事前定義ノードタイプ</a></div></div></div>
+</body>
+</html>

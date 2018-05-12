@@ -1,0 +1,189 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="blocked_range2d テンプレート・クラス"/>
+<meta name="DC.subject" content="blocked_range2d テンプレート・クラス"/>
+<meta name="keywords" content="blocked_range2d テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/algorithms/range_concept.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="blocked_range2d_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>blocked_range2d テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="blocked_range2d_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">blocked_range2d テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>再帰的に分割可能な 2 次元の半開区間を表すテンプレート・クラス。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><p><pre>#include "tbb/blocked_range2d.h"</pre></p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><p><pre>template&lt;typename RowValue, typename ColValue&gt; class blocked_range2d;</pre></p>
+</div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">blocked_range2d&lt;<em>RowValue</em> ,<em>ColValue</em> &gt;</samp> は、2 次元の半開区間 <samp class="codeph">[<em>i</em><sub>0</sub>,<em>j</em><sub>0</sub>)×[<em>i</em><sub>1</sub>,<em>j</em><sub>1</sub>)</samp> を表します。範囲の各軸には独自の分割しきい値があります。<em>RowValue</em> および <em>ColValue</em> は、「blocked_range テンプレート・クラス」セクションの表の要件を満たしていなければなりません。いずれかの軸が分割可能な場合、<samp class="codeph">blocked_range2d</samp> は分割可能です。<samp class="codeph">blocked_range2d</samp> は、Range コンセプトをモデル化します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre> 
+namespace tbb {
+template&lt;typename RowValue, typename ColValue=RowValue&gt;
+    class blocked_range2d {
+    public:
+        // 型
+        typedef blocked_range&lt;RowValue&gt; row_range_type;
+        typedef blocked_range&lt;ColValue&gt; col_range_type;
+
+        // コンストラクター
+        blocked_range2d( 
+            RowValue row_begin, RowValue row_end, 
+            typename row_range_type::size_type row_grainsize,
+            ColValue col_begin, ColValue col_end, 
+            typename col_range_type::size_type col_grainsize);
+        blocked_range2d( RowValue row_begin, RowValue row_end, 
+                         ColValue col_begin, ColValue col_end);
+        // 分割コンストラクター
+        blocked_range2d( blocked_range2d&amp; r, split );
+        blocked_range2d( blocked_range2d&amp; r, proportional_split proportion );
+
+        // 比例分割が可能
+        static const bool is_splittable_in_proportion = true;
+
+        // キャパシティー
+        bool empty() const;
+
+        // アクセス
+        bool is_divisible() const;
+        const row_range_type&amp; rows() const;
+        const col_range_type&amp; cols() const;
+    };
+}
+</pre></div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>次のコードは、シリアル行列乗算と、<samp class="codeph">blocked_range2d</samp> を使用して反復空間を指定する、対応する並列行列乗算を示しています。</p>
+<pre>
+const size_t L = 150;
+const size_t M = 225;
+const size_t N = 300;
+
+void SerialMatrixMultiply( float c[M][N], float a[M][L], float b[L][N] ) {
+    for( size_t i=0; i&lt;M; ++i ) {
+        for( size_t j=0; j&lt;N; ++j ) {
+            float sum = 0;
+            for( size_t k=0; k&lt;L; ++k )
+                sum += a[i][k]*b[k][j];
+            c[i][j] = sum;
+        }
+    }
+}
+</pre><pre>
+#include "tbb/parallel_for.h"
+#include "tbb/blocked_range2d.h"
+
+using namespace tbb;
+
+const size_t L = 150;
+const size_t M = 225;
+const size_t N = 300;
+
+class MatrixMultiplyBody2D {
+    float (*my_a)[L];
+    float (*my_b)[N];
+    float (*my_c)[N];
+public:
+    void operator()( const blocked_range2d&lt;size_t&gt;&amp; r ) const {
+        float (*a)[L] = my_a;
+        float (*b)[N] = my_b;
+        float (*c)[N] = my_c;
+        for( size_t i=r.rows().begin(); i!=r.rows().end(); ++i ){
+            for( size_t j=r.cols().begin(); j!=r.cols().end(); ++j ) {
+                float sum = 0;
+                for( size_t k=0; k&lt;L; ++k )
+                    sum += a[i][k]*b[k][j];
+                c[i][j] = sum;
+            }
+        }
+    }
+    MatrixMultiplyBody2D( float c[M][N], float a[M][L], float b[L][N] ) :
+        my_a(a), my_b(b), my_c(c)
+    {}
+};
+
+void ParallelMatrixMultiply(float c[M][N], float a[M][L], float b[L][N]){
+    parallel_for( blocked_range2d&lt;size_t&gt;(0, M, 16, 0, N, 32),     
+                  MatrixMultiplyBody2D(c,a,b) );
+}
+</pre><p><samp class="codeph">blocked_range2d</samp> は、シリアルバージョンの 2 つの最外ループを並列ループにします。<samp class="codeph">parallel_for</samp> は、断片が 16x32 になるまで <samp class="codeph">blocked_range2d</samp> を再帰的に分割して、各断片で <samp class="codeph">MatrixMultiplyBody2D::operator()</samp> を呼び出します。
+		</p>
+<p>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d8873e123">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d8873e125">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d8873e123 "><span class="keyword">row_range_type</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d8873e125 "><p><samp class="codeph">blocked_range&lt;RowValue&gt;</samp>。つまり、行の値の型です。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d8873e123 "><span class="keyword">col_range_type</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d8873e125 "><p><samp class="codeph">blocked_range&lt;ColValue&gt;</samp>。つまり、列の値の型です。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d8873e123 "><span class="keyword">blocked_range2d&lt;RowValue,ColValue&gt;( RowValue row_begin, RowValue row_end, typename row_range_type::size_type row_grainsize, ColValue col_begin, ColValue col_end, typename col_range_type::size_type col_grainsize )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d8873e125 "><p><strong>効果:</strong> 値の 2 次元空間を表す <samp class="codeph">blocked_range2d</samp> を構築します。空間は、行と列が指定された粒度の、半開直積 <samp class="codeph">[row_begin, row_end) x [col_begin, col_end)</samp> です。</p>
+<p><strong>例:</strong><samp class="codeph">"blocked_range2d&lt;char,int&gt; r(’a’, ’z’+1, 3, 0, 10, 2);"</samp> 文は、形式 <samp class="codeph">(i, j)</samp> のすべての値ペアを含む 2 次元の空間を構築します。ここで、<samp class="codeph">i</samp> の範囲は <samp class="codeph">'a'</samp> から <samp class="codeph">'z'</samp> で粒度 3、<samp class="codeph">j</samp> の範囲は 0 から 9 で粒度 2 です。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d8873e123 "><span class="keyword">blocked_range2d&lt;RowValue,ColValue&gt;( RowValue row_begin, RowValue row_end, ColValue col_begin, ColValue col_end )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d8873e125 "><samp class="codeph">blocked_range2d(row_begin,row_end,1,col_begin,col_end,1)</samp> と同じ。</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d8873e123 "><span class="keyword">blocked_range2d&lt;RowValue,ColValue&gt; ( blocked_range2d&amp; range, split )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d8873e125 "><p>基本分割コンストラクター。</p>
+<p><strong>要件</strong>: <samp class="codeph">is_divisible()</samp> が true であること。</p>
+<p><strong>効果</strong>: range を 2 つのサブ範囲に分割します。新しく構築される <samp class="codeph">blocked_range2d</samp> は、ほぼオリジナルの <samp class="codeph">range</samp> の半分で、<samp class="codeph">range</samp> は残りになるように更新されます。各サブ範囲の粒度はオリジナルの <samp class="codeph">range</samp> の粒度と同じです。分割は行または列単位で行われます。範囲は選択した軸で分割され、分割が繰り返された後、サブ範囲の行と列はそれぞれの粒度の比率になります。例えば、<samp class="codeph">row_grainsize</samp> が <samp class="codeph">col_grainsize</samp> の 2 倍の場合、サブ範囲は列の 2 倍の行を持つようになります。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d8873e123 "><span class="keyword"> blocked_range2d&lt;RowValue,ColValue&gt; ( blocked_range2d&amp; range, proportional_split proportion ) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d8873e125 "><p>比例分割コンストラクター。</p>
+<p><strong>要件</strong>: <samp class="codeph">is_divisible()</samp> が true であること。</p>
+<p><strong>効果</strong>: <samp class="codeph">range</samp> を軸の 1 つで指定された <samp class="codeph">proportion</samp> の 2 つのサブ範囲に分割します。分割する軸の選択は、基本分割コンストラクターと同じ方法で行われ、選択した軸に比例分割が行われます。2 番目の軸と各サブ範囲の粒度はオリジナルの range と同じです。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d8873e123 "><span class="keyword">bool empty() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d8873e125 "><p><strong>効果</strong>: 範囲が空かどうかを決定します。</p>
+<p><strong>戻り値:</strong><samp class="codeph">rows().empty()||cols().empty()</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d8873e123 "><span class="keyword">bool is_divisible() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d8873e125 "><p><strong>効果</strong>: 範囲がサブ範囲に分割できるかどうかを決定します。</p>
+<p><strong>戻り値:</strong><samp class="codeph">rows().is_divisible()||cols().is_divisible()</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d8873e123 "><span class="keyword">const row_range_type&amp; rows() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d8873e125 "><p><strong>戻り値:</strong> 値の空間の行を含む範囲。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d8873e123 "><span class="keyword">const col_range_type&amp; cols() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d8873e125 "><p><strong>戻り値:</strong> 値の空間の列を含む範囲。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/algorithms/range_concept.html">Range コンセプト</a></div>
+</div>
+<div/>
+</body>
+</html>

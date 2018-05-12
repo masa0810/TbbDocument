@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="tbb_exception"/>
+<meta name="DC.subject" content="tbb_exception"/>
+<meta name="keywords" content="tbb_exception"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/exceptions.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tbb_exception"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>tbb_exception</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tbb_exception">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">tbb_exception</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>別のスレッドに移動できる例外。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>class tbb_exception;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/tbb_exception.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p>並列環境では、複数のスレッドに例外を伝えなければならないことがあります。これは、<samp class="codeph">tbb_exception</samp> クラスの <samp class="codeph">std::exception</samp> サブクラスでサポートされています。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>        namespace tbb {
+            class tbb_exception: public std::exception {
+                virtual tbb_exception* move() = 0;
+                virtual void destroy() throw() = 0;
+                virtual void throw_self() = 0;
+                virtual const char* name() throw() = 0;
+                virtual const char* what() throw() = 0;
+            };  
+        }</pre><p>派生したクラスは、次のように抽象仮想メソッドを定義すべきです。</p>
+<ul><li><p><samp class="codeph">move()</samp> は、オリジナルよりも長く存在できる例外のコピーへのポインターを作成します。オリジナルのコンテンツを移動することもできます。</p>
+</li>
+<li><p><samp class="codeph">destroy()</samp> は、<samp class="codeph">move()</samp> で作成されたコピーを破棄します。</p>
+</li>
+<li><p><samp class="codeph">throw_self()</samp> は、<samp class="codeph">*this</samp> をスローします。</p>
+</li>
+<li><p><samp class="codeph">name()</samp> は、通常、オリジナルの例外の RTTI 名を返します。</p>
+</li>
+<li><p><samp class="codeph">what()</samp> は、例外の説明である null 終了文字列を返します。</p>
+</li>
+</ul>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/exceptions.html">例外</a></div>
+</div>
+<div/>
+</body>
+</html>

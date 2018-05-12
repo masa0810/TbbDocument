@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="アルゴリズム"/>
+<meta name="DC.subject" content="アルゴリズム"/>
+<meta name="keywords" content="アルゴリズム"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/reference.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/algorithms/splittable_concept.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/algorithms/range_concept.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/algorithms/partitioners.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/algorithms/parallel_for_func.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/algorithms/parallel_reduce_func.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/algorithms/parallel_deterministic_reduce_func.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/algorithms/parallel_scan_func.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/algorithms/parallel_do_func.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/algorithms/parallel_for_each_func.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/algorithms/pipeline_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/algorithms/parallel_pipeline_func.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/algorithms/parallel_sort_func.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/algorithms/parallel_invoke_func.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="algorithms"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>アルゴリズム</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="algorithms">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">アルゴリズム</h1>
+<div><p>インテル&reg; TBB によって提供されるほとんどのアルゴリズムは一般的で、必要な概念をモデル化するすべての型で動作します。並列アルゴリズムは、入れ子が可能です。例えば、<samp class="codeph">parallel_for</samp> のボディーで別の <samp class="codeph">parallel_for</samp> を呼び出すことができます。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>外側の並列アルゴリズムのボディーで別の並列アルゴリズムを呼び出す場合、外側のボディーは外側のアルゴリズムの異なる反復に戻ることがあります。</p>
+<p>例えば、外側のボディーが並列アルゴリズムの呼び出し中にグローバルロックを保持したままであると、内側の再入可能呼び出しが同じグローバルロックを取得しようとした場合にデッドロックになります。この例は、ロックを保持したまま別の開発者によって記述されたコードを呼び出すべきではないという一般的な経験則の特殊なケースです。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../reference/reference.html">インテル&reg; TBB デベロッパー・リファレンス</a></div>
+</div>
+<div>
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../reference/algorithms/splittable_concept.html">分割可能コンセプト</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/algorithms/range_concept.html">Range コンセプト</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/algorithms/partitioners.html">パーティショナー</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/algorithms/parallel_for_func.html">parallel_for テンプレート関数</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/algorithms/parallel_reduce_func.html">parallel_reduce テンプレート関数</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/algorithms/parallel_deterministic_reduce_func.html">parallel_deterministic_reduce テンプレート関数</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/algorithms/parallel_scan_func.html">parallel_scan テンプレート関数</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/algorithms/parallel_do_func.html">parallel_do テンプレート関数</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/algorithms/parallel_for_each_func.html">parallel_for_each テンプレート関数</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/algorithms/pipeline_cls.html">pipeline クラス</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/algorithms/parallel_pipeline_func.html">parallel_pipeline 関数</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/algorithms/parallel_sort_func.html">parallel_sort テンプレート関数</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/algorithms/parallel_invoke_func.html">parallel_invoke テンプレート関数</a><br/>
+</li>
+</ul>
+</div>
+</body>
+</html>

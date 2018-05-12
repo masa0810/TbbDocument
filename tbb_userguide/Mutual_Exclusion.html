@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="排他制御"/>
+<meta name="DC.subject" content="排他制御"/>
+<meta name="keywords" content="排他制御"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/title.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Mutex_Flavors.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Reader_Writer_Mutexes.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/UpgradeDowngrade.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Lock_Pathologies.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Mutual_Exclusion"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>排他制御</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Mutual_Exclusion">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">排他制御</h1>
+<div><p>排他制御は、コード領域を同時に実行できるスレッドの数を制御します。インテル&reg; TBB では、排他制御は「mutex」と「ロック」によって実装されています。mutex は、スレッドがロックを取得できるオブジェクトです。一度に 1 つのスレッドのみ mutex でロックを取得できます。ほかのスレッドは、自分の順番になるまで待たなければなりません。</p>
+<p>最も簡単な mutex は、<samp class="codeph">spin_mutex</samp> です。<samp class="codeph">spin_mutex</samp> でロックを取得しようとするスレッドは、ロックを取得するまで、ビジーウェイトを行います。<samp class="codeph">spin_mutex</samp> は、少数の命令をロックする場合に適しています。例えば、次のコードは、mutex <samp class="codeph">FreeListMutex</samp> を使用して共有変数 <samp class="codeph">FreeList</samp> を保護します。一度に 1 つのスレッドのみ <samp class="codeph">FreeList</samp> にアクセスするようにチェックします。黒のフォントは、通常のシーケンシャル・コードを示します。コードをスレッドセーフにするために追加されたコードは<samp class="codeph"><span class="color(blue)" style="color:blue"><strong>太字</strong></span></samp>で示します。</p>
+<pre>Node* FreeList;
+<span class="color(blue)" style="color:blue"><strong>typedef spin_mutex FreeListMutexType;</strong></span>
+<span class="color(blue)" style="color:blue"><strong>FreeListMutexType FreeListMutex;</strong></span>
+ 
+Node* AllocateNode() {
+    Node* n;
+    <span class="color(blue)" style="color:blue"><strong>{</strong></span>
+        <span class="color(blue)" style="color:blue"><strong>FreeListMutexType::scoped_lock lock(FreeListMutex);</strong></span>
+        n = FreeList;
+        if( n )
+            FreeList = n-&gt;next;
+    <span class="color(blue)" style="color:blue"><strong>}</strong></span>
+    if( !n ) 
+        n = new Node();
+    return n;
+}
+ 
+void FreeNode( Node* n ) {
+    <span class="color(blue)" style="color:blue"><strong>FreeListMutexType::scoped_lock lock(FreeListMutex);</strong></span>
+    n-&gt;next = FreeList;
+    FreeList = n;
+}</pre><p><samp class="codeph">scoped_lock</samp> のコンストラクターは、<samp class="codeph">FreeListMutex</samp> でほかのロックがなくなるまで待機します。デストラクターはロックを解放します。<samp class="codeph">AllocateNode</samp> ルーチン内の中括弧内のコードは、通常とは異なり、その役割は、ほかのスレッドができるだけ早くロックが得られるように、ロック期間を短く保つことです。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>必ずロック・オブジェクトを指定してください。指定されない場合は、すぐに破棄されます。例えば、サンプルの <samp class="codeph">scoped_lock</samp> オブジェクトの作成を</p>
+<pre>FreeListMutexType::scoped_lock (FreeListMutex);</pre><p>に変更すると、<samp class="codeph">scoped_lock</samp> は実行がセミコロンに達したときに破棄され、<samp class="codeph">FreeList</samp> がアクセスされる<strong>前に</strong>ロックを解放します。 
+		</p>
+</div>
+<p><samp class="codeph">AllocateNode</samp> の別の記述方法は次のとおりです。</p>
+<pre>Node* AllocateNode() {
+    Node* n;
+    FreeListMutexType::scoped_lock lock;
+    lock.acquire(FreeListMutex);
+    n = FreeList;
+    if( n )
+        FreeList = n-&gt;next;
+    lock.release();
+    if( !n ) 
+        n = new Node();
+    return n;
+}</pre><p><samp class="codeph">acquire</samp> メソッドは mutex でロックを取得するまで待ち、<samp class="codeph">release</samp> メソッドはロックを解放します。 
+	 </p>
+<p>ロックによって保護されるコード範囲が容易に判断できるように、可能な場所に中括弧を挿入することを推奨します。</p>
+<p>C 言語のロック・インターフェイスに詳しいプログラマーは、なぜ mutex オブジェクトに acquire メソッドや release メソッドがないのか疑問に思われるかもしれません。その理由は、保護領域から例外がスローされた場合、コントロールは解放をスキップするため、C インターフェイスは例外セーフではないためです。オブジェクト指向のインターフェイスでは、保護領域が通常のコントロール・フローで終了したか例外をスローしたかに関係なく、<samp class="codeph">scoped_lock</samp> オブジェクトの破棄はロックを解放します。これは、<samp class="codeph">AllocateNode</samp> の <samp class="codeph">acquire</samp> メソッドおよび <samp class="codeph">release</samp> メソッドを使用するバージョンでも同じです。明示的な解放によりロックが早めに解放され、デストラクターはロックが解放されたと判断して何も行いません。</p>
+<p>インテル&reg; TBB のすべての mutex では同様のインターフェイスが使用されているため、簡単に習得できるだけでなく、一般的なプログラミングが可能です。例えば、すべての mutex には入れ子の <samp class="codeph">scoped_lock</samp> 型があり、<samp class="codeph"><var>M</var></samp> 型の mutex を指定すると、対応するロックの型は <samp class="codeph"><var>M</var>::scoped_lock</samp> になります。</p>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>前のサンプルで示したように、mutex の型には <samp class="codeph">typedef</samp> を使用することを推奨します。この方法では、ほかのコードを編集することなく、容易にロックの型を変更できます。サンプルでは、<samp class="codeph">typedef</samp> を <samp class="codeph">typedef queuing_mutex FreeListMutexType</samp> に置換することもできます。置換後もコードは同じ動作をします。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/title.html">インテル&reg; TBB デベロッパー・ガイド</a></div>
+</div>
+<div>
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../tbb_userguide/Mutex_Flavors.html">mutex の特性</a><br/>
+</li>
+<li class="ulchildlink"><a href="../tbb_userguide/Reader_Writer_Mutexes.html">リーダー/ライター mutex</a><br/>
+</li>
+<li class="ulchildlink"><a href="../tbb_userguide/UpgradeDowngrade.html">アップグレード/ダウングレード</a><br/>
+</li>
+<li class="ulchildlink"><a href="../tbb_userguide/Lock_Pathologies.html">ロックの問題</a><br/>
+</li>
+</ul>
+</div>
+</body>
+</html>

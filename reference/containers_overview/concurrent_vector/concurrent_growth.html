@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="同時拡張"/>
+<meta name="DC.subject" content="同時拡張"/>
+<meta name="keywords" content="同時拡張"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/containers_overview/concurrent_vector.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="concurrent_growth"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>同時拡張</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="concurrent_growth">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">同時拡張</h1>
+<div><div class="section">
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表で説明されているメソッドは、同じベクトルで同時に呼び出すことができる場合があります。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d40987e23">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d40987e25">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d40987e23 "><p><span class="keyword">iterator grow_by( size_type delta ) </span></p>
+<p><span class="keyword">iterator grow_by( size_type delta, const_reference t ) </span></p>
+</td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d40987e25 "><p>ベクトルの最後に <em>delta</em> の新しい要素で構成されるシーケンスを追加します。第 2 引数 <em>t</em> が指定された場合、新しい要素は <em>t</em> をコピーして初期化されます。その他の場合、新しい要素はデフォルト設定で構築されます。</p>
+<p><strong>戻り値</strong>: 追加されたシーケンスの最初を指すイテレーター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d40987e23 "><p><span class="keyword">template&lt;typename ForwardIterator&gt; iterator grow_by( ForwardIterator first, ForwardIterator last ) </span></p>
+</td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d40987e25 "><p>シーケンス <samp class="codeph">[<em>first,last</em>)</samp> の各要素をコピーして、ベクトルにシーケンスを追加します。</p>
+<p><strong>戻り値</strong>: 追加されたシーケンスの最初を指すイテレーター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d40987e23 "><p><span class="keyword">iterator grow_by( std::initializer_list&lt;T&gt; il ) </span></p>
+</td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d40987e25 "><p>C++11 からサポート。初期化子リストから各要素をコピーして、ベクトルにシーケンスを追加します。</p>
+<p><strong>戻り値</strong>: 追加されたシーケンスの最初を指すイテレーター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d40987e23 "><p><span class="keyword">iterator grow_to_at_least( size_type n ) </span></p>
+<p><span class="keyword">iterator grow_to_at_least( size_type n, const_reference t ) </span></p>
+</td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d40987e25 "><p><samp class="codeph">vector.size()&gt;=n</samp> になるように、要素の最小シーケンスを追加します。第 2 引数 <em>t</em> が指定された場合、新しい要素は <em>t</em> をコピーして初期化されます。その他の場合、新しい要素はデフォルト設定で構築されます。範囲 <em>[0..n)</em> のすべての要素が割り当てられるまでブロックします (ただし、別のスレッドで構築中の場合、要素は構築済みでなくてもかまいません)。</p>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>要素の構築が完了したかどうかをスレッドが把握しなければならない場合は、次の手法を検討してください。<samp class="codeph">zero_allocator</samp> を使用して <samp class="codeph">concurrent_vector</samp> を具体化します。完了時に <samp class="codeph">T</samp> のフィールドを非ゼロに設定するようにコンストラクター <samp class="codeph">T()</samp> を定義します。スレッドは、フィールドが非ゼロかどうかを確認することで、<samp class="codeph">concurrent_vector</samp> のアイテムが構築済みかどうかを確認できます。</p>
+</div>
+<p><strong>戻り値</strong>: 追加されたシーケンスの最初を指すイテレーター、または追加された要素がない場合は <samp class="codeph">(*this)[n]</samp> へのポインター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d40987e23 "><span class="keyword">iterator push_back( const_reference value ) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d40987e25 "><p>ベクトルの最後に <samp class="codeph">value</samp> のコピーを追加します。</p>
+<p><strong>戻り値</strong>: コピーを指すイテレーター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d40987e23 "><span class="keyword">iterator push_back( T&amp;&amp; value )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d40987e25 "><p>C++11 からサポート。ベクトルの最後に追加された新しい要素に <samp class="codeph">value</samp> を移動します。</p>
+<p><strong>戻り値</strong>: 新しい要素を指すイテレーター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d40987e23 "><span class="keyword">template&lt;typename... Args&gt; iterator emplace_back( Args&amp;&amp;... args ); </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d40987e25 "><p>C++11 からサポート。ベクトルの最後に新しい要素を追加します。要素は指定された引数で構築されます。</p>
+<p><strong>戻り値</strong>: 新しい要素を指すイテレーター。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/containers_overview/concurrent_vector.html">concurrent_vector テンプレート・クラス</a></div>
+</div>
+<div/>
+</body>
+</html>

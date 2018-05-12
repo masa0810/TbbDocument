@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="メモリーの一貫性"/>
+<meta name="DC.subject" content="メモリーの一貫性"/>
+<meta name="keywords" content="メモリーの一貫性"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Atomic_Operations.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Memory_Consistency"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>メモリーの一貫性</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Memory_Consistency">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">メモリーの一貫性</h1>
+<div><p>IA-64 アーキテクチャーなど、"メモリーの一貫性が弱い" 一部のアーキテクチャーでは、効率化のためにハードウェアによって異なるアドレスでメモリー操作の順序が変更される場合があります。この複雑な動作については、資料 (Intel 2002, Robison 2003) をご覧ください。IA-32 アーキテクチャー・プラットフォームおよびインテル&reg; 64 アーキテクチャー・プラットフォームのみでプログラミングを行う場合は、このセクションをスキップしても問題ありません。</p>
+<p>順序の変更を制限するため、<samp class="codeph">atomic</samp>&lt;T&gt; クラスは、次の表で説明されているように、メモリー操作を特定の順序で行います。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl14" width="100%" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">順序の制約</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="12.059369202226346%" id="d102172e34"><p>種類</p>
+</th>
+<th class="cellrowborder" valign="top" width="58.070500927643785%" id="d102172e37"><p>説明</p>
+</th>
+<th class="cellrowborder" valign="top" width="29.87012987012987%" id="d102172e40"><p>デフォルト</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="12.059369202226346%" headers="d102172e34 "><p><samp class="codeph">acquire (取得) </samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="58.070500927643785%" headers="d102172e37 "><p>アトミック操作の後の操作はアトミック操作を決して越えません。</p>
+</td>
+<td class="cellrowborder" valign="top" width="29.87012987012987%" headers="d102172e40 "><p>read (読み取り)</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="12.059369202226346%" headers="d102172e34 "><p><samp class="codeph">release (解放)</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="58.070500927643785%" headers="d102172e37 "><p>アトミック操作の前の操作はアトミック操作を決して越えません。</p>
+</td>
+<td class="cellrowborder" valign="top" width="29.87012987012987%" headers="d102172e40 "><p>write (書き込み)</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="12.059369202226346%" headers="d102172e34 "><p>連続して一貫</p>
+</td>
+<td class="cellrowborder" valign="top" width="58.070500927643785%" headers="d102172e37 "><p>アトミック操作の両側の操作はアトミック操作を決して越えません。連続して一貫したアトミック操作はグローバルな順序になります。</p>
+</td>
+<td class="cellrowborder" valign="top" width="29.87012987012987%" headers="d102172e40 "><p><samp class="codeph">fetch_and_store</samp></p>
+<p><samp class="codeph">fetch_and_add </samp></p>
+<p><samp class="codeph">compare_and_swap</samp></p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>デフォルト列は、デフォルト操作を示します。予期しない問題を回避するために、デフォルトを使用してください。読み取り/書き込みの場合、デフォルトは利用可能な制約のみです。ただし、弱いメモリーの一貫性に精通している場合は、3 番目のデフォルトをより弱い操作に変更することもできます。この処理には、テンプレート引数を使用するバージョンを使用します。引数は <samp class="codeph">acquire</samp> または <samp class="codeph">release</samp> で、enum type 型の <samp class="codeph">memory_semantics</samp> の値です。</p>
+<p>例えば、さまざまなスレッドがデータ構造体の要素を生成し、データ構造が準備できたときに消費スレッドにシグナルを発信させるとします。これを行う 1 つの方法は、ビジーな生産スレッドの数でアトミックカウンターを初期化し、生産スレッドが終了したら、次の操作を行ってカウントをデクリメントする方法です。</p>
+<pre>refcount.fetch_and_add&lt;release&gt;(-1);</pre><p>引数 <samp class="codeph">release</samp> は、<samp class="codeph">refcount</samp> がデクリメントされる前に生産スレッドの作業 (共有メモリーへの書き込み) が行われることを保証します。同様に、消費スレッドが <samp class="codeph">refcount</samp> をチェックするときは、そのデータ構造の読み取りが、<samp class="codeph">refcount</samp> が 0 になるのを見届けた後で行えるように、<samp class="codeph">acquire</samp> フェンス (読み取りのデフォルト) を使用しなければなりません。 
+  </p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Atomic_Operations.html">アトミック操作</a></div>
+</div>
+<div/>
+</body>
+</html>

@@ -1,0 +1,246 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="async_msg テンプレート・クラス"/>
+<meta name="DC.subject" content="async_msg テンプレート・クラス"/>
+<meta name="keywords" content="async_msg テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../../reference/appendices/preview_features/flow_graph_features.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../../flow_graph/async_node_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="async_msg_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../../intel_css_styles.css"/>
+<title>async_msg テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="async_msg_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(4);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">async_msg テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p><samp class="codeph">async_msg</samp> は、インテル&reg; TBB のフローグラフと (スレッドやデバイスのような) 外部並列処理の間の相互通信を実装するために使用される特別なメッセージクラスです。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>
+template &lt; typename T &gt;
+class async_msg;
+</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>
+#define TBB_PREVIEW_FLOW_GRAPH_FEATURES 1
+#include "tbb/flow_graph.h"
+</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">async_msg</samp> または <samp class="codeph">async_msg</samp> から派生したユーザー型は、フローグラフのノードにより特別に制御されます。<samp class="codeph">async_msg&lt;T&gt;</samp> は、結果の準備ができる前にグラフで処理できる <samp class="codeph">T</samp> 型の非同期ジョブ結果の表現です。結果はいつでも <samp class="codeph">async_msg&lt;T&gt;::set( T result )</samp> メソッドを使用した非同期処理により提供することができます。ほかのクラスは、追加データを含む高度な非同期メッセージを作成する <samp class="codeph">async_msg&lt;T&gt;</samp> から継承することができます。<samp class="codeph">T</samp> 型および非同期メッセージを受け付けるポートとノードは、どちらも非同期メッセージを受け取ることができ、<samp class="codeph">make_edge</samp> インターフェイスに接続できますが、制御方法は異なります。ノードが非同期メッセージを受け付けた場合、(例えば、メッセージをボディーに直接渡して) 着信非同期メッセージに直ちに反応します。しかし、ノードが <samp class="codeph">T</samp> 結果型を受け付けた場合、<samp class="codeph">async_msg&lt;T&gt;::finalize()</samp> 仮想メソッドが呼び出され、ノードは結果が利用可能になるのを待ちます。<samp class="codeph">async_msg&lt;T&gt;::finalize()</samp> メソッドは、(例えば、結果が必要であると非同期処理に通知したり、コールバックを設定する) 派生した非同期メッセージ型でオーバーライドすることができます。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p><samp class="codeph">async_msg&lt;T&gt;::set( T result )</samp> メソッドは一度だけ呼び出す必要があります。非同期メッセージが非同期処理の結果を受け付けるノードに渡されない場合、結果は設定されません。しかし、非同期メッセージが非同期メッセージの結果を受け付けるノードに渡された場合 (この場合は <samp class="codeph">finalize()</samp> メソッドが呼び出されます)、結果は設定されます。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>ノードが非同期メッセージを受け付けるのに <samp class="codeph">T</samp> 結果型のメッセージがノードに提供された場合、非同期メッセージが自動的に作成され、その結果として <samp class="codeph">T</samp> 型の着信メッセージが直ちに設定されます。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>非同期メッセージを受け付けるポートまたはノードは、同じ型の非同期メッセージまたは結果型のメッセージのみ受け付けることができます。そのため、<samp class="codeph">async_msg&lt;T&gt;</samp> を <samp class="codeph">async_msg&lt;T&gt;</samp> の派生型の非同期メッセージを受け付けるノードに渡すことは不可能です。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>現在の実装は <samp class="codeph">async_msg&lt;T&gt;::finalize()</samp> メソッドを何度も呼び出すことができますが、結果が以前に設定されている場合はメソッドを呼び出しません。しかし、この動作は将来のリリースで変更される予定です。</p>
+</div>
+<p><samp class="codeph">async_msg</samp> の最も簡単な使用シナリオを下記の図に示します。フローグラフの左のノード (n1) はボディで非同期処理を開始し、結果が設定されるのを待つことなく <samp class="codeph">async_msg</samp> オブジェクトを返します。<samp class="codeph">async_msg</samp> のコピーを介して非同期処理により結果が設定されると、次のノード (n2) は自動的に結果を受け取ります。</p>
+<p>最も簡単なシナリオのステップを次に示します。<ul><li><samp class="codeph">function_node</samp> n1 が <samp class="codeph">async_msg&lt;T&gt;</samp> のインスタンスを作成します。</li>
+<li>n1 がワークと <samp class="codeph">async_msg</samp> のコピーを外部の非同期処理に送ります。</li>
+<li>n1 が <samp class="codeph">async_msg&lt;T&gt;</samp> をサクセサーにプットします。</li>
+<li>外部の非同期処理がステップ 2 で取得した <samp class="codeph">async_msg</samp> インスタンスの <samp class="codeph">set(result)</samp> メソッドを呼び出し、結果をフローグラフに戻します。</li>
+<li>サクセサーノードが <samp class="codeph">T</samp> 型のデータを取得します。</li>
+</ul>
+</p>
+<div class="fignone" id="fig1_async_msg"><span class="figcap"><samp class="codeph">async_msg</samp> の最も簡単な使用シナリオ</span><br/><div class="imagecenter"><img src="../../../Resources/async_msg_simplest.png" height="372" width="415" alt="async_msg の最も簡単な使用シナリオ" align="center"/></div><br/></div>
+<p>このシナリオでは、<samp class="codeph">async_msg</samp> と <samp class="codeph">function_node</samp> はともに <samp class="codeph">async_node</samp> クラスに非常に似た動作を提供します。</p>
+<p><samp class="codeph">async_node</samp> に対する <samp class="codeph">async_msg</samp> の主な利点は、次の使用シナリオのように、未変更または更新されたフローグラフを介してこれらのメッセージを渡せることです。<ul><li><samp class="codeph">function_node</samp> n1 が <samp class="codeph">async_msg&lt;T&gt;</samp> のインスタンスを作成します。</li>
+<li>n1 がワークと <samp class="codeph">async_msg</samp> のコピーを外部の非同期処理に送ります。</li>
+<li>n1 が <samp class="codeph">async_msg&lt;T&gt;</samp> を次のノード n2 にプットします。</li>
+<li>n2 がワークの 2 番目の部分を外部の非同期処理に送ります。必要な場合は <samp class="codeph">async_msg</samp> メッセージのインスタンスを更新します。</li>
+<li><samp class="codeph">async_msg&lt;T&gt;</samp> がグラフの (<samp class="codeph">T</samp> 型を受け取る) 最後のノードに移ると、仮想メソッド <samp class="codeph">finalize()</samp> がライブラリーにより自動的に呼び出されます。このメソッドはカスタム非同期メッセージでオーバーライドされます。その用途は、結果をフローグラフに返すように非同期処理にコールバックを設定することです。<div class="Note"><h3 class="NoteTipHead">注</h3> <p><samp class="codeph">async_msg&lt;T&gt;::finalize()</samp> はライブラリーにより数回呼び出されますが、<samp class="codeph">set()</samp> メソッドが <samp class="codeph">async_msg</samp> で呼び出された後は呼び出されません。</p>
+</div>
+</li>
+<li>次のノード n3 が <samp class="codeph">UserDataType</samp> データを取得します。</li>
+</ul>
+</p>
+<div class="fignone" id="fig2_async_msg"><span class="figcap">処理チェーンを含むシナリオ</span><br/><div class="imagecenter"><img src="../../../Resources/async_msg_chaining.png" height="372" width="654" alt="処理チェーンを含むシナリオ" align="center"/></div><br/></div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>通常、処理チェーンの最初のノードが外部のデータを非同期処理 (スレッドまたはデバイス) にアップロードします。チェーンの次のノードは、追加データをアップロードおよびダウンロードすることなくデータ処理を続行できます。チェーンの最後のノードのみ、処理の結果を取得します。</p>
+</div>
+<p><samp class="codeph">async_msg</samp> から派生したユーザークラスは、上記のユースケースで使用できます。例えば、データ処理チェーンの動作中に追加の状態やフラグを格納または更新する派生した非同期メッセージクラスを実装できます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>次のサンプルで <samp class="codeph">source_node</samp> は、ユーザースレッドによって処理されるように、ワークを <samp class="codeph">AsyncActivity</samp> に渡します。<samp class="codeph">async_msg</samp> は、ダウンストリームの <samp class="codeph">function_node</samp> に結果を伝えるために使用されます。</p>
+<pre>
+#define TBB_PREVIEW_FLOW_GRAPH_FEATURES 1
+
+#include &lt;thread&gt;
+#include &lt;atomic&gt;
+#include "tbb/flow_graph.h"
+#include "tbb/concurrent_queue.h"
+
+using namespace tbb::flow;
+typedef int input_type;
+typedef int output_type;
+typedef tbb::flow::async_msg&lt;output_type&gt; async_msg_type;
+
+
+class AsyncActivity {
+public:
+    struct work_type {
+        input_type input;
+        async_msg_type msg;
+    };
+
+    AsyncActivity(tbb::flow::graph&amp; g) : my_graph(g), my_the_end(false), service_thread( [this]() {
+        work_type w;
+        while( ! my_the_end ) {
+            while( my_work_queue.try_pop(w) ) {
+                output_type result = do_work( w.input );
+                // 結果をグラフに返す
+                w.msg.set(result);
+                // ワーク完了を通知する (グラフをアンブロック)
+                my_graph.decrement_wait_count();
+            }
+        }
+    } ) {}
+
+    ~AsyncActivity() {
+        my_the_end = true; // スレッドを終了すべきであることを示す
+        service_thread.join();
+    }
+
+    void submit( input_type i, const async_msg_type&amp; msg ) {
+        work_type w = {i, msg};
+        my_graph.increment_wait_count();
+        my_work_queue.push(w);
+    }
+
+private:
+    output_type do_work(input_type&amp; v) {
+        // 入力を処理して出力に変換する
+    }
+
+    tbb::flow::graph&amp; my_graph;
+    tbb::concurrent_queue&lt;work_type&gt; my_work_queue;
+    std::atomic&lt;bool&gt; my_the_end;
+
+    std::thread service_thread;
+};
+
+int main() {
+    tbb::flow::graph g;
+    AsyncActivity async_activity(g);
+
+   tbb::flow::source_node&lt;async_msg_type&gt; s(g, [&amp;](async_msg_type&amp; v)-&gt;bool {
+       /* 非同期処理用のデータを生成する */
+       if ( /* ソースが終了していない */ ) {
+           async_msg_type msg;
+           /* ここで "入力" を生成する */
+           async_activity.submit(input, msg);
+           v = msg;
+           return true;
+       }
+   
+       return false;
+   });
+
+    tbb::flow::function_node&lt;output_type&gt; f( g, unlimited, [](const output_type&amp; v) 
+    { /* 非同期処理からデータを取得する */ });
+
+    tbb::flow::make_edge( s, f );
+    g.wait_for_all();
+    return 0;
+}
+</pre></div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>
+  
+namespace tbb {
+    namespace flow {
+
+        template &lt;typename T&gt;
+        class async_msg {
+        public:
+            typedef T async_msg_data_type;
+
+            async_msg();
+            virtual ~async_msg() {}
+
+            void set(const T&amp; t);
+            void set(T&amp;&amp; t);
+
+        protected:
+            // 派生クラスでオーバーライドして非同期計算チェーンが
+            // 終了したことを通知する
+            virtual void finalize() const {}
+        };
+
+    }
+}
+</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d15451e271">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d15451e273">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d15451e271 "><samp class="codeph">typedef T async_msg_data_type</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d15451e273 "><p>ユーザーデータ型の定義。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d15451e271 "><samp class="codeph">async_msg()</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d15451e273 "><p>デフォルト・コンストラクター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d15451e271 "><samp class="codeph">async_msg(const async_msg&amp;)</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d15451e273 "><p>自動生成コピー・コンストラクター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d15451e271 "><samp class="codeph">~async_msg()</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d15451e273 "><p>デストラクター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d15451e271 "><samp class="codeph">void set(const T&amp; t)</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d15451e273 "><p>非同期処理からフローグラフに結果を返すメソッドを呼び出します。<div class="Note"><h3 class="NoteTipHead">注</h3> <p><samp class="codeph">set()</samp> は <samp class="codeph">async_msg</samp> ごとに一度だけ呼び出します。</p>
+</div>
+</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d15451e271 "><samp class="codeph">void set(T&amp;&amp; t)</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d15451e273 "><p>前の <samp class="codeph">set(const T&amp;)</samp> メソッドと同じですが、C++ 'move' セマンティクスを使用します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d15451e271 "><samp class="codeph">async_msg&amp; operator = (const async_msg&amp;)</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d15451e273 "><p>自動生成代入演算子。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc"/><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d15451e343">PROTECTED</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d15451e345"> </th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d15451e343 "><samp class="codeph">virtual void finalize() const</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d15451e345 "><p>派生クラスでメソッドをオーバーライドして、データ制御チェーンが終了したことを非同期処理に通知します。非同期処理は (<samp class="codeph">set()</samp> 呼び出しで) 結果を返します。<div class="Note"><h3 class="NoteTipHead">注</h3> <p>非同期処理は <samp class="codeph">set()</samp> メソッドをいつでも呼び出すことができますが、<samp class="codeph">finalize()</samp> 同期呼び出しはフローグラフの結果を待っているノードが少なくとも 1 つある場合は待つ必要があります。</p>
+</div>
+</p>
+<p>デフォルトの実装は空です。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p><samp class="codeph">async_msg</samp> クラスはコピー可能であるため、ユーザーはすべての派生クラスで正しいコピールーチンを提供する必要があります。</p>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../../reference/appendices/preview_features/flow_graph_features.html">フローグラフ</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../../../flow_graph/async_node_cls.html">async_node</a></div></div></div>
+</body>
+</html>

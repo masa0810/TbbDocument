@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="concurrent_hash_map"/>
+<meta name="DC.subject" content="concurrent_hash_map"/>
+<meta name="keywords" content="concurrent_hash_map"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Containers.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/More_on_HashCompare.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_concurrent_hash_map"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>concurrent_hash_map</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_concurrent_hash_map">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">concurrent_hash_map</h1>
+<div><p><samp class="codeph">concurrent_hash_map&lt;<var>Key</var>, <var>T</var>, <var>HashCompare</var> &gt;</samp> は、同時アクセスを許可するハッシュテーブルです。テーブルは、キーから <var>T</var> 型へのマップです。<span class="keyword">HashCompare</span> 型は、キーをハッシュする方法と 2 つのキーを比較する方法を定義します。</p>
+<p>次のサンプルは、キーが文字列で、対応するデータは、配列 <samp class="codeph">Data</samp> で各文字列が現れる回数である <samp class="codeph">concurrent_hash_map</samp> を構築します。</p>
+<pre>#include "tbb/concurrent_hash_map.h"
+#include "tbb/blocked_range.h"
+#include "tbb/parallel_for.h"
+#include &lt;string&gt;
+ 
+using namespace tbb;
+using namespace std;
+ 
+// ユーザー定義型を扱うハッシュと比較操作を定義する構造体
+struct MyHashCompare {
+    static size_t hash( const string&amp; x ) {
+        size_t h = 0;
+        for( const char* s = x.c_str(); *s; ++s )
+            h = (h*17)^*s;
+        return h;
+    }
+    //! 文字列が等しい場合は true
+    static bool equal( const string&amp; x, const string&amp; y ) {
+        return x==y;
+    }
+};
+ 
+// int に文字列をマップする並列ハッシュテーブル
+typedef concurrent_hash_map&lt;string,int,MyHashCompare&gt; StringTable;
+ 
+// 文字列の発生回数を数える関数オブジェクト
+struct Tally {
+    StringTable&amp; table;
+    Tally( StringTable&amp; table_ ) : table(table_) {}
+    void operator()( const blocked_range&lt;string*&gt; range ) const {
+        for( string* p=range.begin(); p!=range.end(); ++p ) {
+            StringTable::accessor a;
+            table.insert( a, *p );
+            a-&gt;second += 1;
+        }
+    }
+};
+ 
+const size_t N = 1000000;
+ 
+string Data[N];
+ 
+void CountOccurrences() {
+    // 空のテーブルを構築
+    StringTable table;
+ 
+    // 発生回数をテーブルに格納
+    parallel_for( blocked_range&lt;string*&gt;( Data, Data+N, 1000 ),
+                  Tally(table) );
+ 
+    // 発生回数を表示
+    for( StringTable::iterator i=table.begin(); i!=table.end(); ++i )
+        printf("%s %d\n",i-&gt;first.c_str(),i-&gt;second);
+}</pre><p><samp class="codeph">concurrent_hash_map</samp> は、<span class="option">std::pair</span><samp class="codeph">&lt;const <var>Key</var>,<var>T</var>&gt;</samp> 型の要素のコンテナーとして動作します。通常、コンテナー要素にアクセスする場合、その更新または読み取りを行います。<samp class="codeph">concurrent_hash_map</samp> テンプレート・クラスは、スマートポインターとして動作する <samp class="codeph">accessor</samp> クラスと <samp class="codeph">const_accessor</samp> クラスを使用して 2 つの目的をそれぞれサポートします。<em>accessor</em> は、<em>update</em> (<em>write</em>) アクセスを表します。要素を指す限り、<samp class="codeph">accessor</samp> が完了するまで、テーブルのキーを参照する操作はすべてブロックされます。<samp class="codeph">const_accessor</samp> は、<strong>読み取り専用</strong>アクセスであることを除いて同じです。複数の <samp class="codeph">const_accessors</samp> で同時に同じ要素を指すことができます。この機能は、要素が頻繁に読み取りされ、ほとんど更新されない状況における並行性 (コンカレンシー) を大幅に向上させます。</p>
+<p><samp class="codeph">find</samp> メソッドおよび <samp class="codeph">insert</samp> メソッドは、<samp class="codeph">accessor</samp> または <samp class="codeph">const_accessor</samp> を引数として使用します。この選択は、<samp class="codeph">concurrent_hash_map</samp> に<strong>更新</strong>と<strong>読み取り専用</strong>アクセスのどちらを要求しているかを知らせます。いったんメソッドが返されると、<samp class="codeph">accessor</samp> または <samp class="codeph">const_accessor</samp> が破棄されるまでアクセスは続きます。要素へのアクセスはほかのスレッドをブロックするため、<samp class="codeph">accessor</samp> または <samp class="codeph">const_accessor</samp> の存在期間を短くしてください。このために、最内ブロックで宣言を行ってください。アクセスをブロックの終了よりも早く解放するには、<samp class="codeph">release</samp> メソッドを使用してください。次のサンプルは、破棄に依存してスレッドの存在期間を終了する代わりに、<samp class="codeph">release</samp> を使用するループボディーの再処理を示します。</p>
+<pre>        StringTable accessor a;
+        for( string* p=range.begin(); p!=range.end(); ++p ) {
+            table.insert( a, *p );
+            a-&gt;second += 1;
+            a.release();
+        }</pre><p><samp class="codeph">remove(key)</samp> メソッドも同時に操作できます。このメソッドは書き込みアクセスを暗黙的に要求します。そのため、キーを削除する前にその <samp class="codeph">key</samp> でほかに残っているアクセスを待機します。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Containers.html">コンテナー</a></div>
+</div>
+<div>
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../tbb_userguide/More_on_HashCompare.html">HashCompare の詳細</a><br/>
+</li>
+</ul>
+</div>
+</body>
+</html>

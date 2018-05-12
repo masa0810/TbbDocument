@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="同時実行数の制限の使用"/>
+<meta name="DC.subject" content="フローグラフのヒント, 同時実行数の制限の使用, 同時実行数の制限"/>
+<meta name="keywords" content="フローグラフのヒント, 同時実行数の制限の使用, 同時実行数の制限"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Flow_Graph_resource_tips.html"/>
+<meta name="DC.Relation" scheme="URI" content="use_limiter_node.html#use_limiter_node"/>
+<meta name="DC.Relation" scheme="URI" content="create_token_based_system.html#create_token_based_system"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="use_concurrency_limits"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>同時実行数の制限の使用</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="use_concurrency_limits">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">同時実行数の制限の使用</h1>
+<div><p>単一ノードのインスタンス数を制御するには、ノードで同時実行数の制限を使用します。同時実行数の制限に達した後にメッセージを拒否するには、"rejecting" ノードとして作成します。</p>
+<p>関数ノードは 1 つ以上のテンプレート引数を指定して構築されます。第 3 引数は、ノードで使用するバッファーポリシーを制御します。デフォルトは <span class="keyword">queueing</span> です。queueing ポリシーでは、<span class="keyword">function_node</span> は同時実行数の制限に達した後も着信メッセージを受け付けて、内部にバッファーします。ポリシーを <span class="keyword">rejecting</span> に設定すると、ノードは着信メッセージを拒否します。</p>
+<pre>template &lt; typename Input,
+           typename Output = continue_msg,
+           graph_buffer_policy = queueing,
+           typename A = cache_aligned_allocator&lt;Input&gt; &gt;
+class function_node;
+</pre><p>例えば、下記のように、<span class="keyword">function_node</span> を <span class="keyword">source_node</span> のダウンストリームに配置することで、グラフで処理するビッグ・オブジェクトの数を制御することができます。 
+	 </p>
+<pre>  graph g;
+
+  int src_count = 0;
+  int number_of_objects = 0;
+  int max_objects = 3;
+
+  source_node&lt; big_object * &gt; s( g, [&amp;]( big_object* &amp;v ) -&gt; bool {
+	  if ( src_count &lt; M ) {
+		v = new big_object();
+        ++src_count;
+        return true;
+      } else {
+        return false;
+      }
+  } );
+
+  function_node&lt; big_object *, continue_msg, rejecting &gt; f( g, 3, 
+      []( big_object *v ) -&gt; continue_msg {
+	  spin_for(1);
+         delete v;
+	  return continue_msg();
+  } );
+
+  make_edge( s, f );
+  g.wait_for_all();
+</pre><p><span class="keyword">function_node</span> は最大で 3 つのビッグ・オブジェクトを同時に処理します。ノードの同時実行数のしきい値により、同時に実行できる数は 3 つに制限されます。<span class="keyword">function_node</span> が 3 つのインスタンスを同時に実行している場合、<span class="keyword">source_node</span> からの着信メッセージは拒否されます。<span class="keyword">source_node</span> は最後に作成したオブジェクトをバッファーに入れて、ボディー・オブジェクトの呼び出しを一時的に停止します。<span class="keyword">function_node</span> で実行しているインスタンスの数が同時実行数の制限よりも低くなると、<span class="keyword">source_node</span> から新しいメッセージを受け取ります。最大で 4 つのビッグ・オブジェクトが同時に存在します (<span class="keyword">function_node</span> に 3 つオブジェクトと <span class="keyword">source_node</span> に 1 つのバッファーされたオブジェクト)。 
+	 </p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Flow_Graph_resource_tips.html">リソース消費を制限するためのフローグラフのヒント</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="use_limiter_node.html#use_limiter_node">limiter_node の使用</a></div>
+<div><a href="create_token_based_system.html#create_token_based_system">トークンベース・システムの作成</a></div></div></div>
+</body>
+</html>

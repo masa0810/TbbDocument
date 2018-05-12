@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="error_code load(char const * path[],int min_ver = TBB_INTERFACE_VERSION, int max_ver = INT_MAX)"/>
+<meta name="DC.subject" content="error_code load(char const * path[],int min_ver = TBB_INTERFACE_VERSION, int max_ver = INT_MAX)"/>
+<meta name="keywords" content="error_code load(char const * path[],int min_ver = TBB_INTERFACE_VERSION, int max_ver = INT_MAX)"/>
+<meta name="DC.Relation" scheme="URI" content="../../../../../reference/appendices/preview_features/run_time_loader/runtime_loader_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="error_code_load"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../../../intel_css_styles.css"/>
+<title>error_code load(char const * path[],int min_ver = TBB_INTERFACE_VERSION, int max_ver = INT_MAX)</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="error_code_load">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(5);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">error_code load(char const * path[],int min_ver = TBB_INTERFACE_VERSION, int max_ver = INT_MAX)</h1>
+<div><div class="section"><h2 class="sectiontitle">要件</h2><p><samp class="codeph">path[]</samp> の最後の要素は <samp class="codeph">NULL</samp> でなければなりません。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">効果</h2><p>指定されたディレクトリーの 1 つからインテル&reg; TBB ダイナミック・ライブラリーの適切なバージョンをロードします。</p>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>メソッドは、<samp class="codeph">path[]</samp> 配列で指定されているディレクトリーにあるライブラリーを検索します。ライブラリーが見つかると、ロードされ、そのインターフェイス・バージョン (<samp class="codeph">TBB_runtime_interface_version())</samp> によって返される) が確認されます。バージョンが <samp class="codeph">min_ver</samp> および <samp class="codeph">max_ver</samp> の要件を満たさない場合、ライブラリーはアンロードされます。インテル&reg; TBB ライブラリーの適切なバージョンが見つかるか、パスの配列が <samp class="codeph">NULL</samp> になるまで、指定された次のパスの検索が続行されます。<samp class="codeph">min_ver</samp> および <samp class="codeph">max_ver</samp> には、デフォルト値を使用することを推奨します。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>セキュリティー上の理由から、ライブラリーの検索では、現在のディレクトリー (".")、親ディレクトリー ("..")、その他の相対ディレクトリー ("lib" など) のような相対パスは使用しないでください。上記に示すような絶対パスのみを使用し、必要に応じてランタイムに絶対パスを構築するようにしてください。この規則に従わないと、プログラムがサードパーティーの悪意のあるコードを実行する場合があります。(詳細は、https://www.microsoft.com/technet/security/advisory/2269637.mspx を参照してください。)</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">戻り値</h2><p><samp class="codeph">ec_ok</samp> - 適切なバージョンがロードされました。</p>
+<p><samp class="codeph">ec_bad_call</samp> - この runtime_loader インスタンスは、すでにライブラリーのロードに使用されています。</p>
+<p><samp class="codeph">ec_bad_lib</samp> - ライブラリーは見つかりましたが、無効です。</p>
+<p><samp class="codeph">ec_bad_arg</samp> - min_ver/max_ver が負またはゼロか、min_ver &gt; max_ver です。</p>
+<p><samp class="codeph">ec_bad_ver</samp> - 別のインスタンスによって不適切なバージョンがすでにロードされています。</p>
+<p><samp class="codeph">ec_no_lib</samp> - 適切なバージョンが見つかりませんでした。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../../../reference/appendices/preview_features/run_time_loader/runtime_loader_cls.html">runtime_loader クラス</a></div>
+</div>
+<div/>
+</body>
+</html>

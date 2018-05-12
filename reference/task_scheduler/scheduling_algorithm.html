@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="スケジュール・アルゴリズム"/>
+<meta name="DC.subject" content="スケジュール・アルゴリズム"/>
+<meta name="keywords" content="スケジュール・アルゴリズム"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/task_scheduler.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/Non-Preemptive_Priorities.html#Non-Preemptive_Priorities"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="scheduling_algorithm"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>スケジュール・アルゴリズム</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="scheduling_algorithm">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">スケジュール・アルゴリズム</h1>
+<div><div class="section"><p>スケジューラーは、「ワークスチール」と呼ばれる手法を使用しています。各スレッドは、実行する準備ができているタスクの "レディプール" を保持します。レディプールは、「スポーンされた」 (作成された) タスク・オブジェクトのデック (両端キュー) として構築されます。さらに、「キューに入れられた」タスク・オブジェクトの共有キューがあります。タスクをスポーンすることとタスクをキューに入れることの違いは、スケジューラーがタスクを実行する際に影響します。</p>
+<p>タスク <samp class="codeph"><em>t</em></samp> を完了した後、スレッドは下記の規則のうち最初に適用される規則に従って次のタスクを選択します。</p>
+<ol class="ol_3"><li><samp class="codeph"><em>t</em>.execute()</samp> で返されたタスク。</li>
+<li><samp class="codeph">t</samp> が最後に完了したプレデセッサーだった場合は <samp class="codeph"><em>t</em></samp> のサクセサー。</li>
+<li>スレッドの自身のデックの最後からポップされたタスク。</li>
+<li>スレッドに対するアフィニティーがあるタスク。</li>
+<li>共有キューのほぼ最初からポップされたタスク。</li>
+<li>別の無作為に選択されたスレッドのデックの最初からポップされたタスク。</li>
+</ol>
+<p>スレッドがタスクを「スポーン」すると、そのタスクは自身のデックの最後にプッシュされます。上記のタスク規則 (3) はスレッドによって最も新しくスポーンされたタスクを取得しますが、規則 (6) は別のスレッドの最も古くスポーンされたタスクを取得します。</p>
+<p>スレッドがタスクを「キューに入れる」と、そのタスクは共有キューの最後にプッシュされます。規則 (5) は以前キューに入れられたタスクの 1 つを取得し、キューに入れられるタスクを取得しません。これはスポーンされたタスクと対照的です。規則 (3) では、スレッドは自身の最も新しくスポーンされたタスクを取得します。</p>
+<p>規則 (5) の "ほぼ" という表記に注意してください。スケーラビリティー上の理由により、共有キューは正確な FIFO (先入れ先出し) 動作を保証<strong>しません</strong>。厳密な FIFO (先入れ先出し) 動作が必要な場合は、個別のキューに実際のワークを入れた後、そのキューのワークを処理するタスクを作成してください。詳細は、<a class="underlined" href="../../tbb_userguide/Design_Patterns/Non-Preemptive_Priorities.html#Non-Preemptive_Priorities">「ノンプリエンプティブな優先度」</a>を参照してください。</p>
+<p>入れ子の並列処理では、スポーンとキューに入れる処理の違いを理解することが重要です。</p>
+<ul class="ul_1"><li class="li_1">スポーンされたタスクは局所性を重視します。キューに入れられたタスクは公平性を重視します。</li>
+</ul>
+<ul class="ul_1"><li class="li_1">入れ子の並列処理では、スポーンされたタスクは深さ優先の実行、キューに入れられたタスクは幅優先の実行が行われます。幅優先の実行で要求される領域は深さ優先の実行よりも非常に多くなるため、キューに入れられたタスクは注意して使用してください。</li>
+</ul>
+<ul class="ul_1"><li class="li_1">スポーンされたタスクは、スレッドが完了するタスクを明示的に待つまで実行されません。キューに入れられたタスクは、以前キューに入れられたタスクがすべて完了すると実行されます。キューに入れられたタスクを実行するほかのワーカースレッドがない場合、スケジューラーは追加のワーカースレッドを作成します。</li>
+</ul>
+<p>一般に、キューに入れられたタスクを使用する明白な理由がなければ、スポーンされたタスクを使用してください。スポーンされたタスクは、参照の局所性、空間効率、および並列処理のバランスが最もよくとれています。スポーンされたタスクのアルゴリズムは、Cilk (Blumofe 1995) で使用されているワークスチールのアルゴリズムに似ています。ワークスチールの概念が発表されたのは、1980 年代のことです (Burton 1981)。スレッド・アフィニティーのサポートは、かなり後のことです (Acar 2000)。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/task_scheduler.html">タスク・スケジューラー</a></div>
+</div>
+<div><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../../tbb_userguide/Design_Patterns/Non-Preemptive_Priorities.html#Non-Preemptive_Priorities">ノンプリエンプティブな優先度</a></div></div></div>
+</body>
+</html>

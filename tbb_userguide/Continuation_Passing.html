@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="継続渡し"/>
+<meta name="DC.subject" content="継続渡し"/>
+<meta name="keywords" content="継続渡し"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Useful_Task_Techniques.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Continuation_Passing"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>継続渡し</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Continuation_Passing">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">継続渡し</h1>
+<div><p><samp class="codeph">spawn_and_wait_for_all</samp> メソッドは、子タスクの完了を待つ親タスクを実行する便利な方法ですが、場合によっては非効率です。スレッドが <samp class="codeph">spawn_and_wait_for_all</samp> を呼び出すと、子タスクがすべて完了するまで、スレッドはほかのタスクを実行してビジー状態を保ちます。親タスクで継続する準備ができても、スレッドはほかのタスクを実行しているため、直ちに継続できません。解決方法は、親が子を待たないようにして、代わりに子と return の両方を生成することです。子は、その親の子としてではなく、親の「継続タスク」として割り当てられます。子が完了すると、任意のアイドルスレッドが継続タスクをスチールして実行します。</p>
+<p><a href="Simple_Example_Fibonacci_Numbers.html#tutorial_Simple_Example_Fibonacci_Numbers">簡単な例</a>で説明した <samp class="codeph">FibTask</samp> の "継続渡し" バージョンを次に示します。<ul><li><p>挿入部分は<samp class="codeph"><span class="color(blue)" style="color:blue"><strong>太字</strong></span></samp>で示しています。</p>
+</li>
+<li><p>削除部分はコメントアウトしています。</p>
+</li>
+</ul>
+</p>
+<pre><span class="color(blue)" style="color:blue"><strong>struct FibContinuation: public task {
+    long* const sum;
+    long x, y;
+    FibContinuation( long* sum_ ) : sum(sum_) {}
+    task* execute() {
+        *sum = x+y;
+        return NULL;
+    }
+};</strong></span>
+ 
+struct FibTask: public task {
+    const long n;
+    long* const sum;
+    FibTask( long n_, long* sum_ ) :
+        n(n_), sum(sum_)
+    {}
+    task* execute() {
+        if( n&lt;CutOff ) {
+            *sum = SerialFib(n);
+            return NULL;
+        } else {
+            // 変更前: long x, y;
+            <span class="color(blue)" style="color:blue"><strong>FibContinuation&amp; c = 
+                *new( allocate_continuation() ) FibContinuation(sum);</strong></span>
+            FibTask&amp; a = *new( <span class="color(blue)" style="color:blue"><strong>c.</strong></span>allocate_child() ) FibTask(n-2,&amp;<span class="color(blue)" style="color:blue">c.</span>x);
+            FibTask&amp; b = *new( <span class="color(blue)" style="color:blue"><strong>c.</strong></span>allocate_child() ) FibTask(n-1,&amp;<span class="color(blue)" style="color:blue">c.</span>y);
+            // ref_count を "2 つの子 + 待機用" で 3 に設定
+            <span class="color(blue)" style="color:blue"><strong>c.</strong></span>set_ref_count(<span class="color(blue)" style="color:blue"><strong>2</strong></span>);
+            spawn( b );
+            <span class="color(blue)" style="color:blue"><strong>spawn</strong></span>( a );
+	    // 変更前: *sum = x+y;
+            return NULL;
+        }
+    }
+};</pre><p>オリジナルバージョンと継続渡しバージョンの違いは次のとおりです。</p>
+<p>大きな違いは、オリジナルバージョンでは <samp class="codeph">x</samp> と <samp class="codeph">y</samp> が <samp class="codeph">execute</samp> メソッドでローカル変数であることです。継続渡しバージョンでは、子が完了する前に親がリターンするため、これらはローカル変数になりません。その代わり、継続タスク <samp class="codeph">FibContinuation</samp> のフィールドになります。</p>
+<p>さらに、割り当て方法が変更されています。継続バージョンは <samp class="codeph">allocate_continuation</samp> で割り当てられます。<samp class="codeph">this</samp> の「サクセサー (successor)」を <samp class="codeph">c</samp> に転送して、<samp class="codeph">this</samp> の「サクセサー」を NULL に設定することを除いて、<samp class="codeph">allocate_child</samp> と似ています。次の図は、この動作を要約したものです。</p>
+<div class="fignone" id="fig9"><span class="figcap"><samp class="codeph">allocate_continuation</samp> の動作</span><br/><img src="Images/image016.jpg" width="432" height="128"/><br/></div>
+<p>変換のプロパティーは、サクセサーの参照カウントを変更しないため、参照カウント方法による干渉を回避できます。</p>
+<p>参照カウントは、子の数の <samp class="codeph">2</samp> に設定されます。オリジナルバージョンでは、<samp class="codeph">spawn_and_wait_for_all</samp> で増分カウントが必要なため、<samp class="codeph">3</samp> に設定されています。さらに、コードは、子で待機するのは継続の実行のため、親ではなく、継続の参照カウントを設定します。</p>
+<p><samp class="codeph">FibContinuation</samp> に格納するのは、現在は <samp class="codeph">*sum</samp> であるため、<samp class="codeph">sum</samp> ポインターは、コンストラクターによって継続に渡されます。子は、まだ <samp class="codeph">allocate_child</samp> によって割り当てられますが、親ではなく、継続 <samp class="codeph">c</samp> の子として割り当てられることに注意してください。これは、<samp class="codeph">this</samp> ではなく、<samp class="codeph">c</samp> が両方の子が完了したときに自動的に生成された子のサクセサーになるためです。誤って <samp class="codeph">this.allocate_child()</samp> を使用した場合、両方の子が完了した後に親タスクが再び実行されます。</p>
+<p>オリジナルのトップレベル・コード、<samp class="codeph">ParallelFib</samp> がどのように記述されていたかを考えてみると、ルートの <samp class="codeph">FibTask</samp> が子の終了前に完了し、トップレベル・コードはルートの <samp class="codeph">FibTask</samp> を待つために <samp class="codeph">spawn_root_and_wait</samp> を使用しているため、継続渡しスタイルがコードを分割するのではないかと懸念するかもしれません。しかし、<samp class="codeph">spawn_root_and_wait</samp> は継続渡しスタイルで正常に動作するように設計されているため、問題ありません。<samp class="codeph">spawn_root_and_wait(<var>x</var>)</samp> の呼び出しは、実際には <var>x</var> の終了を待ちません。その代わり、<var>x</var> の仮のサクセサーを作成して、そのサクセサーの参照カウントがデクリメントするのを待ちます。<samp class="codeph">allocate_continuation</samp> は、この仮のサクセサーを継続に転送するため、継続が完了するまで仮のサクセサーの参照カウントはデクリメントされません。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Useful_Task_Techniques.html">役立つタスク手法</a></div>
+</div>
+<div/>
+</body>
+</html>

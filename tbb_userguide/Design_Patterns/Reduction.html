@@ -1,0 +1,152 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="リダクション"/>
+<meta name="DC.subject" content="リダクション"/>
+<meta name="keywords" content="リダクション"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/Design_Patterns.html"/>
+<meta name="DC.Relation" scheme="URI" content="Agglomeration.html#Agglomeration"/>
+<meta name="DC.Relation" scheme="URI" content="Elementwise.html#Elementwise"/>
+<meta name="DC.Relation" scheme="URI" content="Divide_and_Conquer.html#Divide_and_Conquer"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="Reduction"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>リダクション</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="Reduction">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">リダクション</h1>
+<div><div class="section"><h2 class="sectiontitle">問題</h2><p>データセットにまたがって結合則を満たすリダクション操作を行う。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">コンテキスト</h2><p>多くのシリアル・アルゴリズムは、アイテムのセットを走査してサマリー情報を収集します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">影響</h2><p>サマリーはデータセットの結合則を満たす操作として表現されます。または、少なくとも再結合が重要でないほど結合則を満たしたものになります。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">ソリューション</h2><p>インテル&reg; TBB には 2 つのソリューションが含まれています。どちらのソリューションを使用するかは、次の条件に依存します。</p>
+<ul><li><p>操作は可換で結合則を満たす操作か?</p>
+</li>
+<li><p>リダクション型のインスタンスの構築と破棄にコストがかかるか? 例えば、浮動小数点数の構築にはコストはかかりませんが、浮動小数点数の疎行列の構築にはコストが非常にかかるかもしれません。</p>
+</li>
+</ul>
+<p>オブジェクトを構築するコストがあまりかからない場合は、<samp class="codeph">tbb::parallel_reduce</samp> を使用します。これは、リダクション操作が可換でない場合も動作します。インテル&reg; TBB のチュートリアルでは、基本的なリダクション <samp class="codeph">tbb::parallel_reduce</samp> を使用する方法を説明しています。</p>
+<p>リダクション操作が可換で、型のインスタンスにコストがかかる場合、<samp class="codeph">tbb::parallel_for</samp> と <samp class="codeph">tbb::combinable</samp> を使用します。</p>
+<p>操作が厳密には結合則を満たしていないが厳密な決定性による結果が必要な場合は、再帰的なリダクションを使用して、<samp class="codeph">tbb::parallel_invoke</samp> で並列化します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>次のサンプルは、さまざまなソリューションといくつかのトレードオフを示しています。</p>
+<p>最初のサンプルは、<samp class="codeph">tbb::parallel_reduce</samp> を使用して <samp class="codeph">T</samp> 型のシーケンスに a + リダクションを行っています。シーケンスは、半開区間 [first,last) で定義されます。</p>
+<pre>T AssocReduce( const T* first, const T* last, T identity ) {
+   return tbb::parallel_reduce(
+       // リダクションのインデックス範囲を指定 
+       tbb::blocked_range&lt;const T*&gt;(first,last),
+       // 単位元要素
+       identity,
+       // 部分範囲と部分和をまとめる
+       [&amp;]( tbb::blocked_range&lt;const T*&gt; r, T partial_sum )-&gt;float {
+           return std::accumulate( r.begin(), r.end(), partial_sum );
+       },
+       // 2 つの部分和をまとめる
+       std::plus&lt;T&gt;()
+   );
+} </pre><p>この形式の <samp class="codeph">parallel_reduce</samp> の第 3 および第 4 引数は、擬集化パターンの形式で構築されます。リダクションの前に要素単位動作を行わなければならない場合、第 3 引数 (部分範囲のリダクション) に動作を追加すると、参照の局所性が向上し、パフォーマンスが改善されます。 
+		</p>
+<p>2 つめの例は、+ が <samp class="codeph">T</samp> で可換であると仮定しています。<samp class="codeph">T</samp> オブジェクトの構築にコストがかかる場合には良いソリューションです。</p>
+<pre>T CombineReduce( const T* first, const T* last, T identity ) {
+   tbb::combinable&lt;T&gt; sum(identity);
+   tbb::parallel_for(
+       tbb::blocked_range&lt;const T*&gt;(first,last),
+       [&amp;]( tbb::blocked_range&lt;const T*&gt; r ) {
+           sum.local() += std::accumulate(r.begin(), r.end(), identity);
+       }
+   );
+   return sum.combine( []( const T&amp; x, const T&amp; y ) {return x+y;} );
+}</pre><p>最終的な結果を生成するために部分的な結果を使用することが望ましい場合があります。例えば、部分的な結果がリストの場合、リストを結合して最終的な結果を生成することができます。その場合、<samp class="codeph">combinable</samp> の代わりに <samp class="codeph">tbb::enumerable_thread_specific</samp> クラスを使用します。「分割統治」のサンプル <samp class="codeph">ParallelFindCollisions</samp> は、このテクニックを示しています。 
+		</p>
+<p>浮動小数点の加算と乗算はほぼ結合則を満たしています。結合を行うと、丸めの影響により結果が変更されることがあります。次に示す手法では、アイテムを非決定論的に再結合します。全く結合則を満たさない操作に対して完全に決定性のある並列リダクションを行うには、決定性のある再結合を使用する必要があります。次のコードは、<samp class="codeph">T</samp> 型の値のシーケンスに a + リダクションを行うテンプレートで、この処理を示しています。</p>
+<pre>template&lt;typename T&gt;
+T RepeatableReduce( const T* first, const T* last, T identity ) {
+   if( last-first&lt;=1000 ) {
+       // シリアル・リダクションを使用
+       return std::accumulate( first, last, identity );
+   } else {
+       // 並列の分割統治リダクションを行う
+       const T* mid = first+(last-first)/2;
+       T left, right;
+       tbb::parallel_invoke(
+           [&amp;]{left=RepeatableReduce(first,mid,identity);},
+           [&amp;]{right=RepeatableReduce(mid,last,identity);} 
+       );
+       return left+right;
+   }
+}</pre><p>if-else 文は、再帰計算の擬集化パターンのインスタンスです。リダクション・グラフは厳密な二分木ではありませんが、完全な決定性があります。このため、すべてのスレッドで浮動小数点の丸めが同一であれば、指定された入力シーケンスで結果は常に同じになります。 
+		</p>
+<p>最後のサンプルは、通常はリダクションとは見なされない問題をリダクションとして並列化する方法を示しています。この問題は、データセットにまたがった計算で浮動小数点例外フラグを取得しています。
+		  シリアルコードは次のようになります。 
+		</p>
+<pre>   feclearexcept(FE_ALL_EXCEPT); 
+   for( int i=0; i&lt;N; ++i )
+       C[i]=A[i]*B[i];
+   int flags = fetestexcept(FE_ALL_EXCEPT);
+   if (flags &amp; FE_DIVBYZERO) ...;
+   if (flags &amp; FE_OVERFLOW) ...;
+   ...</pre><p>このコードは、ループのチャンクを別々に計算して各チャンクの浮動小数点フラグをマージすることで並列化できます。この処理を <samp class="codeph">tbb:parallel_reduce</samp> で行うには、次に示すように、最初に「ボディー」の型を定義します。 
+		</p>
+<pre>struct ComputeChunk {
+   int flags;          // これまでに見つかった浮動小数点例外を保持
+   void reset_fpe() {
+       flags=0;
+       feclearexcept(FE_ALL_EXCEPT);
+   }
+   ComputeChunk () {
+       reset_fpe();
+   }
+   // 範囲を部分範囲に分割するとき parallel_reduce に呼び出される "分割コンストラクター"
+   ComputeChunk ( const ComputeChunk&amp;, tbb::split ) {
+       reset_fpe();
+   }
+   // チャンクを操作し、浮動小数点例外の状態を収集して flags メンバーに設定
+   void operator()( tbb::blocked_range&lt;int&gt; r ) {
+       int end=r.end();
+       for( int i=r.begin(); i!=end; ++i )
+           C[i] = A[i]/B[i];
+       // ここで = ではなく |= を使用することが重要
+       // そうしないと同一スレッドにおいて先に見つかっている例外が失われる
+       flags |= fetestexcept(FE_ALL_EXCEPT);
+   }
+   // 2 つの部分範囲の結果を結合するとき parallel_reduce に呼び出される
+   void join( Body&amp; other ) {
+       flags |= other.flags;
+   }
+};</pre><p>その後、次のように呼び出します。 
+		</p>
+<pre>// cc の構築によって FP 例外状態が暗黙的にリセットされる
+   ComputeChunk cc;
+   tbb::parallel_reduce( tbb::blocked_range&lt;int&gt;(0,N), cc );
+   if (cc.flags &amp; FE_DIVBYZERO) ...;
+   if (cc.flags &amp; FE_OVERFLOW) ...;
+   ...</pre><p>  
+		</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../tbb_userguide/Design_Patterns/Design_Patterns.html">デザインパターン</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Agglomeration.html#Agglomeration">凝集化</a></div>
+<div><a href="Elementwise.html#Elementwise">要素単位</a></div>
+<div><a href="Divide_and_Conquer.html#Divide_and_Conquer">分割統治</a></div></div></div>
+</body>
+</html>

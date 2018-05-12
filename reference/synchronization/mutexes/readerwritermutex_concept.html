@@ -1,0 +1,126 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="ReaderWriterMutex コンセプト"/>
+<meta name="DC.subject" content="ReaderWriterMutex コンセプト"/>
+<meta name="keywords" content="ReaderWriterMutex コンセプト"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/synchronization/mutexes.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="readerwritermutex_concept"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>ReaderWriterMutex コンセプト</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="readerwritermutex_concept">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">ReaderWriterMutex コンセプト</h1>
+<div><div class="section"><p>ReaderWriterMutex コンセプトは、リーダーロックとライターロックの概念を包括する形で Mutex コンセプトを拡張します。このコンセプトは、ライターロック (<samp class="codeph">write</samp> =true) とリーダーロック (<samp class="codeph">write</samp> =false) が要求されているかどうかを指定するブール引数 <samp class="codeph">write</samp> を採用しています。ライターロックがない場合、複数のリーダーロックを ReaderWriterMutex で同時に保持できます。ReaderWriterMutex のライターロックは、mutex のロックを同時に保持することからほかのすべてのロックを除外します。</p>
+<p>次の表は、ReaderWriterMutex <samp class="codeph">RW</samp> の要件を示しています。Mutex コンセプトの上位セットです。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl28" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">ReaderWriterMutex コンセプト</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="NaN%" id="d74485e39"><p>擬似署名</p>
+</th>
+<th class="row-nocellborder" valign="top" width="NaN%" id="d74485e42"><p>意味</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="NaN%" headers="d74485e39 "><p><samp class="codeph">RW()</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d74485e42 "><p>ロックしていない mutex を構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d74485e39 "><p><samp class="codeph">~RW()</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d74485e42 "><p>ロックしていない mutex を破棄します。ロックしている mutex を破棄した場合の効果は不定です。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d74485e39 "><p><samp class="codeph">typename RW::scoped_lock</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d74485e42 "><p>対応するスコープロックの種類。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d74485e39 "><p><samp class="codeph">RW::scoped_lock()</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d74485e42 "><p>mutex を取得しないでロックを構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d74485e39 "><p><samp class="codeph">RW::scoped_lock(RW&amp;, bool write=true)</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d74485e42 "><p>ロックを構築して、指定された mutex のロックを取得します。ロックは <samp class="codeph"><em>write</em></samp> が true の場合はライターロックで、その他の場合はリーダーロックです。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d74485e39 "><p><samp class="codeph">RW::~scoped_lock()</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d74485e42 "><p>ロックを解放します (取得している場合)。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d74485e39 "><p><samp class="codeph">RW::scoped_lock::acquire(RW&amp;,bool write=true)</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d74485e42 "><p>指定された mutex のロックを取得します。ロックは <samp class="codeph"><em>write</em></samp> が true の場合はライターロックで、その他の場合はリーダーロックです。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d74485e39 "><p><samp class="codeph">bool RW::scoped_lock::try_acquire(RW&amp;, bool write=true)</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d74485e42 "><p>指定された mutex のロックを取得しようとします。ロックは <samp class="codeph"><em>write</em></samp> が true の場合はライターロックで、その他の場合はリーダーロックです。ロックが取得された場合は <samp class="codeph">true</samp>、その他の場合は <samp class="codeph">false</samp> を返します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d74485e39 "><p><samp class="codeph">RW::scoped_lock::release()</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d74485e42 "><p>ロックを解放します。ロックが保持されていない場合の結果は不定です。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d74485e39 "><p><samp class="codeph">bool RW::scoped_lock::upgrade_to_writer()</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d74485e42 "><p>リーダーロックをライターロックに変更します。リーダーロックが保持されていない場合の結果は不定です。ロックが解放または再取得された場合は <samp class="codeph">false</samp> を返し、その他の場合は <samp class="codeph">true</samp> を返します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d74485e39 "><p><samp class="codeph">bool RW::scoped_lock::downgrade_to_reader()</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d74485e42 "><p>ライターロックをリーダーロックに変更します。ライターロックが保持されていない場合の結果は不定です。ロックが解放または再取得された場合は <samp class="codeph">false</samp> を返し、その他の場合は <samp class="codeph">true</samp> を返します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d74485e39 "><p><samp class="codeph">static const bool RW::is_rw_mutex = true</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d74485e42 "><p>true。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d74485e39 "><p><samp class="codeph">static const bool RW::is_recursive_mutex</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d74485e42 "><p>mutx が再帰 mutex の場合は true。その他の場合は false。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d74485e39 "><p><samp class="codeph">static const bool RW::is_fair_mutex</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d74485e42 "><p>mutx がフェアの場合は true。その他の場合は false。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><samp class="codeph">spin_rw_mutex</samp>、<samp class="codeph">speculative_spin_rw_mutex</samp>、および <samp class="codeph"><samp class="codeph">queuing_rw_mutex</samp></samp> クラスは ReaderWriterMutex コンセプトをモデル化します。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>現在提供されているリーダー/ライター mutex の戻り値は次のようになります。<ul><li><samp class="codeph">is_recursive_mutex</samp> は <samp class="codeph">false</samp> を返します。</li>
+<li><samp class="codeph">scoped_lock::downgrade_to_reader</samp> は常に <samp class="codeph">true</samp> を返します。</li>
+</ul>
+</p>
+<p>ただし、ReaderWriterMutex コンセプトのほかの実装を同じ動作にする必要はありません。</p>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/synchronization/mutexes.html">mutex</a></div>
+</div>
+<div/>
+</body>
+</html>

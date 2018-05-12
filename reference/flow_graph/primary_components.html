@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="主要コンポーネント"/>
+<meta name="DC.subject" content="主要コンポーネント"/>
+<meta name="keywords" content="主要コンポーネント"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/flow_graph.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="primary_components"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>主要コンポーネント</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="primary_components">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">主要コンポーネント</h1>
+<div><p>グラフを実装するために使用されるコンポーネントは次の 3 つです。</p>
+<ul><li><p><span class="keyword">graph</span> オブジェクト</p>
+</li>
+<li><p>ノード</p>
+</li>
+<li><p>エッジ</p>
+</li>
+</ul>
+<p><span class="keyword">graph</span> オブジェクトは、フローグラフに基づいて作成されるタスクの所有者です。フローグラフの実行に関連するすべてのタスクの完了を待つ必要がある場合、<span class="keyword">graph</span> で待機します。また、エッジは、<span class="keyword">graph</span> との外部相互作用を登録して、フローグラフの所有の下でタスクを実行できます。</p>
+<p>ノードは、ユーザー定義関数オブジェクトを呼び出すか、ほかのノードとやり取りするメッセージを管理します。グラフで処理するアイテムをバッファー、フィルター、ブロードキャスト、オーダーする事前定義ノードもあります。</p>
+<p>エッジは、ノード間の接続で、<samp class="codeph">make_edge</samp> 関数を呼び出すことにより作成されます。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>フローグラフ関連のタスクは、そのフローグラフの task_group_context で実行されます。フローグラフを作成するときにコンテキストが指定されていない場合、新しいコンテキストが作成され、エンクロージング・コンテキストにバインドされます。</p>
+<p>フローグラフのノードのボディーが実行されるコンテキストは、そのノードのグラフです。そのノードでキャンセルまたは例外が発生すると、そのグラフのコンテキストはキャンセルされます。必要な場合、スローされた例外がさらなる処理のためにエンクロージング・コンテキストに渡されます。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/flow_graph.html">フローグラフ</a></div>
+</div>
+<div/>
+</body>
+</html>

@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="スペキュレーティブ・ロック (Transactional Lock Elision)"/>
+<meta name="DC.subject" content="スペキュレーティブ・ロック, Lock Elision"/>
+<meta name="keywords" content="スペキュレーティブ・ロック, Lock Elision"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/synchronization/mutexes.html"/>
+<meta name="DC.Relation" scheme="URI" content="mutex_concept.html"/>
+<meta name="DC.Relation" scheme="URI" content="speculative_spin_mutex_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="speculative_spin_rw_mutex_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="hardware_transactional_locking"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>スペキュレーティブ・ロック (Transactional Lock Elision)</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="hardware_transactional_locking">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">スペキュレーティブ・ロック (Transactional Lock Elision)</h1>
+<div><div class="section"><p>ハードウェア・トランザクショナル・メモリー (インテル&reg; トランザクショナル・シンクロナイゼーション・エクステンション (インテル&reg; TSX) など) をサポートするプロセッサーでは、スペキュレーティブ・ミューテックスは、非スペキュレーティブ・ロックと異なる結果を生成する「競合」がない限り、複数のスレッドで同じロックを取得して動作します。「競合」の正確な概念はハードウェアに依存します。通常は、キャッシュラインを変更する複数のアクセスが同じキャッシュラインにアクセスすることを意味します。</p>
+<p>ハードウェア・トランザクショナル・メモリーをサポートしないプロセッサーでは、スペキュレーティブ・ミューテックスは非スペキュレーティブ・ミューテックスのように動作します。パフォーマンスは低下します。</p>
+<p>インテル&reg; プロセッサーでは、利用可能な場合、スペキュレーティブ・ミューテックスはインテル&reg; TSX を使用します。これらのプロセッサーでスペキュレーティブ・ロックを利用する際の一般的なアドバイスは次のとおりです。<ul><li>保護されたクリティカル・セクションの粒度がキャッシュラインの粒度と同じになるようにします。</li>
+<li>保護されたクリティカル・セクションは割り込みやコンテキスト・スイッチによる影響を受けない短さにします。</li>
+<li>保護されたクリティカル・セクションでシステムコールを実行しないようにします。</li>
+<li>保護されたクリティカル・セクションで L1 キャッシュよりも大きなデータを処理しないようにします。</li>
+<li>スペキュレーションには入れ子の制限があります。</li>
+</ul>
+非スペキュレーティブ・ミューテックスとパフォーマンスを慎重に比較することを推奨します。</p>
+<p>インテル&reg; TSX を効率良く利用するためのアドバイスとサンプルは、『Intel&reg; 64 and IA-32 Architectures Optimization Reference Manual』、第 12 章を参照してください。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">参考資料</h2><p><a href="https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-optimization-manual.pdf" target="_blank">『Intel&reg; 64 and IA-32 Architectures Optimization Reference Manual』、資料番号 248966-027、2013 年 6 月</a>、第 12 章。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/synchronization/mutexes.html">mutex</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="mutex_concept.html">Mutex コンセプト</a></div>
+<div><a href="speculative_spin_mutex_cls.html">speculative_spin_mutex クラス</a></div>
+<div><a href="speculative_spin_rw_mutex_cls.html">speculative_spin_rw_mutex クラス</a></div></div></div>
+</body>
+</html>

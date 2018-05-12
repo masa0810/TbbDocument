@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="テーブル全体の操作"/>
+<meta name="DC.subject" content="テーブル全体の操作"/>
+<meta name="keywords" content="テーブル全体の操作"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/containers_overview/concurrent_hash_map_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="whole_table_operations"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>テーブル全体の操作</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="whole_table_operations">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">テーブル全体の操作</h1>
+<div><div class="section"><p>これらの操作はテーブル全体に影響します。同じテーブルでこれらの操作を同時に呼び出さないでください。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d26717e25">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d26717e27">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d26717e25 "><span class="keyword">explicit concurrent_hash_map( const allocator_type&amp; a = allocator_type() ) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d26717e27 "><p>空のテーブルを構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d26717e25 "><span class="keyword">concurrent_hash_map( size_type n, const allocator_type&amp; a = allocator_type() ) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d26717e27 "><p>少なくとも <samp class="codeph"><em>n</em></samp> アイテムのバケットが割り当て済みの空のテーブルを構築します。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>一般に、バケットでのスレッドの競合は、バケットの数に反比例します。メモリー消費量に問題がなく、<em>P</em> スレッドが <samp class="codeph">concurrent_hash_map</samp> にアクセスする場合、<samp class="codeph"><em>n</em>&gt;=4P</samp> に設定します。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d26717e25 "><span class="keyword">concurrent_hash_map( const concurrent_hash_map&amp; table, const allocator_type&amp; a = allocator_type() ) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d26717e27 "><p>テーブルをコピーします。コピーするテーブルには、その上で同時に実行する <samp class="codeph">const</samp> 操作が含まれます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d26717e25 "><span class="keyword">template&lt;typename InputIterator&gt; concurrent_hash_map( InputIterator first, InputIterator last, const allocator_type&amp; a = allocator_type() ) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d26717e27 "><p>半開区間 [<em>first,last</em>) のイテレーターの要素のコピーを含むテーブルを構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d26717e25 "><span class="keyword">concurrent_hash_map( std::initializer_list&lt;value_type&gt; il, const allocator_type &amp;a = allocator_type() ) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d26717e27 "><p>C++11 からサポート。<samp class="codeph">concurrent_hash_map( <em>il</em>.begin(), <em>il</em>.end(), <em>a</em> )</samp> と等価です。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d26717e25 "><span class="keyword">concurrent_hash_map(concurrent_hash_map&amp;&amp; source) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d26717e27 "><p>C++11 からサポート。<em>source</em> テーブルのコンテンツを移動することにより新しいテーブルを構築します。<em>source</em> は無指定の状態のままですが、安全に破棄することができます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d26717e25 "><span class="keyword">concurrent_hash_map(concurrent_hash_map&amp;&amp; source, const allocator_type&amp; a) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d26717e27 "><p>C++11 からサポート。指定されたアロケーターを使って <em>source</em> テーブルのコンテンツを移動することにより新しいテーブルを構築します。<em>source</em> は無指定の状態のままですが、安全に破棄することができます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d26717e25 "><span class="keyword">~concurrent_hash_map()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d26717e27 "><p><samp class="codeph">clear()</samp> を呼び出します。このメソッドを、同じ <samp class="codeph">concurrent_hash_map</samp> のほかのメソッドと同時に実行することは安全ではありません。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d26717e25 "><span class="keyword">concurrent_hash_map&amp; operator=( concurrent_hash_map&amp; source ) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d26717e27 "><p>ソーステーブルとデスティネーション・テーブル (<samp class="codeph">this</samp>) が別の場合、デスティネーション・テーブルを消去して、ソーステーブルからデスティネーション・テーブルにすべてのキー/値ペアをコピーします。その他の場合は、何もしません。</p>
+<p><strong>戻り値</strong>: 計算後の <samp class="codeph">*this</samp> への参照。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d26717e25 "><span class="keyword">concurrent_hash_map&amp; operator=(concurrent_hash_map&amp;&amp; source); </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d26717e27 "><p>C++11 からサポート。<em>source</em> テーブルから <samp class="codeph">*<em>this</em></samp> にデータを移動します。<em>source</em> は無指定の状態のままですが、安全に破棄することができます。</p>
+<p><strong>戻り値</strong>: 計算後の <samp class="codeph">*this</samp> への参照。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d26717e25 "><span class="keyword">concurrent_hash_map&amp; operator=( std::initializer_list&lt;value_type&gt; il ) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d26717e27 "><p>C++11 からサポート。<samp class="codeph">*<em>this</em></samp> を代入して <samp class="codeph">il</samp> のデータを含めます。</p>
+<p><strong>戻り値</strong>: 計算後の <samp class="codeph">*this</samp> への参照。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d26717e25 "><span class="keyword">void swap( concurrent_hash_map&amp; table ) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d26717e27 "><p><samp class="codeph">this</samp> と <samp class="codeph">table</samp> のコンテンツおよび割り当てをスワップします。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d26717e25 "><span class="keyword">void rehash( size_type n = 0 ) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d26717e27 "><p>テーブルは内部でバケットに分割されます。<samp class="codeph">rehash</samp> メソッドは、将来のルックアップのパフォーマンスを向上するようにこれらの内部バケットを認識します。<samp class="codeph"><em>n</em>&gt;0</samp> で <samp class="codeph"><em>n</em></samp> が現在のバケット数よりも大きい場合、内部バケットの数を <samp class="codeph"><em>n</em></samp> に増やします。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>現在の実装は、バケット数を減らすことはありません。将来の実装では、<samp class="codeph"><em>n</em></samp>が現在のバケット数よりも小さい場合、バケットの数を減らせるようになるかもしれません。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>バケット数に対するアイテム数の比率は、テーブルで使用する時間と空間に影響します。比率が高いと、空間は抑えることができますが、時間がかかります。比率が低いとその逆になります。デフォルトの比率は、平均でバケットごとに 0.5 ～ 1 アイテムです。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d26717e25 "><span class="keyword">void clear()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d26717e27 "><p>テーブルからすべてのキー/値ペアを消去します。キーのハッシュまたは比較を行いません。</p>
+<p><samp class="codeph">TBB_USE_PERFORMANCE_WARNINGS</samp> が非ゼロで、ハッシュのランダム性がパフォーマンスに大幅に影響するほど低い場合、パフォーマンスの警告を出力します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d26717e25 "><span class="keyword"> allocator_type get_allocator() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d26717e27 "><p><strong>戻り値</strong>: テーブルの構築に使用されるアロケーターのコピー。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/containers_overview/concurrent_hash_map_cls.html">concurrent_hash_map テンプレート・クラス</a></div>
+</div>
+<div/>
+</body>
+</html>

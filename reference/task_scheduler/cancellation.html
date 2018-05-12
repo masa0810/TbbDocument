@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="キャンセル"/>
+<meta name="DC.subject" content="キャンセル"/>
+<meta name="keywords" content="キャンセル"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/task_scheduler.html"/>
+<meta name="DC.Relation" scheme="URI" content="task_group_context.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="cancellation"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>キャンセル</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="cancellation">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">キャンセル</h1>
+<div><div class="section"><p>「タスク」は作業の 1 つの単位で、キャンセルされるか、完了するまで実行されます。キャンセルされたタスクは、<samp class="codeph">execute()</samp> メソッドがまだ開始していない場合、メソッドをスキップします。その他の場合は、キャンセルを行ってもタスクに直接の効果はありません。タスクの実行後にキャンセルがリクエストされたかどうかを確認するには、<samp class="codeph">task::is_cancelled()</samp> を呼び出します。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d78308e31">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d78308e33">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d78308e31 "><span class="keyword">bool cancel_group_execution()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d78308e33 "><p>そのグループと下位のグループに含まれるすべてのタスクのキャンセルをリクエストします。</p>
+<p><strong>戻り値</strong>: タスクのグループがキャンセルのリクエストをすでに受け取っている場合は false。その他の場合は true。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d78308e31 "><span class="keyword">bool is_cancelled() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d78308e33 "><p><strong>戻り値</strong>: タスクのグループがキャンセルのリクエストを受け取った場合は true。その他の場合は false。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/task_scheduler.html">タスク・スケジューラー</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="task_group_context.html">task_group_context クラス</a></div></div></div>
+</body>
+</html>

@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="コンテナー全体の操作"/>
+<meta name="DC.subject" content="コンテナー全体の操作"/>
+<meta name="keywords" content="コンテナー全体の操作"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/thread_local_storage/enumerable_thread_specific_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="whole_container_operations_specific_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>コンテナー全体の操作</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="whole_container_operations_specific_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">コンテナー全体の操作</h1>
+<div><div class="section"><p><strong>安全性</strong></p>
+<p>これらの操作は、<samp class="codeph">enumerable_thread_specific</samp> の同じインスタンスで同時に呼び出してはなりません。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d87590e31">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d87590e33">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d87590e31 "><span class="keyword">enumerable_thread_specific()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d87590e33 "><p><samp class="codeph">enumerable_thread_specific</samp> を作成します (各スレッドローカル要素はデフォルト設定で作成されます)。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d87590e31 "><span class="keyword">template&lt;typename Finit&gt; explicit enumerable_thread_specific( Finit finit )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d87590e33 "><p><samp class="codeph">enumerable_thread_specific</samp> を作成します (スレッドローカル要素は <samp class="codeph">finit()</samp> の結果をコピーして作成されるようにします)。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p><samp class="codeph">finit()</samp> 式は複数のスレッドで同時かつ安全に評価できなければなりません。スレッドローカル要素が作成されるたびに評価されます。</p>
+<p>C++11 以降: このコンストラクターは、<samp class="codeph">finit()</samp> が有効式の場合のみ利用できます (オーバーロードで利用できます)。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d87590e31 "><p><span class="keyword">explicit enumerable_thread_specific( const T&amp; exemplar )</span></p>
+<p><span class="keyword">explicit enumerable_thread_specific( T&amp;&amp; exemplar )</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d87590e33 "><p>各スレッドローカル要素が <samp class="codeph"><em>exemplar</em></samp> からコピーして作成される <samp class="codeph">enumerable_thread_specific</samp> を作成します。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>C++11 以降: <samp class="codeph">T</samp> の move コンストラクターは <samp class="codeph"><em>exemplar</em></samp> を内部的に格納するために使用できますが、スレッドローカル要素は常にコピーして作成されます。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d87590e31 "><span class="keyword">template &lt;typename... Args&gt; enumerable_thread_specific( Args&amp;&amp;... args );</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d87590e33 "><p>C++11 からサポート。<samp class="codeph">enumerable_thread_specific</samp> を作成します (スレッドローカル要素は <samp class="codeph">T(<em>args</em>...)</samp> を呼び出して作成されるようにします)。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>このコンストラクターは、<samp class="codeph"><em>args</em>...</samp> の最初の引数の型が <samp class="codeph">T</samp> または <samp class="codeph">enumerable_thread_specific&lt;T&gt;</samp> の場合、あるいは <samp class="codeph"><em>foo</em>()</samp> がその型の値 <samp class="codeph"><em>foo</em></samp> の有効式の場合、オーバーロードで利用されません。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d87590e31 "><p><span class="keyword">enumerable_thread_specific ( const enumerable_thread_specific&amp; other )</span></p>
+<p><span class="keyword">template&lt;typename Alloc, ets_key_usage_type Cachetype&gt; enumerable_thread_specific( const enumerable_thread_specific &lt;T, Alloc, Cachetype&gt;&amp; other )</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d87590e33 "><p><samp class="codeph"><em>other</em></samp> のコピーとして <samp class="codeph">enumerable_thread_specific</samp> を作成します。値は <samp class="codeph"><em>other</em></samp> の値からコピーされ、同じスレッドが対応します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d87590e31 "><p><span class="keyword">enumerable_thread_specific ( enumerable_thread_specific&amp;&amp; other )</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d87590e33 "><p>C++11 からサポート。<samp class="codeph"><em>other</em></samp> のコンテンツをそのまま移動することにより <samp class="codeph">enumerable_thread_specific</samp> を構築します。<samp class="codeph"><em>other</em></samp> は無指定の状態のままですが、安全に破棄することができます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d87590e31 "><p><span class="keyword">template&lt;typename Alloc, ets_key_usage_type Cachetype&gt; enumerable_thread_specific( enumerable_thread_specific &lt;T, Alloc, Cachetype&gt;&amp;&amp; other )</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d87590e33 "><p>C++11 からサポート。要素ごとの move コンストラクターを使用して <samp class="codeph"><em>other</em></samp> の値を移動することにより <samp class="codeph">enumerable_thread_specific</samp> を構築し、同じスレッドが対応します。<samp class="codeph"><em>other</em></samp> は無指定の状態のままですが、安全に破棄することができます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d87590e31 "><span class="keyword">~enumerable_thread_specific()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d87590e33 "><p><samp class="codeph">*this</samp> のすべての要素を破棄します。このインスタンス用に作成されたすべてのネイティブ TLS キーを破棄します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d87590e31 "><span class="keyword">enumerable_thread_specific&amp; operator=( const enumerable_thread_specific&amp; other );</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d87590e33 "><p><samp class="codeph"><em>other</em></samp> のコンテンツを <samp class="codeph">*this</samp> にコピーします。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d87590e31 "><span class="keyword">template&lt;typename Alloc, ets_key_usage_type Cachetype&gt; enumerable_thread_specific&amp; operator=( const enumerable_thread_specific&lt;T, Alloc, Cachetype&gt;&amp; other );</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d87590e33 "><p><samp class="codeph"><em>other</em></samp> のコンテンツを <samp class="codeph">*this</samp> にコピーします。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>アロケーターおよびキーの使用法の特殊化は、この呼び出しでは変更されません。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d87590e31 "><span class="keyword">enumerable_thread_specific&amp; operator=( enumerable_thread_specific&amp;&amp; other );</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d87590e33 "><p>C++11 からサポート。<samp class="codeph"><em>other</em></samp> のコンテンツをそのまま <samp class="codeph">*this</samp> に移動します。<samp class="codeph"><em>other</em></samp> は無指定の状態のままですが、安全に破棄することができます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d87590e31 "><span class="keyword">template&lt;typename Alloc, ets_key_usage_type Cachetype&gt; enumerable_thread_specific&amp; operator=( enumerable_thread_specific&lt;T, Alloc, Cachetype&gt;&amp;&amp; other );</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d87590e33 "><p>C++11 からサポート。要素ごとの move コンストラクターを使用して <samp class="codeph"><em>other</em></samp> のコンテンツを <samp class="codeph">*this</samp> に移動し、同じスレッドが対応します。<samp class="codeph"><em>other</em></samp> は無指定の状態のままですが、安全に破棄することができます。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>アロケーターおよびキーの使用法の特殊化は、この呼び出しでは変更されません。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d87590e31 "><span class="keyword"> void clear()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d87590e33 "><p><samp class="codeph">*this</samp> のすべての要素を破棄します。この実装で使用されるすべてのネイティブ TLS キーを破棄して再作成します。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>現在の実装では、<samp class="codeph">enumerable_thread_specific</samp> を破棄して再作成する代わりに消去を使用するパフォーマンス上の利点はありません。</p>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/thread_local_storage/enumerable_thread_specific_cls.html">enumerable_thread_specific テンプレート・クラス</a></div>
+</div>
+<div/>
+</body>
+</html>

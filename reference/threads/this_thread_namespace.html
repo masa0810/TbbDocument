@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="this_thread 名前空間"/>
+<meta name="DC.subject" content="this_thread 名前空間"/>
+<meta name="keywords" content="this_thread 名前空間"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/threads.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="this_thread_namespace"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>this_thread 名前空間</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="this_thread_namespace">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">this_thread 名前空間</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>this_thread 名前空間には、スレッド化に関連するグローバル関数が含まれます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre> namespace std {
+     namespace this_thread {
+         thread::id get_id();
+         void yield();
+         void sleep( const tbb::tick_count::interval_t&amp; );
+     }
+ }
+		</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、この名前空間の関数の詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d89569e32">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d89569e34">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d89569e32 "><span class="keyword">thread::id get_id()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d89569e34 "><p><strong>戻り値</strong>: 現在のスレッドの ID。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d89569e32 "><span class="keyword">void yield()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d89569e34 "><p>別のスレッドが実行できるように現在のスレッドを休止します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d89569e32 "><span class="keyword">void sleep_for( const tick_count::interval_t &amp; i)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d89569e34 "><p>現在のスレッドを少なくとも <em>i</em> 秒間ブロックします。</p>
+<p><strong>サンプル</strong></p>
+<pre>
+    void Foo() {
+        // 30 秒スリープ
+        std::this_thread::sleep_for( tbb::tick_count::interval_t(30) );
+    }
+					 </pre></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/threads.html">スレッド</a></div>
+</div>
+<div/>
+</body>
+</html>

@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="パーティショナーのまとめ"/>
+<meta name="DC.subject" content="パーティショナーのまとめ"/>
+<meta name="keywords" content="パーティショナーのまとめ"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/parallel_for.html"/>
+<meta name="DC.Relation" scheme="URI" content="parallel_for.html#tutorial_parallel_for"/>
+<meta name="DC.Relation" scheme="URI" content="parallel_reduce.html#tutorial_parallel_reduce"/>
+<meta name="DC.Relation" scheme="URI" content="Advanced_Topic_Other_Kinds_of_Iteration_Spaces.html#tutorial_Advanced_Topic_Other_Kinds_of_Iteration_Spaces"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Partitioner_Summary"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>パーティショナーのまとめ</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Partitioner_Summary">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">パーティショナーのまとめ</h1>
+<div><p>並列ループ・テンプレート <samp class="codeph">parallel_for</samp> および <samp class="codeph">parallel_reduce</samp> には、「パーティショナー」 (ループを実行する手法) を指定するオプションの引数があります。次の表は、パーティショナーの説明および <samp class="codeph">blocked_range</samp> とともに使用した場合の効果をまとめたものです。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl10" width="100%" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">パーティショナー</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.23076923076923%" id="d107320e38"><p>パーティショナー</p>
+</th>
+<th class="cellrowborder" valign="top" width="30.76923076923077%" id="d107320e41"><p>説明</p>
+</th>
+<th class="cellrowborder" valign="top" width="36%" id="d107320e44"><p>blocked_range(i,j,<var>g</var>) とともに使用した場合</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.23076923076923%" headers="d107320e38 "><p><samp class="codeph">simple_partitioner</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="30.76923076923077%" headers="d107320e41 "><p>チャンクサイズを粒度によって制限します。</p>
+</td>
+<td class="cellrowborder" valign="top" width="36%" headers="d107320e44 "><p><samp class="codeph"><var>g</var>/2 ≤ <var>chunksize</var> ≤ <var>g</var></samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.23076923076923%" headers="d107320e38 "><p><samp class="codeph">auto_partitioner</samp> (デフォルト)<a href="#ftn4"><sup><sup>[4]</sup></sup></a></p>
+</td>
+<td class="cellrowborder" valign="top" width="30.76923076923077%" headers="d107320e41 "><p>チャンクサイズを自動的に設定します。</p>
+</td>
+<td class="cellrowborder" rowspan="2" valign="middle" width="36%" headers="d107320e44 "><p><samp class="codeph"><var>g</var>/2 ≤ <var>chunksize</var></samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.23076923076923%" headers="d107320e38 "><p><samp class="codeph">affinity_partitioner</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="30.76923076923077%" headers="d107320e41 "><p>チャンクサイズ、キャッシュ・アフィニティーおよび反復の均等分散を自動的に設定します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.23076923076923%" headers="d107320e38 "><p><samp class="codeph">static_partitioner</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="30.76923076923077%" headers="d107320e41 "><p>チャンクサイズ、キャッシュ・アフィニティーおよび反復の均等分散をロード・バランシングなしで設定します。</p>
+</td>
+<td class="cellrowborder" valign="top" width="36%" headers="d107320e44 "><p><samp class="codeph">max(<var>g</var>/3, problem_size/num_of_resources) ≤ <var>chunksize</var></samp></p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>パーティショナーが指定されない場合、<samp class="codeph">auto_partitioner</samp> が使用されます。通常は、<samp class="codeph">auto_partitioner</samp> または <samp class="codeph">affinity_partitioner</samp> を使用してください。これらのパーティショナーは、利用可能な実行リソースに基づいてチャンクの数を調整します。<samp class="codeph">affinity_partitioner</samp> および <samp class="codeph">static_partitioner</samp> は、指定された比率に分割する <samp class="codeph">Range</samp> の機能 (「高度なトピック: 異なる種類の反復空間」を参照) を活用して、計算リソース間で反復をほぼ等しいチャンクサイズに分散します。</p>
+<p>次の場合は <samp class="codeph">simple_partitioner</samp> が便利です。</p>
+<ul><li><p><samp class="codeph">operator()</samp> のサブ範囲のサイズが制限を超えない。例えば、<samp class="codeph">operator()</samp> で範囲のサイズに比例した一時配列が必要な場合は、このパーティショナーを使用すると良いでしょう。サブ範囲のサイズが制限されている場合、ダイナミック・メモリー割り当てを使用する代わりに、配列に自動変数を使用できます。</p>
+</li>
+<li><p>サブ範囲が大きいため、キャッシュが効率良く使用されない。例えば、サブ範囲の処理で同じメモリーの場所が繰り返し解放されていると仮定します。サブ範囲を制限以下に保つことで、繰り返し参照されているメモリーの場所をキャッシュに格納できる可能性があります。このシナリオのサンプルは、<samp class="codeph">examples/parallel_reduce/primes/primes.cpp</samp> で <samp class="codeph">parallel_reduce</samp> の使用方法を参照してください。</p>
+</li>
+<li><p>特定のコンピューター向けのチューニングを行う。</p>
+</li>
+</ul>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/parallel_for.html">parallel_for</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="parallel_for.html#tutorial_parallel_for">parallel_for</a></div>
+<div><a href="parallel_reduce.html#tutorial_parallel_reduce">parallel_reduce</a></div>
+<div><a href="Advanced_Topic_Other_Kinds_of_Iteration_Spaces.html#tutorial_Advanced_Topic_Other_Kinds_of_Iteration_Spaces">高度なトピック: 異なる種類の反復空間</a></div></div></div><p><a id="ftn4"><sup>[4]</sup></a> &gt;インテル&reg; TBB 2.2 より前のバージョンでは、デフォルトが <samp class="codeph">simple_partitioner</samp> でした。</p>
+</body>
+</html>

@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="フローグラフの基本: バッファーと転送"/>
+<meta name="DC.subject" content="フローグラフの基本, バッファーと転送"/>
+<meta name="keywords" content="フローグラフの基本, バッファーと転送"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Basic_Flow_Graph_concepts.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="flow_graph_buffering_in_nodes"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>フローグラフの基本: バッファーと転送</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="flow_graph_buffering_in_nodes">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">フローグラフの基本: バッファーと転送</h1>
+<div><p>インテル&reg; TBB のフローグラフのノードは、データの受け渡しと依存関係の強制にメッセージを使用します。ノードからサクセサーにメッセージが渡されると、それ以降、ノードはそのメッセージに対するアクションを行いません。single-push と broadcast-push のセクションで説明されているように、ノードの種類、ノードに接続されているサクセサーの数、メッセージの種類 (push または pull) に応じて、メッセージは 1 つまたは複数のサクセサーに渡されます。</p>
+<p>どのサクセサーにもメッセージを push できない場合、メッセージはノードの種類に応じて次のいずれかの方法で処理されます。<ul><li>後で転送するようにメッセージを格納します。</li>
+<li>メッセージを破棄します。</li>
+</ul>
+</p>
+<p>メッセージが破棄されないようにするには、ノードが push できないメッセージを格納するバッファーノードに接続されていなければなりません。</p>
+<p>ノードによって格納されたメッセージは、次の 2 つの方法で別のノードへ渡すことができます。<ul><li>ノードのサクセサーは、<samp class="codeph">try_get()</samp> または <samp class="codeph">try_reserve()</samp> を使用してメッセージを pull できます。</li>
+<li><samp class="codeph">make_edge()</samp> でサクセサーに接続できます。</li>
+</ul>
+<samp class="codeph">try_get()</samp> によりメッセージが転送されると、そのメッセージは格納されていたノードから削除されます。<samp class="codeph">make_edge</samp> でノードが接続されると、ノードは格納されているメッセージを新しいサクセサーに push しようとします。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Basic_Flow_Graph_concepts.html">基本的なフローグラフの概念</a></div>
+</div>
+<div/>
+</body>
+</html>

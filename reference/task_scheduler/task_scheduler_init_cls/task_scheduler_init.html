@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="task_scheduler_init( int max_threads=automatic, stack_size_type thread_stack_size=0 )"/>
+<meta name="DC.subject" content="task_scheduler_init"/>
+<meta name="keywords" content="task_scheduler_init"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/task_scheduler/task_scheduler_init_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="task_scheduler_init"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>task_scheduler_init( int max_threads=automatic, stack_size_type thread_stack_size=0 )</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="task_scheduler_init">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">task_scheduler_init( int max_threads=automatic, stack_size_type thread_stack_size=0 )</h1>
+<div><div class="section"><p><strong>要件</strong></p>
+<p><samp class="codeph">max_threads</samp> 値は、下記の表の 1 つでなければなりません。</p>
+<p><strong>効果</strong></p>
+<p><samp class="codeph">max_threads==task_scheduler_init::deferred</samp> の場合は何も起きず、<samp class="codeph">task_scheduler_init</samp> オブジェクトはインアクティブのままです。その他の場合、task_scheduler_init オブジェクトは次のようにアクティブ化されます。スレッドにほかのアクティブな <samp class="codeph">task_scheduler_init</samp> オブジェクトがない場合、スレッドはタスク・オブジェクトのスケジュールに必要な内部スレッド固有のリソースを割り当てます。アクティブな <samp class="codeph">task_scheduler_init</samp> オブジェクトを含むスレッドがまだない場合、下記の表で説明されているように内部ワーカースレッドが作成されます。これらのワーカースレッドは、タスク・スケジューラーで必要になるまでスリープしています。スケジューラーによって作成された各ワーカースレッドは、<samp class="codeph">task_scheduler_init</samp> オブジェクトを暗黙的にアクティブにします。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>インテル&reg; TBB 3.0 の時点では、<samp class="codeph">max_threads</samp> 引数が別々の呼び出しスレッドで異なることは意味があります。例えば、スレッド A が <samp class="codeph">max_threads=3</samp> を指定してスレッド B が <samp class="codeph">max_threads=7</samp> を指定した場合、A は 2 つのワーカースレッドに制限されますが、B は 6 つまでのワーカースレッドを扱うことができます。ワーカースレッドは A と B で共有される可能性があるため、スケジューラーによって作成されるワーカースレッドの合計は 6 になります。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>一部の実装では、必要な数よりも多くのワーカースレッドを作成します。ただし、必要ない場合はスリープしたままです。</p>
+</div>
+<p>オプションの <samp class="codeph">thread_stack_size</samp> 引数は、ワーカースレッドのスタックサイズを指定します。値 0 は、デフォルトのスタックサイズを使用するように指定します。最初のアクティブな <samp class="codeph">task_scheduler_init</samp> がすべてのワーカースレッドのスタックサイズを決定します。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl32" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">max_threads の値</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="NaN%" id="d84792e72"><p>max_threads</p>
+</th>
+<th class="row-nocellborder" valign="top" width="NaN%" id="d84792e75"><p>意味</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="NaN%" headers="d84792e72 "><p><samp class="codeph">task_scheduler_init::automatic</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d84792e75 "><p>ライブラリーがハードウェア構成に基づいて <samp class="codeph">max_threads</samp> を決定するようにします。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d84792e72 "><p><samp class="codeph">task_scheduler_init::deferred</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d84792e75 "><p>アクティブ化を遅らせます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d84792e72 "><p>正の整数</p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d84792e75 "><p>呼び出しスレッドに基づいて <samp class="codeph">max_threads</samp>-1 までのワーカースレッドを要求します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/task_scheduler/task_scheduler_init_cls.html">task_scheduler_init クラス</a></div>
+</div>
+<div/>
+</body>
+</html>

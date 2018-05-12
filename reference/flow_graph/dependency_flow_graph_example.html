@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="依存関係フローグラフの例"/>
+<meta name="DC.subject" content="依存関係フローグラフの例"/>
+<meta name="keywords" content="依存関係フローグラフの例"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/flow_graph.html"/>
+<meta name="DC.Relation" scheme="URI" content="continue_msg_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="dependency_flow_graph_example"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>依存関係フローグラフの例</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="dependency_flow_graph_example">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">依存関係フローグラフの例</h1>
+<div><p>次の例では、A-E の 5 つの計算が下記の図のように半順序でセットアップされています。フローグラフの各エッジで、エッジの最後のノードは、先頭のノードが開始する前に実行を完了していなければなりません。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>これは単純な構文の例にすぎません。フローグラフの各ノードは独立したタスクとして実行されるため、各ノードの粒度は、『インテル&reg; TBB 入門チュートリアル』で説明されているタスクの一般的なガイドラインに従ってください。</p>
+</div>
+<div class="fignone" id="fig5_dep_graph"><span class="figcap">単純な依存関係グラフ</span><br/><div class="imagecenter"><img id="image_45FEEBCB0EBD40C19CCD9FDB0E503A15" src="../Resources/dep_graph.jpg" height="409" width="249" alt="単純な依存関係グラフ" align="center"/></div><br/></div>
+<pre>#include &lt;cstdio&gt;
+#include "tbb/flow_graph.h"
+ 
+using namespace tbb::flow;
+ 
+struct body {
+    std::string my_name;
+    body( const char *name ) : my_name(name) {}
+    void operator()( continue_msg ) const {
+        printf("%s\n", my_name.c_str());
+    }
+};
+ 
+int main() {
+    graph g;
+ 
+    broadcast_node&lt; continue_msg &gt; start;
+    continue_node&lt;continue_msg&gt; a( g, body("A"));
+    continue_node&lt;continue_msg&gt; b( g, body("B"));
+    continue_node&lt;continue_msg&gt; c( g, body("C"));
+    continue_node&lt;continue_msg&gt; d( g, body("D"));
+    continue_node&lt;continue_msg&gt; e( g, body("E"));
+ 
+    make_edge( start, a );
+    make_edge( start, b );
+    make_edge( a, c );
+    make_edge( b, c );
+    make_edge( c, d );
+    make_edge( a, e );
+ 
+    for (int i = 0; i &lt; 3; ++i ) {
+        start.try_put( continue_msg() );
+        g.wait_for_all();
+    }
+ 
+    return 0;
+}  </pre><p>この例で、ノード A-E は自身の名前を出力します。そのため、これらのノードはすべて、<span class="keyword">struct body</span> を使用してボディー・オブジェクトを構築できます。 
+	 </p>
+<p><span class="keyword">main</span> 関数で、フローグラフは一回セットアップされ、3 回実行されます。この例のノードはすべて、周囲に <span class="keyword">continue_msg</span> オブジェクトを渡します。ノードが実行を完了したことを通知するために使用されます。</p>
+<p><span class="keyword">main</span> 関数の最初の行は、<span class="keyword">graph</span> オブジェクト <span class="keyword">g</span> を具体化します。次の行で、名前が <span class="keyword">start</span> の <span class="keyword">broadcast_node</span> が作成されます。このノードに渡されるものはすべて、そのサクセサーにブロードキャストされます。<span class="keyword">start</span> ノードは、<span class="keyword">main</span> の下部の <span class="keyword">for</span> ループで残りのフローグラフを実行するために使用されます。</p>
+<p>例では、名前が a - e の 5 つの <span class="keyword">continue_node</span> オブジェクトが作成されます。各ノードは、グラフ <span class="keyword">graph</span><span class="keyword">g</span> への参照とノードが実行するときに呼び出す関数オブジェクトで構築されます。サクセサー/プレデセッサーの関係は、ノードの宣言に続く <span class="keyword">make_edge</span> 呼び出しでセットアップされます。</p>
+<p>ノードとエッジがセットアップされると、<span class="keyword">for</span> ループの各反復の <span class="keyword">try_put</span> で、<span class="keyword">a</span> と <span class="keyword">b</span> に <span class="keyword">continue_msg</span> がブロードキャストされます。<span class="keyword">a</span> と <span class="keyword">b</span> には 1 つのプレデセッサー (<span class="keyword">start</span>) しかないため、どちらも 1 つの <span class="keyword">continue_msg</span> を待ちます。</p>
+<p><span class="keyword">start</span> からメッセージを受け取ると、ボディー・オブジェクトを実行します。完了すると、<span class="keyword">continue_msg</span> をサクセサーに送ります。計算を並列に実行可能な場合、グラフは、複数のタスクを使用してノード間でメッセージを送る処理と、ノードのボディーを実行する処理を並列に実行します。</p>
+<p>この例で使用されているクラスと関数は、「フローグラフ」からリンクされているトピックで詳細に説明されています。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/flow_graph.html">フローグラフ</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="continue_msg_cls.html">continue_msg クラス</a></div></div></div>
+</body>
+</html>

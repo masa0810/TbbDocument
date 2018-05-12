@@ -1,0 +1,388 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="streaming_node テンプレート・クラス"/>
+<meta name="DC.subject" content="streaming_node テンプレート・クラス"/>
+<meta name="keywords" content="streaming_node テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../../reference/appendices/preview_features/flow_graph_features.html"/>
+<meta name="DC.Relation" scheme="URI" content="async_msg_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../../flow_graph/async_node_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../../flow_graph/join_node_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="streaming_node_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../../intel_css_styles.css"/>
+<title>streaming_node テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="streaming_node_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(4);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">streaming_node テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p><samp class="codeph">streaming_node</samp> は、キューを利用してデバイスにカーネルおよびデータを渡すストリーミング・プログラミング・モデルを使用できるようにします。<samp class="codeph">streaming_node</samp> クラスは、フローグラフにストリーミング・プログラミング・モデルの使用を簡単に統合するために必要なインターフェイスを提供します。開発者は、グラフを使用してヘテロジニアス・プラットフォームの異なるデバイスやハードウェア・リソースで実行する機能を調整できます。<samp class="codeph">streaming_node</samp> に Factory を提供して、使用される実際のモデルの低レベルの詳細を定義する必要があります。</p>
+<p><samp class="codeph">opencl_node</samp> は、インテル&reg; TBB ライブラリーで提供されるモデル固有の <samp class="codeph">streaming_node</samp> 実装の例です。<samp class="codeph">opencl_node</samp> は、統合型および外付け型グラフィックス・プロセシング・ユニット (GPU) や CPU のような、OpenCL* をサポートするデバイスで OpenCL* カーネルを実行できるようにします。<samp class="codeph">opencl_node</samp> は <samp class="codeph">opencl_factory</samp> を使用する <samp class="codeph">streaming_node</samp> として実装されます。</p>
+<p>開発者は、OpenCL* 以降のほかのモデルをサポートする Factory を定義するように選択できます。ほかの Factory はライブラリーの将来のバージョンで提供されます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>
+template &lt; typename... Args &gt;
+class streaming_node;
+template &lt; typename... Ports, typename JP, typename Factory &gt;
+class streaming_node &lt; tuple &lt; Ports... &gt;, JP, Factory &gt;;
+</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>
+#define TBB_PREVIEW_FLOW_GRAPH_FEATURES 1
+#include "tbb/flow_graph.h"
+</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">streaming_node</samp> クラスは、ヘテロジニアス・コンピューティング・デバイスをサポートする、より大きなフローグラフ・ベースのソリューションの一部です。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">このセクションで使用されている用語の定義は次のとおりです。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.33333333333333%" id="d17619e77">用語</th>
+<th class="cellrowborder" valign="top" width="66.66666666666666%" id="d17619e79">定義</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.33333333333333%" headers="d17619e77 ">Factory</td>
+<td class="cellrowborder" valign="top" width="66.66666666666666%" headers="d17619e79 "><p>デバイスに入力データをアップロードし、デバイスでカーネルを実行し、すべての必要な型を提供するインターフェイスを提供する概念。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.33333333333333%" headers="d17619e77 ">デバイス</td>
+<td class="cellrowborder" valign="top" width="66.66666666666666%" headers="d17619e79 "><p>カーネルを実行する計算リソース。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.33333333333333%" headers="d17619e77 ">カーネル</td>
+<td class="cellrowborder" valign="top" width="66.66666666666666%" headers="d17619e79 "><p>デバイスで実行する計算関数。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.33333333333333%" headers="d17619e77 ">カーネル引数</td>
+<td class="cellrowborder" valign="top" width="66.66666666666666%" headers="d17619e79 "><p>カーネルを実行するためにデバイスに提供されるデータ。</p>
+<p>引数は入力、出力、または両方です。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.33333333333333%" headers="d17619e77 ">カーネル範囲</td>
+<td class="cellrowborder" valign="top" width="66.66666666666666%" headers="d17619e79 "><p>単一カーネル実行の計算範囲。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><samp class="codeph">streaming_node</samp> 使用モデルにはいくつかの基本原則があります。<ul><li><p>デバイスの詳細は <samp class="codeph">streaming_node</samp> に直接組込まれる代わりに、Factory を利用してアクセスされます。</p>
+</li>
+<li><p><samp class="codeph">streaming_node</samp> は、入力ポートのセットから入力データを受け取ります。</p>
+<ul><li><p>入力データはカーネル引数やカーネル範囲として使用されるか、変更されずに出力ポートに渡されます。</p>
+</li>
+<li><p>Factory の実装に応じて、非同期実行が可能になるように <samp class="codeph">async_msg</samp> から派生した入力メッセージは特別に扱われます。</p>
+</li>
+</ul>
+</li>
+<li><p>入力ポートごとに、対応する出力ポートがあります。</p>
+<ul><li><p>すべての出力メッセージは、非同期実行が可能になるように Factory で定義された <samp class="codeph">async_msg</samp> 型でラップされます。</p>
+</li>
+<li><p>すべての出力メッセージは <samp class="codeph">async_msg</samp> から派生するため、出力メッセージが利用可能であることは基礎結果データの準備ができていることを意味しません (<samp class="codeph">async_msg</samp> を参照)。</p>
+</li>
+<li><p>任意のポートからの入力がカーネル引数またはカーネル範囲で参照されていない場合、入力データは変更されずに一致する出力ポートに渡されます。</p>
+</li>
+</ul>
+</li>
+<li><p><samp class="codeph">streaming_node</samp> を作成してセットアップするときに、次の項目を指定します。</p>
+<ul><li><p>モデルの詳細 (Factory オブジェクトを利用)</p>
+</li>
+<li><p>デバイスの選択方法 (<samp class="codeph">DeviceSelector</samp> オブジェクトを利用)</p>
+</li>
+<li><p>カーネル引数 (定数または特定の入力ポートからマップ)</p>
+</li>
+<li><p>カーネル範囲 (オプション) (定数または特定の入力ポートからマップ)</p>
+</li>
+</ul>
+</li>
+</ul>
+</p>
+<div class="fignone" id="fig1_streaming_node"><span class="figcap"><samp class="codeph">streaming_node</samp> のダイアグラム</span><br/><div class="imagecenter"><img src="../../../Resources/streaming_node_args.png" height="372" width="654" alt="streaming_node のダイアグラム" align="center"/></div><br/></div>
+<p>ノードはカーネル引数 (およびカーネル範囲 (オプション)) を入力ポートから読み取ります。あるいは、ノードを使用する前にカーネル引数 (および範囲) を定義します。<br/><div class="imagecenter"><img src="../../../Resources/streaming_node_port_refs.png" height="372" width="654" alt="ノードはカーネル引数およびカーネル範囲を入力ポートから読み取ります。" align="center"/></div></p>
+<p>ノード実行の最後に出力データの準備ができていない場合があるため、出力ポートは <samp class="codeph">async_msg</samp> から派生したメッセージを常に送ります。しかし、<samp class="codeph">async_msg</samp> は、ほかのフローグラフのノードがこれらのメッセージに適切に応答し、利用可能になる前にデータを使用しないことを保証します (<samp class="codeph">async_msg</samp> を参照)。</p>
+<p>単純化された <samp class="codeph">streaming_node</samp> アルゴリズムは、次の手順で記述できます。<ul><li><p>入力ポートで入力データを受け取ります。Factory 固有の <samp class="codeph">async_msg</samp> 型でラップされていない場合は、入力をラップします。</p>
+</li>
+<li><p>カーネル実行のデバイスを選択します。</p>
+</li>
+<li><p>カーネル引数 (およびカーネル範囲 (オプション)) をデバイスに送ります。</p>
+</li>
+<li><p>デバイスの実行用カーネルをキューに入れます。</p>
+</li>
+<li><p>必要に応じて、<samp class="codeph">async_msgs</samp> の依存関係を更新します。</p>
+</li>
+<li><p>ノード出力として出力ポートから更新された <samp class="codeph">async_msgs</samp> を送ります。</p>
+</li>
+</ul>
+</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p><samp class="codeph">streaming_node</samp> は、常に次のノードに <samp class="codeph">async_msg_type</samp> 値を送ります。カーネル実行の終了を待ちません。待機は、C++ の future-promise コンセプトのように、実際の結果データを処理する時点で行われます。(詳細は、<samp class="codeph">async_msg</samp> クラスの説明を参照。)</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>ノードは、すべてのカーネル引数は Factory のカーネルの実行により変更されると仮定します。この仮定により、出力 <samp class="codeph">async_msgs</samp> の読み取り専用引数のデータが利用可能になるのが遅れることがあります。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">Factory コンセプト</h2><p><strong>概要</strong></p>
+<p><samp class="codeph">streaming_node</samp> は、Factory オブジェクトを利用して特定のデバイスと通信する抽象実行メカニズムです。Factory は、デバイスに入力データをアップロードし、デバイスでカーネルを実行し、ノードタイプで必要なセットを提供する手段を提供します。</p>
+<p><strong>要件</strong></p>
+<p>次の表は、Factory 型 <samp class="codeph">F</samp> の要件を示しています。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl1" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">Factory コンセプト</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" id="d17619e286"><p>擬似署名</p>
+</th>
+<th class="row-nocellborder" valign="top" id="d17619e289"><p>意味</p>
+</th>
+</tr>
+</thead>
+<tbody><tr valign="top"><td class="cellrowborder" valign="top" headers="d17619e286 "><p><samp class="codeph"> template &lt;typename T&gt;</samp></p>
+<p><samp class="codeph"> using F::<strong>async_msg_type</strong> = .....;</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d17619e289 "><p>デバイス固有の型: 非同期メッセージ型 (<samp class="codeph">async_msg</samp> クラスから派生)。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d17619e286 "><p><samp class="codeph"> typedef ..... F::<strong>device_type</strong>;</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d17619e289 "><p>デバイス固有の型: ターゲットデバイス型。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d17619e286 "><p><samp class="codeph"> typedef .....&amp;... F::<strong>kernel_type</strong>;</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d17619e289 "><p>デバイス固有の型: デバイスカーネル型。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d17619e286 "><p><samp class="codeph"> typedef ..... F::<strong>range_type</strong>;</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d17619e289 "><p><strong>オプション</strong>。デバイス固有の型: 範囲型。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d17619e286 "><p><samp class="codeph"> template &lt;typename ...Args&gt;</samp></p>
+<p><samp class="codeph"> void F::<strong>send_kernel</strong>(device_type device, const kernel_type&amp; kernel, [const range_type&amp; work_size,] Args&amp;... args)</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d17619e289 "><p>デバイスでカーネルを実行します。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d17619e286 "><p><samp class="codeph"> template &lt;typename ...Args&gt;</samp></p>
+<p><samp class="codeph"> void F::<strong>send_data</strong>(device_type device, Args&amp;... args)</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d17619e289 "><p>デバイスにデータをアップロードします。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d17619e286 "><p><samp class="codeph"> template &lt;typename FinalizeFn, typename ...Args&gt;</samp></p>
+<p><samp class="codeph"> void F::<strong>finalize</strong>(device_type device, FinalizeFn fn, Args&amp;... args)</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d17619e289 "><p>カーネル実行後の終了処理。</p>
+<p><samp class="codeph">fn</samp> ファンクターはカーネル実行が終了した後に呼び出します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Factory が範囲の概念をサポートしている場合、<samp class="codeph">range_type</samp> 型を定義する必要があります。この場合、<samp class="codeph">streaming_node</samp> は範囲を定義するメソッドを提供します。カーネル範囲が Factory でサポートされていない場合、これらのメソッドは利用できません。</p>
+<p>カーネル範囲がサポートされていない場合、<samp class="codeph">send_kernel</samp> インターフェイスは次のようになります。</p>
+<pre>
+template &lt;typename ...Args&gt;
+void F::<strong>send_kernel</strong>(device_type device, const kernel_type&amp; kernel, Args&amp;...args)
+</pre><p><strong>説明</strong></p>
+<p>ストリーミング・ノードは、<samp class="codeph">send_kernel</samp> メソッドを呼び出して、指定された外部デバイスでカーネルを開始します。すべての入力引数 (<samp class="codeph">Args&amp;...args</samp>) は、<samp class="codeph">async_msg_type</samp> 型の参照として提供されます。引数が <strong><samp class="codeph">set_args</samp></strong> から値で設定された場合は定数参照、引数が入力ポートからの動的な値 (つまり、<strong><samp class="codeph">set_args</samp></strong> メソッドの <samp class="codeph">port_ref </samp> 引数で設定された値) の場合は非定数参照です。</p>
+<p><samp class="codeph">send_data</samp> メソッドは、ストリーミング・ノードに呼び出され、指定されたデバイスにオリジナルのカーネル引数をアップロードします。すべての入力引数 <samp class="codeph">Args&amp;...args</samp> は、<samp class="codeph">async_msg_type</samp> 型の参照として提供されます。リストには、<samp class="codeph">set_args</samp> から (<samp class="codeph">port_ref</samp> としてではなく) 値で設定される値のみ含まれます。</p>
+<p><strong><samp class="codeph">finalize</samp></strong> メソッドはストリーミング・ノードに呼び出され、Factory にグラフのコールバック (カーネル実行が終了したときにグラフに通知) を設定させます。この場合、Factory は提供される終了処理ファンクターを呼び出す必要があります。<strong><samp class="codeph">finalize</samp></strong> メソッドは、次のグラフノードがこの出力メッセージを拒否した場合、またはノードの出力ポートがノードに接続されて<strong>いない</strong>場合 (グラフのどの部分もカーネルの結果を待っていない場合) にのみ、ノードに呼び出されることに注意してください。入力引数 <samp class="codeph">Args&amp;...args</samp> は、<strong><samp class="codeph">send_kernel</samp></strong> メソッドのように、<samp class="codeph">async_msg_type</samp> 型の定数/非定数参照のいずれかで提供されます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">Device Selector の概念</h2><p><strong>概要</strong></p>
+<p><samp class="codeph">Device Selector</samp> オブジェクトは、Factory インスタンスに利用可能なデバイスから 1 つのデバイスを選択する単純なユーザー・ファンクターです。</p>
+<p><strong>要件</strong></p>
+<p>次の表は、Device Selector 型 <samp class="codeph">DS</samp> の要件を示しています。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl2" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">Device Selector の概念</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" id="d17619e500"><p>擬似署名</p>
+</th>
+<th class="row-nocellborder" valign="top" id="d17619e503"><p>意味</p>
+</th>
+</tr>
+</thead>
+<tbody><tr valign="top"><td class="cellrowborder" valign="top" headers="d17619e500 "><p><samp class="codeph"> device_type DS::<strong>operator()</strong>( factory&amp; f )</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d17619e503 "><p>Factory からデバイスを取得します。ノードはデバイスでカーネル実行を開始します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>サンプル</strong></p>
+<pre>
+struct external_device_selector {
+    device_type operator()( factory&amp; f ) {
+        return f.<em>get_somehow_an_available_device()</em>;
+    }
+};
+</pre><div class="Note"><h3 class="NoteTipHead">注</h3> <p>デバイスの型は Factory によって定義されます。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">ポート参照の使用法</h2><p><samp class="codeph">streaming_node</samp> ユーザーは、定数値としてカーネル引数 (およびカーネル範囲引数 (オプション)) を提供するか、入力ポートをこれらの引数にマップできます。</p>
+<p>Factory がカーネル範囲をサポートしている場合、<samp class="codeph">streaming_node</samp> クラスの次のメソッドを使用して範囲値を設定します。</p>
+<pre>
+void set_range(const range_type&amp; work_size);
+
+void set_range(range_type&amp;&amp; work_size);
+</pre><p>カーネル引数を定数として設定するには、<samp class="codeph">streaming_node</samp> クラスの次のメソッドを使用します。</p>
+<pre>
+template &lt;typename ...Args&gt;
+void set_args( Args&amp;&amp;...args );
+</pre><p><strong>サンプル</strong></p>
+<pre>
+node.set_range( {{ width, height }} );
+node.set_args(/* stride_x */ 1, /* stride_y */ 0, /* stride_z */ 0, /* dim */ 1 );
+</pre><p>入力ポートをカーネル引数 (およびカーネル範囲 (サポートされている場合)) にマップするには、streaming_node クラスの次のメソッドを使用します。</p>
+<pre>
+void set_range( <em>port_ref_entity</em> );
+
+template &lt;typename ...Args&gt;
+void set_args( Args&amp;&amp;...args ) ; // args には 1 つまたは複数の <em>port_ref_entity</em> を含めることができる
+</pre><p><em>port_ref_entity</em> は下記にリストされているヘルパーにより返されます。<ul><li><p><samp class="codeph">port_ref&lt;N&gt;</samp></p>
+</li>
+<li><p><samp class="codeph">port_ref&lt;N1, N2&gt;</samp></p>
+</li>
+<li><p><samp class="codeph">port_ref&lt;N&gt;()</samp></p>
+</li>
+<li><p><samp class="codeph">port_ref&lt;N1, N2&gt;()</samp></p>
+</li>
+</ul>
+</p>
+<p><strong>サンプル</strong></p>
+<pre>
+node.set_range( port_ref&lt;2&gt; );
+node.set_args( port_ref&lt;0, 1&gt; );
+</pre><p>または</p>
+<pre>
+node.set_range( port_ref&lt;2&gt;() );
+node.set_args( port_ref&lt;0, 1&gt;() );
+</pre><p>または</p>
+<pre>
+node.set_range( port_ref&lt;2&gt; );
+node.set_args( port_ref&lt;0, 1&gt;() );
+</pre><p>アプローチは簡単に組み合わせることができます。</p>
+<p><strong>サンプル</strong></p>
+<pre>
+node.set_range( port_ref&lt;2&gt; );
+node.set_args( port_ref&lt;0, 1&gt;(), /* stride_x */ 1, /* stride_y */ 0, /* stride_z */ 0, /* dim */ 1 );
+</pre><p>このサンプルは、範囲をポート 2 から受け取り、ポート 0 および 1 からのデータをカーネル引数として事前定義定数引数 (stride_x、stride_y など) とともにデバイスに送ります。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p><samp class="codeph">opencl_node</samp> クラスの実装は <samp class="codeph">streaming_node</samp> クラスの使用例です。</p>
+<p>詳細は、https://www.isus.jp/products/tbb/opencl-node-overview/ を参照してください。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">パブリックメンバー</h2><pre>
+namespace tbb {
+namespace flow {
+
+template&lt;typename.. .Args&gt;
+class streaming_node;
+
+template&lt;typename...Ports, typename JP, typename Factory&gt;
+class streaming_node&lt; tuple&lt;Ports...&gt;, JP, Factory &gt; : .....{
+public:
+    template &lt;typename DeviceSelector&gt;
+    streaming_node( graph&amp; g, const kernel_type&amp; kernel, DeviceSelector d, Factory&amp; f );
+
+    streaming_node( const streaming_node&amp; node );
+
+    streaming_node( streaming_node&amp;&amp; node );
+
+    ~streaming_node() ;
+
+    template &lt;typename... Args&gt;
+    void set_args( Args&amp;&amp;... args ) ;
+
+    // 次のメソッドは Factory::range_type が
+    // 定義されている場合にのみ利用できます
+    void set_range(const range_type&amp; work_size);
+
+    void set_range(range_type&amp;&amp; work_size);
+
+    template &lt;int N&gt;
+    void set_range(port_ref_impl&lt;N, N&gt;);
+
+    template &lt;int N&gt;
+    void set_range(port_ref_impl&lt;N, N&gt;(*)());
+
+};
+
+}
+}
+</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.33333333333333%" id="d17619e634">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.66666666666666%" id="d17619e636">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.33333333333333%" headers="d17619e634 "><samp class="codeph">typename... Ports</samp></td>
+<td class="cellrowborder" valign="top" width="66.66666666666666%" headers="d17619e636 "><p>ノードの入力データ型。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.33333333333333%" headers="d17619e634 "><samp class="codeph">typename JP</samp></td>
+<td class="cellrowborder" valign="top" width="66.66666666666666%" headers="d17619e636 "><p>結合ポリシー。詳細は、<samp class="codeph">join_node</samp> クラスの説明を参照してください。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.33333333333333%" headers="d17619e634 "><samp class="codeph">typename Factory</samp></td>
+<td class="cellrowborder" valign="top" width="66.66666666666666%" headers="d17619e636 "><p>デバイス固有の Factory 型。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.33333333333333%" headers="d17619e634 "><samp class="codeph">template &lt;typename DeviceSelector&gt; streaming_node( graph&amp; g, const kernel_type&amp; kernel, DeviceSelector d, Factory&amp; f );</samp></td>
+<td class="cellrowborder" valign="top" width="66.66666666666666%" headers="d17619e636 "><p>メイン・コンストラクター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.33333333333333%" headers="d17619e634 "><samp class="codeph">streaming_node( const streaming_node&amp; node );</samp></td>
+<td class="cellrowborder" valign="top" width="66.66666666666666%" headers="d17619e636 "><p>コピー・コンストラクター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.33333333333333%" headers="d17619e634 "><samp class="codeph">streaming_node( streaming_node&amp;&amp; node );</samp></td>
+<td class="cellrowborder" valign="top" width="66.66666666666666%" headers="d17619e636 "><p>ムーブ・コンストラクター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.33333333333333%" headers="d17619e634 "><samp class="codeph">~streaming_node();</samp></td>
+<td class="cellrowborder" valign="top" width="66.66666666666666%" headers="d17619e636 "><p>デストラクター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.33333333333333%" headers="d17619e634 "><samp class="codeph">template &lt;typename... Args&gt; void set_args( Args&amp;&amp;... args );</samp></td>
+<td class="cellrowborder" valign="top" width="66.66666666666666%" headers="d17619e636 "><p>カーネル実行の引数を設定します (引数には値やポート参照を含めることができます)。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.33333333333333%" headers="d17619e634 "><samp class="codeph">void set_range(const range_type&amp; work_size);</samp></td>
+<td class="cellrowborder" valign="top" width="66.66666666666666%" headers="d17619e636 "><p>カーネル実行の定数範囲を設定します。<div class="Note"><h3 class="NoteTipHead">注</h3> <p>このメソッドは、<samp class="codeph">Factory::range_type</samp> が定義されている場合にのみ利用できます。</p>
+</div>
+</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.33333333333333%" headers="d17619e634 "><samp class="codeph">void set_range(range_type&amp;&amp; work_size);</samp></td>
+<td class="cellrowborder" valign="top" width="66.66666666666666%" headers="d17619e636 "><p>上記のメソッドと同じですが、ムーブ・セマンティクスを使用します。<div class="Note"><h3 class="NoteTipHead">注</h3> <p>このメソッドは、<samp class="codeph">Factory::range_type</samp> が定義されている場合にのみ利用できます。</p>
+</div>
+</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.33333333333333%" headers="d17619e634 "><samp class="codeph">template &lt;int N&gt; void set_range(port_ref_impl&lt;N, N&gt;);</samp></td>
+<td class="cellrowborder" valign="top" width="66.66666666666666%" headers="d17619e636 "><p>N 番目のポートから動的に範囲値を取得するように範囲のポート参照を設定します。<div class="Note"><h3 class="NoteTipHead">注</h3> <p>このメソッドは、<samp class="codeph">Factory::range_type</samp> が定義されている場合にのみ利用できます。</p>
+</div>
+</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.33333333333333%" headers="d17619e634 "><samp class="codeph">template &lt;int N&gt; void set_range(port_ref_impl&lt;N, N&gt;(*)());</samp></td>
+<td class="cellrowborder" valign="top" width="66.66666666666666%" headers="d17619e636 "><p>N 番目のポートから動的に範囲値を取得するように範囲のポート参照を設定します。<div class="Note"><h3 class="NoteTipHead">注</h3> <p>このメソッドは、<samp class="codeph">Factory::range_type</samp> が定義されている場合にのみ利用できます。</p>
+</div>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../../reference/appendices/preview_features/flow_graph_features.html">フローグラフ</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="async_msg_cls.html">async_msg</a></div>
+<div><a href="../../../flow_graph/async_node_cls.html">async_node</a></div>
+<div><a href="../../../flow_graph/join_node_cls.html">join_node</a></div></div></div>
+</body>
+</html>

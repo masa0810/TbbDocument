@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="タスクの派生"/>
+<meta name="DC.subject" content="タスクの派生"/>
+<meta name="keywords" content="タスクの派生"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/task_scheduler/task_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../recycling_tasks.html"/>
+<meta name="DC.Relation" scheme="URI" content="../affinity.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="task_derivation"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>タスクの派生</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="task_derivation">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">タスクの派生</h1>
+<div><div class="section"><p><samp class="codeph">task</samp> は抽象的な基本クラスであり、<samp class="codeph">task::execute</samp> メソッドを<strong>必ず</strong>オーバーライドしなければなりません。<samp class="codeph">execute</samp> メソッドは、タスクを実行するために必要なアクションを行ってから、実行する次のタスクを返すか、スケジューラーが実行する次のタスクを選択する場合は <samp class="codeph">NULL</samp> を返します。NULL でない場合、返されるタスクは <samp class="codeph">this</samp> のプレデセッサー・タスクの 1 つです。「タスクの再利用」セクションで説明されている再利用/再スケジュール・メソッドの 1 つが <samp class="codeph">execute()</samp> メソッドの実行中に呼び出されなければ、<samp class="codeph">this</samp> オブジェクトは <samp class="codeph">execute</samp> メソッドがリターンした後、暗黙的に破棄されます。</p>
+<p>コンストラクターによって割り当てられたリソースを解放する必要がある場合、仮想デストラクターをオーバーライドします。</p>
+<p>「アフィニティー」セクションで説明されているように、<samp class="codeph">note_affinity</samp> のオーバーライドは複数のタスクのキャッシュ再利用の効率を向上させます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">execute() の処理</h2><p>スレッドがタスクの実行を開始することをスケジューラーが決定すると、次のステップを行います。</p>
+<ol class="ol_3"><li><samp class="codeph">execute()</samp> を呼び出してリターンするのを待ちます。</li>
+<li>タスクが <samp class="codeph">recycle_*</samp> メソッドによって再利用するように表記されていない場合:<ol type="a"><li>タスクのデストラクターを呼び出します。</li>
+<li>タスクの <em>parent</em> が NULL でない場合、<em>successor</em>-&gt;<em>refcount</em> をアトミックにデクリメントし、ゼロになるとサクセサーをレディプールに格納します。</li>
+<li>再使用のためにタスクのメモリーを解放します。</li>
+</ol>
+</li>
+<li>タスクが再利用するように表記されている場合:<ol type="a"><li><em>recycle_to_reexecute</em> (非推奨) によって表記されている場合、タスクをレディプールに戻します。</li>
+<li>その他の場合、<em>recycle_as_child</em> または <em>recycle_as_continuation</em> によって表記されています。</li>
+</ol>
+</li>
+</ol>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/task_scheduler/task_cls.html">task クラス</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../recycling_tasks.html">タスクの再利用</a></div>
+<div><a href="../affinity.html">アフィニティー</a></div></div></div>
+</body>
+</html>

@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="単純なループの並列化"/>
+<meta name="DC.subject" content="単純なループの並列化"/>
+<meta name="keywords" content="単純なループの並列化"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/title.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Initializing_and_Terminating_the_Library.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/parallel_for.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/parallel_reduce.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Advanced_Example.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Advanced_Topic_Other_Kinds_of_Iteration_Spaces.html"/>
+<meta name="DC.Relation" scheme="URI" content="Debug_Versus_Release_Libraries.html#tutorial_Debug_Versus_Release_Libraries"/>
+<meta name="DC.Relation" scheme="URI" content="Which_Dynamic_Libraries_to_Use.html#tutorial_Which_Dynamic_Libraries_to_Use"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Parallelizing_Simple_Loops"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>単純なループの並列化</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Parallelizing_Simple_Loops">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">単純なループの並列化</h1>
+<div><p>最も単純な形のスケーラブルな並列処理は、それぞれが干渉することなく同時に実行することのできるループの反復です。次のセクションでは、単純なループの並列化について説明します。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>インテル&reg; TBB のコンポーネントは、<samp class="codeph">tbb</samp> 名前空間で定義されています。簡潔にするため、名前空間はコンポーネントの最初の定義では明示的に指定されますが、その後は暗黙的に指定されます。</p>
+</div>
+<p>インテル&reg; TBB プログラムをコンパイルするときは、インテル&reg; TBB 共有ライブラリーがリンクされていることを確認してください。リンクされていない場合、未定義の参照が発生します。次の表は、デバッグバージョンのライブラリーを使用するコンパイルコマンドを示したものです。ライブラリーのプロダクトバージョンをリンクする場合は、"<samp class="codeph">_debug</samp>" 部分を削除します。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl8" width="100%" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">単純なデバッグビルドのコマンドラインのサンプル</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="50%" id="d107090e39">オペレーティング・システム</th>
+<th class="cellrowborder" valign="top" width="50%" id="d107090e41">コマンドライン</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="50%" headers="d107090e39 "><p>Windows*</p>
+</td>
+<td class="cellrowborder" valign="top" width="50%" headers="d107090e41 "><p><samp class="codeph">icl /MD example.cpp tbb_debug.lib </samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d107090e39 "><p>Linux*</p>
+</td>
+<td class="cellrowborder" valign="top" width="50%" headers="d107090e41 "><p><samp class="codeph">icc example.cpp -ltbb_debug</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d107090e39 "><p>macOS* システム</p>
+</td>
+<td class="cellrowborder" valign="top" width="50%" headers="d107090e41 "><p><samp class="codeph">icc example.cpp -ltbb_debug</samp></p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/title.html">インテル&reg; TBB デベロッパー・ガイド</a></div>
+</div>
+<div class="See Also">
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../tbb_userguide/Initializing_and_Terminating_the_Library.html">ライブラリーの初期化と終了</a><br/>
+</li>
+<li class="ulchildlink"><a href="../tbb_userguide/parallel_for.html">parallel_for</a><br/>
+</li>
+<li class="ulchildlink"><a href="../tbb_userguide/parallel_reduce.html">parallel_reduce</a><br/>
+</li>
+<li class="ulchildlink"><a href="../tbb_userguide/Advanced_Example.html">高度なサンプル</a><br/>
+</li>
+<li class="ulchildlink"><a href="../tbb_userguide/Advanced_Topic_Other_Kinds_of_Iteration_Spaces.html">高度なトピック: 異なる種類の反復空間</a><br/>
+</li>
+</ul>
+<h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Debug_Versus_Release_Libraries.html#tutorial_Debug_Versus_Release_Libraries">デバッグ・ライブラリーとリリース・ライブラリー</a></div>
+<div><a href="Which_Dynamic_Libraries_to_Use.html#tutorial_Which_Dynamic_Libraries_to_Use">使用するダイナミック・ライブラリー</a></div></div></div>
+</body>
+</html>

@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="write_once_node テンプレート・クラス"/>
+<meta name="DC.subject" content="write_once_node テンプレート・クラス"/>
+<meta name="keywords" content="write_once_node テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/flow_graph.html"/>
+<meta name="DC.Relation" scheme="URI" content="message_passing_protocol.html"/>
+<meta name="DC.Relation" scheme="URI" content="sender_and_buffer_policy.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="write_once_node_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>write_once_node テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="write_once_node_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">write_once_node テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p><span class="keyword">graph_node</span>、<span class="keyword">receiver&lt;Input&gt;</span>、<span class="keyword">sender&lt;Output&gt;</span> のテンプレート・クラス。<span class="keyword">write_once_node</span> は、上書きできない 1 つのアイテムのバッファーです。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>template &lt; typename T &gt; class write_once_node;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/flow_graph.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p>このノードは、T 型の 1 つのアイテムをバッファーに格納します。値は最初は無効です。ノードの最初の <span class="keyword">try_put</span> は、内部バッファーの値を設定して、新しい値をすべてのサクセサーにブロードキャストします。後続の put は無視され、受け取った値は失われます。内部バッファーが明示的にクリアされた後に、新しい値が設定されます。ノードから取得した値は破棄されません。内部バッファーの値が有効な場合、<span class="keyword">try_get</span> は <span class="keyword">true</span> を返し、バッファーの値を出力にコピーします。内部バッファーの値が無効な場合、<span class="keyword">try_get</span> は <span class="keyword">false</span> を返します。</p>
+<p>サクセサーがメッセージを拒否した場合、「メッセージ・パッシング・プロトコル」で説明されているプロトコルを使用して処理されます。</p>
+<p><span class="keyword">T</span> は、コピー構築可能および代入可能でなければなりません。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+namespace flow {
+ 
+template&lt; typename T &gt;
+class write_once_node :
+  public graph_node, public receiver&lt;T&gt;,
+  public sender&lt;T&gt; {
+public:
+    explicit write_once_node( graph &amp;g );
+    write_once_node( const write_once_node &amp;src );
+    ~write_once_node();
+ 
+    // receiver&lt;T&gt;
+    typedef T input_type;
+    typedef sender&lt;input_type&gt; predecessor_type;
+    bool try_put( const input_type &amp;v );
+    bool register_predecessor( predecessor_type &amp;p );
+    bool remove_predecessor( predecessor_type &amp;p );
+ 
+    // sender&lt;T&gt;
+    typedef T output_type;
+    typedef receiver&lt;output_type&gt; successor_type;
+    bool register_successor( successor_type &amp;r );
+    bool remove_successor( successor_type &amp;r );
+    bool try_get( output_type &amp;v );
+    bool try_reserve( output_type &amp;v );
+    bool try_release( );
+    bool try_consume( );
+ 
+    bool is_valid( );
+    void clear( );
+};
+ 
+}
+}</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d65944e79">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d65944e81">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d65944e79 "><span class="keyword">explicit write_once_node( graph &amp;g )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d65944e81 "><p>無効な内部バッファーアイテムを含む <span class="keyword">graph g</span> に属する <span class="keyword">write_once_node</span> 型のオブジェクトを構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d65944e79 "><span class="keyword">write_once_node( const write_once_node &amp;src )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d65944e81 "><p>無効な内部バッファーアイテムを含む <span class="keyword">write_once_node</span> 型のオブジェクトを構築します。バッファーに格納される値とサクセサーのリストは <span class="keyword">src</span> からコピーされません。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d65944e79 "><span class="keyword">~write_once_node( )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d65944e81 "><p><span class="keyword">write_once_node</span> を破棄します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d65944e79 "><span class="keyword">bool try_put( const input_type &amp;v )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d65944e81 "><p>内部の 1 アイテムのバッファーに有効な値が含まれていない場合、<span class="keyword">v</span> を格納します。新しい値が設定された場合、すべてのサクセサーで <span class="keyword">try_put(v)</span> を呼び出します。</p>
+<p><strong>戻り値</strong>: 構築後初めてまたは <span class="keyword">clear()</span> への呼び出しの場合は <span class="keyword">true</span>、その他の場合は <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d65944e79 "><span class="keyword">bool register_predecessor( predecessor_type &amp;p )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d65944e81 "><p>値を拒否しないため、プレデセッサーのリストを維持する必要はありません。</p>
+<p><strong>戻り値</strong>: <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d65944e79 "><span class="keyword">bool remove_predecessor( predecessor_type &amp;p )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d65944e81 "><p>値を拒否しないため、プレデセッサーのリストを維持する必要はありません。</p>
+<p><strong>戻り値</strong>: <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d65944e79 "><span class="keyword">bool register_successor( successor_type &amp;r )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d65944e81 "><p>サクセサーのセットに <span class="keyword">r</span> を追加します。バッファーに有効なアイテム <span class="keyword">v</span> が格納されている場合、<span class="keyword">r.try_put(v)</span> を呼び出すタスクがスポーンされます。</p>
+<p><strong>戻り値</strong>: <span class="keyword">true</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d65944e79 "><span class="keyword">bool remove_successor( successor_type &amp;r )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d65944e81 "><p>サクセサーのセットから <span class="keyword">r</span> を削除します。</p>
+<p><strong>戻り値</strong>: <span class="keyword">true</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d65944e79 "><span class="keyword">bool try_get( output_type &amp;v )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d65944e81 "><p>内部バッファーが有効な場合、値を <span class="keyword">v</span> に代入します。</p>
+<p><strong>戻り値</strong>: <span class="keyword">v</span> が代入された場合は <span class="keyword">true</span>。<span class="keyword">v</span> が代入されなかった場合は <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d65944e79 "><span class="keyword">bool try_reserve( output_type &amp;v )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d65944e81 "><p>予約をサポートしません。</p>
+<p><strong>戻り値</strong>: <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d65944e79 "><span class="keyword">bool try_release( )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d65944e81 "><p>予約をサポートしません。</p>
+<p><strong>戻り値</strong>: <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d65944e79 "><span class="keyword">bool try_consume( )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d65944e81 "><p>予約をサポートしません。</p>
+<p><strong>戻り値</strong>: <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d65944e79 "><span class="keyword">bool is_valid( )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d65944e81 "><p><strong>戻り値</strong>: バッファーが有効な値を保持している場合は <span class="keyword">true</span>。その他の場合は <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d65944e79 "><span class="keyword">void clear( )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d65944e81 "><p>バッファーで保持されている値を無効にします。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/flow_graph.html">フローグラフ</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="message_passing_protocol.html">メッセージ・パッシング・プロトコル</a></div>
+<div><a href="sender_and_buffer_policy.html">転送、バッファー、受信ポリシー</a></div></div></div>
+</body>
+</html>

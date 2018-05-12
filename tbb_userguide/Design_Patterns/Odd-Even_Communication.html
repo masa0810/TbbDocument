@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="奇偶通信"/>
+<meta name="DC.subject" content="奇偶通信"/>
+<meta name="keywords" content="奇偶通信"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/Design_Patterns.html"/>
+<meta name="DC.Relation" scheme="URI" content="General_References.html#General_References"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="Odd-Even_Communication"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>奇偶通信</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="Odd-Even_Communication">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">奇偶通信</h1>
+<div><div class="section"><h2 class="sectiontitle">問題</h2><p>データの操作を完全に独立して行うことはできないが、サブセットのすべての操作を並列に実行できる 2 つのサブセットに分割することはできる。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">コンテキスト</h2><p>偏微分方程式のソルバーは、このパターンに従うように修正できます。例えば、最も近い地点とのみ通信する 2D グリッドの場合、グリッドをチェス盤とみなして、赤のマスと黒のマスを交互に更新することができます。</p>
+<p>または、互い違いに配列されたグリッド (leap frog、蛙飛び) に、このパターンに適合する時間領域差分 (FDTD) ソルバーを使用します。<samp class="codeph">examples/parallel_for/seismic/</samp> のコードでは、このようなソルバーを使用しています。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">影響</h2><ul><li><p>アイテム間の依存関係により 2 部グラフが形成されます。</p>
+</li>
+</ul>
+</div>
+<div class="section"><h2 class="sectiontitle">ソリューション</h2><p>1 つのサブセットを更新した後、もう 1 つのサブセットを (交互に) 更新します。各サブセットに要素単位パターンを適用します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p><samp class="codeph">examples/parallel_for/seismic</samp> のサンプルは、原理を示しています。ここで、2 つの物理フィールド <em>velocity</em> と <em>stress</em> は互いに依存しているため、同時に更新できません。ただし、<em>velocity</em> の計算は <em>stress</em> の値が固定である限り行うことができ、逆も同様です。このため、コードでは <em>velocity</em> と <em>stress</em> フィールドを交互に更新します。更新はそれぞれ、<samp class="codeph">tbb::parallel_for</samp> を使用して行われます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">参考資料</h2><p>Eun-Gyu Kim および Mark Snir、"Odd-Even Communication Group"、<a href="http://snir.cs.illinois.edu/patterns/oddeven.pdf" target="_blank">http://snir.cs.illinois.edu/patterns/oddeven.pdf</a></p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../tbb_userguide/Design_Patterns/Design_Patterns.html">デザインパターン</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="General_References.html#General_References">全般的な参考資料</a></div></div></div>
+</body>
+</html>

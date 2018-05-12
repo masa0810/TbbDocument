@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="filter クラス"/>
+<meta name="DC.subject" content="filter クラス"/>
+<meta name="keywords" content="filter クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/algorithms/pipeline_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../appendices/compatibility_features.html#compatibility_features"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="filter_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>filter クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="filter_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">filter クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2>パイプライン中のフィルターを表す抽象的な基本クラス。</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/pipeline.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>class filter;</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">filter</samp> は、<samp class="codeph">pipeline</samp> 中のフィルターを表します。フィルターには 3 つのモードがあります。</p>
+<ul><li><samp class="codeph">parallel</samp> フィルターは、並列に順不同で複数のアイテムを処理できます。</li>
+<li><samp class="codeph">serial_out_of_order</samp> フィルターは、順不同で一度に 1 つのアイテムを処理します。</li>
+<li><samp class="codeph">serial_in_order</samp> フィルターは、一度に 1 つのアイテムを順に処理します。アイテムを処理する順序は最初の <samp class="codeph">serial_in_order</samp> フィルターにより暗黙的に設定され、パイプライン中のほかのすべてのフィルターで採用されます。</li>
+</ul>
+<p><samp class="codeph">filter</samp> のモードは、コンストラクターの引数で指定されます。並列処理による速度向上が見込めるため、可能な限り並列フィルターを使用します。シリアルフィルターでなければならない場合は、可能な限り処理順序に対する制約の少ない順不同のモードを使用します。</p>
+<p><samp class="codeph">filter</samp> クラスは、<samp class="codeph">pipeline</samp> クラスとともにのみ使用してください。</p>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>後にアイテムを入力順に処理しなければならない <samp class="codeph">serial_in_order</samp> ステージがある場合は、<samp class="codeph">serial_in_order</samp> 入力フィルターを使用します。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>インテル&reg; TBB 2.0 以前では、並列入力ステージをシリアルとして扱っていました。それ以降のバージョンでは、並列入力ステージを並列に実行できます。そのため、並列入力ステージを指定する場合は、<samp class="codeph">operator()</samp> がスレッドセーフでなければなりません。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>
+namespace tbb {
+    class filter {
+    public:
+        enum mode {
+            parallel = <em>implementation-defined</em>,
+            serial_in_order = <em>implementation-defined</em>,
+            serial_out_of_order = <em>implementation-defined</em>
+        };
+        bool is_serial() const;
+        bool is_ordered() const;
+        virtual void* operator()( void* item ) = 0;
+        virtual void finalize( void* item ) {}
+        virtual ~filter();
+    protected:
+        explicit filter( mode );
+    };
+}
+      </pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d7452e106">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d7452e108">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d7452e106 "><span class="keyword">explicit filter( mode filter_mode ) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d7452e108 "><p>指定されたモードのフィルターを構築します。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>インテル&reg; TBB 2.1 以前にも、bool 引数 <samp class="codeph">is_serial</samp> を持つ同様のコンストラクターがありました。このコンストラクターはまだありますが、推奨されていません (付録の「互換性機能」を参照)。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d7452e106 "><span class="keyword">~filter() </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d7452e108 "><p>フィルターを破棄します。フィルターが <samp class="codeph">pipeline</samp> 中にある場合は、自動的にパイプラインから削除されます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d7452e106 "><span class="keyword">bool is_serial() const </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d7452e108 "><p><strong>戻り値</strong>: フィルターモードが <samp class="codeph">parallel</samp> の場合は false、その他の場合は true。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d7452e106 "><span class="keyword">bool is_ordered() const </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d7452e108 "><p><strong>戻り値</strong>: フィルターモードが <samp class="codeph">serial_in_order</samp> の場合は false、その他の場合は true。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d7452e106 "><span class="keyword">virtual void* operator()( void * item ) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d7452e108 "><p>派生したフィルターは、アイテムを処理して、次の <samp class="codeph">filter</samp> によって処理されるアイテムへのポインターを返すようにこのメソッドをオーバーライドします。パイプラインの最初のフィルターのアイテム引数は NULL です。</p>
+<p><strong>戻り値</strong>: 処理するアイテムがない場合、<samp class="codeph">pipeline</samp> の最初のフィルターは NULL を返します。パイプラインの最後のフィルターの結果は無視されます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d7452e106 "><span class="keyword">virtual void finalize( void * item ) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d7452e108 "><p>パイプラインは、ユーザー要求または例外によって中止できます。パイプラインが中止されると、フィルターの operator() によって、次のフィルターでまだ処理されていないアイテムが返されることがあります。パイプラインが中止された場合、次のフィルターは、<samp class="codeph">operator()</samp> の代わりに、各アイテムに対して <samp class="codeph">finalize()</samp> を呼び出します。<samp class="codeph">operator()</samp> とは異なり、<samp class="codeph">finalize()</samp> メソッドは、さらに処理を行えるようにアイテムを返しません。派生フィルターは、アイテムに対して適切なクリーンアップを実行するように <samp class="codeph">finalize()</samp> をオーバーライドすべきです。パイプラインは、アイテムに対してほかのメソッドを呼び出しません。</p>
+<p><strong>戻り値</strong>: デフォルトの定義は効果がありません。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/algorithms/pipeline_cls.html">pipeline クラス</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../../appendices/compatibility_features.html#compatibility_features">互換性機能</a></div></div></div>
+</body>
+</html>

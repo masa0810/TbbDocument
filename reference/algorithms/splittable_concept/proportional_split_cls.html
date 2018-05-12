@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="proportional_split クラス"/>
+<meta name="DC.subject" content="proportional_split クラス"/>
+<meta name="keywords" content="proportional_split クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/algorithms/splittable_concept.html"/>
+<meta name="DC.Relation" scheme="URI" content="split_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../range_concept.html#range_concept"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="proportional_split_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>proportional_split クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="proportional_split_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">proportional_split クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>Range の比例分割コンストラクターの引数の型。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><p><pre>#include "tbb/tbb_stddef.h"</pre></p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>class proportional_split;</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">proportional_split</samp> 型の引数は、Range コンセプトを実装するクラスにより、比例分割コンストラクターと基本分割コンストラクターやコピー・コンストラクターを区別するため、およびクラスの特定のインスタンスを分割する適切な比率を示すために使用されます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>
+namespace tbb {
+        class proportional_split {
+        public:
+            proportional_split(size_t _left = 1, size_t _right = 1);
+
+            size_t left() const;
+            size_t right() const;
+
+            operator split() const;
+        };
+}
+      </pre><p>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このクラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d11142e55">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d11142e57">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d11142e55 "><span class="keyword">proportional_split( size_t _left = 1, size_t _right = 1 )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d11142e57 "><p><em>_left</em> および <em>_right</em> 係数で指定した比率で割合を構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d11142e55 "><span class="keyword">size_t left() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d11142e57 "><p>割合の左部分のサイズを返します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d11142e55 "><span class="keyword">size_t right() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d11142e57 "><p>割合の右部分のサイズを返します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d11142e55 "><span class="keyword">operator split() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d11142e57 "><p><samp class="codeph">proportional_split</samp> を、比例分割をサポートしない範囲に使用する <samp class="codeph">split</samp> 型に暗黙的に変換します。
+                  </p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</p>
+<p>比例分割コンストラクターの実装例は、「Range コンセプト」を参照してください。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/algorithms/splittable_concept.html">分割可能コンセプト</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="split_cls.html">split クラス</a></div>
+<div><a href="../range_concept.html#range_concept">Range コンセプト</a></div></div></div>
+</body>
+</html>

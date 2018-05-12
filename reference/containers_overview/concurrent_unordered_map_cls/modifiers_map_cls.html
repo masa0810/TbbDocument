@@ -1,0 +1,134 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="修飾子"/>
+<meta name="DC.subject" content="修飾子"/>
+<meta name="keywords" content="修飾子"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/containers_overview/concurrent_unordered_map_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="modifiers_map_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>修飾子</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="modifiers_map_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">修飾子</h1>
+<div><div class="section">
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、<samp class="codeph">concurrent_unordered_map</samp> テンプレート・クラスと <samp class="codeph">concurrent_unordered_multimap</samp> テンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d33889e29">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d33889e31">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d33889e29 "><samp class="codeph">std::pair&lt;iterator, bool&gt;insert(const value_type&amp; x)</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d33889e31 "><p><samp class="codeph">x</samp> のコピーを構築し、マップに挿入しようとします。すでに同じキーのアイテムがあるために挿入に失敗した場合は、コピーを破棄します。</p>
+<p><strong>戻り値</strong>: <samp class="codeph">std::pair(iterator,success)</samp>。<samp class="codeph">iterator</samp> は、キーが一致するマップのアイテムを指します。<samp class="codeph">success</samp> は、アイテムが挿入された場合は true になり、その他の場合は false になります。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d33889e29 "><samp class="codeph">iterator insert(const_iterator hint, const value_type&amp; x) </samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d33889e31 "><p><samp class="codeph">insert(x)</samp> と同じです。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>現在の実装では、hint 引数は無視されます。ほかの実装では無視されない場合があります。C++11 の <samp class="codeph">unordered_map</samp> クラスに似せるために用意されています。実装に際して検索の開始場所を示します。通常、アイテムが挿入される場所に隣接したアイテムを指します。</p>
+</div>
+<p><strong>戻り値</strong>: 挿入されたアイテムまたはすでにマップにある同じキーのアイテムを指すイテレーター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d33889e29 "><span class="keyword">std::pair&lt;iterator, bool&gt; insert(value_type&amp;&amp; x)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d33889e31 "><p>C++11 からサポート。<samp class="codeph"><em>x</em></samp> を <samp class="codeph">value_type</samp> の新しいインスタンスに移動し、セットに挿入しようとします。すでに同じキーのアイテムがあるために挿入に失敗した場合は、インスタンスを破棄します。</p>
+<p><strong>戻り値</strong>: <samp class="codeph">insert(const value_type&amp; x)</samp> バージョンと同じです。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d33889e29 "><span class="keyword">iterator insert(const_iterator hint, value_type&amp;&amp; x)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d33889e31 "><p><samp class="codeph">insert(x)</samp> と同じです。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>現在の実装では、hint 引数は無視されます。ほかの実装では無視されない場合があります。C++11 の <samp class="codeph">unordered_set</samp> クラスと <samp class="codeph">unordered_multiset</samp> に似せるために用意されています。実装に際して検索の開始場所を示します。通常、アイテムが挿入される場所に隣接したアイテムを指します。</p>
+</div>
+<p><strong>戻り値</strong>: <samp class="codeph">insert(const_iterator hint, const value_type&amp; x)</samp> バージョンと同じです。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d33889e29 "><samp class="codeph">template&lt;class InputIterator&gt; void insert(InputIterator first, InputIterator last) </samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d33889e31 "><p><samp class="codeph">insert(*<em>i</em>)</samp> を実行します。ここで、<samp class="codeph">i</samp> は半開区間 <samp class="codeph">[first,last)</samp> です。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d33889e29 "><span class="keyword">void insert(std::initializer_list&lt;value_type&gt; il)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d33889e31 "><p>C++11 からサポート。初期化子リストから各要素を挿入して、マップにシーケンスを挿入します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d33889e29 "><span class="keyword">template&lt;typename... Args&gt; std::pair&lt;iterator, bool&gt; emplace(Args&amp;&amp;... args); </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d33889e31 "><p>C++11 からサポート。<samp class="codeph"><em>args</em></samp> から <samp class="codeph">value_type</samp> の新しいインスタンスを構築し、セットに挿入しようとします。すでに同じキーのアイテムがあるために挿入に失敗した場合は、インスタンスを破棄します。</p>
+<p><strong>戻り値</strong>: <samp class="codeph">insert(const value_type&amp; x)</samp> バージョンと同じです。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d33889e29 "><span class="keyword">template&lt;typename... Args&gt; iterator emplace_hint(const_iterator hint, Args&amp;&amp;... args); </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d33889e31 "><p><samp class="codeph">emplace(args)</samp> と同じです。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>現在の実装では、hint 引数は無視されます。ほかの実装では無視されない場合があります。C++11 の <samp class="codeph">unordered_set</samp> クラスと <samp class="codeph">unordered_multiset</samp> に似せるために用意されています。実装に際して検索の開始場所を示します。通常、アイテムが挿入される場所に隣接したアイテムを指します。</p>
+</div>
+<p><strong>戻り値</strong>: 挿入されたアイテムまたはすでにセットにある同じキーのアイテムを指すイテレーター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d33889e29 "><samp class="codeph">iterator unsafe_erase(const_iterator position)</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d33889e31 "><p><samp class="codeph">position</samp> が指しているアイテムをマップから削除します。</p>
+<p><strong>戻り値</strong>: 削除されたアイテムの直後を指すイテレーター、または削除されたアイテムがマップの最後のアイテムの場合は <samp class="codeph">end()</samp>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d33889e29 "><samp class="codeph">size_type unsafe_erase(const key_type&amp; k)</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d33889e31 "><p>キーが <samp class="codeph">k</samp> のアイテムが存在する場合は削除します。</p>
+<p><strong>戻り値</strong>: アイテムが削除された場合は 1。その他の場合は 0。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d33889e29 "><samp class="codeph">iterator unsafe_erase(const_iterator first, const_iterator last)</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d33889e31 "><p><samp class="codeph">*i</samp> を削除します。ここで、<samp class="codeph">i</samp> は半開区間 <samp class="codeph">[first,last)</samp> です。</p>
+<p><strong>戻り値</strong>: <samp class="codeph">last</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d33889e29 "><samp class="codeph">void clear()</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d33889e31 "><p>マップからすべてのアイテムを削除します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section">
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、<samp class="codeph">concurrent_unordered_map</samp> テンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d33889e260">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d33889e262">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d33889e260 "><samp class="codeph">void swap(concurrent_unordered_map&amp; m) </samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d33889e262 "><p><samp class="codeph">*this</samp> と <samp class="codeph">m</samp> のコンテンツをスワップします。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section">
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、<samp class="codeph">concurrent_unordered_multimap</samp> テンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d33889e289">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d33889e291">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d33889e289 "><samp class="codeph">void swap(concurrent_unordered_multimap&amp; m)</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d33889e291 "><p><samp class="codeph">*this</samp> と <samp class="codeph">m</samp> のコンテンツをスワップします。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/containers_overview/concurrent_unordered_map_cls.html">concurrent_unordered_map テンプレート・クラスと concurrent_unordered_multimap テンプレート・クラス</a></div>
+</div>
+<div/>
+</body>
+</html>

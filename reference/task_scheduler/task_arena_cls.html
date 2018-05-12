@@ -1,0 +1,216 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="task_arena クラスと this_task_arena 名前空間"/>
+<meta name="DC.subject" content="task_arena クラス, this_task_arena 名前空間"/>
+<meta name="keywords" content="task_arena クラス, this_task_arena 名前空間"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/task_scheduler.html"/>
+<meta name="DC.Relation" scheme="URI" content="../appendices/preview_features/task_scheduler_observer_ext_cls.html#task_scheduler_observer_ext_cls"/>
+<meta name="DC.Relation" scheme="URI" content="../task_groups.html#taskgroups"/>
+<meta name="DC.Relation" scheme="URI" content="task_scheduler_init_cls.html#task_scheduler_init_cls"/>
+<meta name="DC.Relation" scheme="URI" content="../exceptions.html"/>
+<meta name="DC.Relation" scheme="URI" content="fpu_settings.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="task_arena_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>task_arena クラスと this_task_arena 名前空間</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="task_arena_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">task_arena クラスと this_task_arena 名前空間</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>明示的なユーザー管理タスク・スケジューラー領域を表現するクラス、および現在の領域に適用される関数の名前空間。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>class task_arena;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/task_arena.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">task_arena</samp> クラスは、タスクを共有して実行する場所を表します。</p>
+<p>task_arena のタスクを同時に実行するスレッド数は並列レベルにより制限されます。並列レベルはその領域にのみ影響し、以前の <samp class="codeph">task_scheduler_init</samp> 仕様の影響を受けません。</p>
+<p><div class="Note"><h3 class="NoteTipHead">注</h3> スケジューラーが使用するスレッド数の合計は、次のいずれか大きいほうにより制限されます: マシンのデフォルトのスレッド数または最初のタスク・スケジューラーの初期化で指定された値。そのため、task_arena に割り当てられるスレッド数は、並列レベルに関係なく、最大値を超えることはありません。さらに、指定されたスレッド数が許容最大値より小さい場合でも、task_arena に指定されたスレッド数が割り当てられないことがあります。</div>
+</p>
+<p>タスク・スケジューラーを明示的または暗黙的に初期化する各ユーザースレッドは、暗黙の内部タスク領域オブジェクトを作成して使用します。1 つの領域にスポーンまたは追加されたタスクは、ほかの領域では実行できません。</p>
+<p><samp class="codeph">task_arena</samp> のインスタンスは、内部表現への参照を保持しますが、その存続期間を完全には管理しません。内部表現は、タスクが含まれるか、ほかのスレッドが参照している間は破棄できません。</p>
+<p><div class="Note"><h3 class="NoteTipHead">注</h3> <samp class="codeph">task_arena</samp> コンストラクターは、内部領域オブジェクトを作成しません。コンストラクターをアタッチするときにすでに存在していない場合、明示的に <samp class="codeph">task_arena::initialize</samp> を呼び出して作成されるか、初回使用時に遅れて作成されます。</div>
+</p>
+<p><div class="Note"><h3 class="NoteTipHead">注</h3> インテル&reg; スレッディング・ビルディング・ブロック (インテル&reg; TBB) は、<samp class="codeph">task_arena</samp> で表された明示的な領域オブジェクトを処理する場合、現在のスレッドに対して暗黙の領域オブジェクトを割り当てません。しかし、同じスレッドの後続のスケジューラー初期化では、<samp class="codeph">task_scheduler_init</samp> に指定されたスレッド数に関係なくデフォルトの設定が使用されます。これは、タスク・スケジューラーに関連するメソッドの呼び出しが、暗黙の領域オブジェクトの作成を含め、現在のスレッドのスケジューラーを初期化していた、以前のバージョンのインテル&reg; TBB との互換性を提供します。</div>
+</p>
+<p><samp class="codeph">this_task_arena</samp> 名前空間は、呼び出しスレッドで現在使用されている領域 (明示的な <samp class="codeph">task_arena</samp> または暗黙的な領域オブジェクトのいずれか) と対話するグローバル関数を含みます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>
+namespace tbb {
+    class task_arena {
+    public:
+        static const int automatic = <em>implementation-defined</em>;
+        static const int not_initialized = <em>implementation-defined</em>;
+        struct attach {};
+        task_arena(int max_concurrency = automatic, unsigned reserved_for_masters = 1);
+        task_arena(const task_arena &amp;s);
+        explicit task_arena(task_arena::attach);
+        ~task_arena();
+        void initialize();
+        void initialize(int max_concurrency, unsigned reserved_for_masters = 1);
+        void initialize(task_arena::attach);
+        void terminate();
+        bool is_active() const;
+        int max_concurrency() const;
+        template&lt;typename F&gt; void enqueue(const F&amp; f);
+        template&lt;typename F&gt; void enqueue(const F&amp; f, priority_t p);
+        template&lt;typename F&gt; void execute(F&amp; f);
+        template&lt;typename F&gt; void execute(const F&amp; f);
+        static int current_thread_index(); // 非推奨
+    };
+    namespace this_task_arena {
+        int current_thread_index();
+        int max_concurrency();
+    }
+}
+</pre></div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>次のサンプルは、同時に 2 つの <samp class="codeph">paralel_for</samp> ループを実行します。1 つはスケーラブルで、もう 1 つはスケーラブルではありません。スケーラブルでないループは最大 2 スレッドに制限されるため、ほとんどのスレッドはスケーラブルなループに使用できます。特定のタスクのサブセットを待機するには、<samp class="codeph">task_group</samp> を使用します。</p>
+<pre>
+tbb::task_scheduler_init def_init; // デフォルトのスレッド数を使用
+tbb::task_arena limited(2);        // この領域のスレッド数を 2 に制限
+tbb::task_group tg;
+
+limited.execute([&amp;]{ // このジョブで最大 2 つのスレッドを使用
+    tg.run([]{ // タスクグループで実行
+        tbb::parallel_for(1, N, unscalable_work());
+    });
+});
+
+// 上記のループと同時に別のジョブを実行
+// 別のジョブはデフォルトのスレッド数まで使用できる
+tbb::parallel_for(1, M, scalable_work());
+
+// 制限された領域でタスクグループの完了を待つ
+limited.execute([&amp;]{ tg.wait(); });
+</pre></div>
+<div class="section">
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、<samp class="codeph">task_arena</samp> クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d81424e116">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d81424e118">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d81424e116 "><samp class="codeph">task_arena(int max_concurrency = automatic, unsigned reserved_for_masters = 1) </samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d81424e118 "><p>特定の同時実行数の制限 (<samp class="codeph">max_concurrency</samp>) で <samp class="codeph">task_arena</samp> を作成します。制限の一部は <samp class="codeph">reserved_for_masters</samp> のアプリケーション・スレッド向けに予約できます。予約の量は制限を超えることはできません。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> インテル&reg; TBB 4.4 Update 1 以前は、<samp class="codeph">reserved_for_masters</samp> の有効な値は 0 および 1 のみでした。</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <samp class="codeph">max_concurrency</samp> および <samp class="codeph">reserved_for_masters</samp> が明示的に等しく設定された場合、インテル&reg; TBB のワーカースレッドは領域をジョインしません。そのため、これらの領域ではキューに入れられたタスクの実行は保証されません。ワーカースレッドなしに設定された領域で <samp class="codeph">task_arena::enqueue()</samp> および <samp class="codeph">task::enqueue()</samp> を使用しないでください。</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d81424e116 "><p><samp class="codeph">static const int automatic</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d81424e118 "><p><samp class="codeph">max_concurrency</samp> として上記のコンストラクターに渡されると、ハードウェア構成に基づいて領域の同時実行数が自動的に設定されます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d81424e116 "><p><samp class="codeph">static const int not_initialized</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d81424e118 "><p>メソッドまたは関数により返された場合、アクティブな領域がない、または領域オブジェクトがまだ初期化されていないことを示します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d81424e116 "><samp class="codeph">task_arena(const task_arena&amp;)</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d81424e118 "><p>別の <samp class="codeph">task_arena</samp> インスタンスから設定をコピーします。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d81424e116 "><samp class="codeph">explicit task_arena(task_arena::attach)</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d81424e118 "><p>呼び出しスレッドで現在使用されている内部領域に接続される <samp class="codeph">task_arena</samp> のインスタンスを作成します。領域がまだ存在しない場合、デフォルト引数で <samp class="codeph">task_arena</samp> を作成します。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> ほかのコンストラクターとは異なり、すでに存在する領域に接続したとき新しい <samp class="codeph">task_arena</samp> を自動的に初期化します。</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d81424e116 "><samp class="codeph">~task_arena()</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d81424e118 "><p>内部領域表現への参照を削除し、<samp class="codeph">task_arena()</samp> のインスタンスを破棄します。ほかのメソッドを同時に呼び出した場合、スレッドセーフではありません。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d81424e116 "><p><samp class="codeph">void initialize()</samp></p>
+<p><samp class="codeph">void initialize(int max_concurrency, unsigned reserved_for_masters = 1) </samp></p>
+<p><samp class="codeph">void initialize(task_arena::attach)</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d81424e118 "><p>内部領域表現の初期化を実行します。引数が指定されている場合、以前の領域パラメーターをオーバーライドします。<samp class="codeph">task_arena::attach</samp> クラスのインスタンスが引数として指定され、呼び出しスレッドで現在使用されている内部領域が存在する場合、メソッドは領域パラメーターを無視して <samp class="codeph">task_arena</samp> をその内部領域に接続します。すでに初期化されている領域に対して呼び出された場合、効果はありません。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <samp class="codeph">initialize</samp> の呼び出しの後、領域のパラメーターは固定され、変更することはできません。</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d81424e116 "><samp class="codeph">void terminate()</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d81424e118 "><p>task_arena オブジェクトを破棄しないで内部領域表現への参照を削除します。task_arena オブジェクトは再利用できます。ほかのメソッドを同時に呼び出した場合、スレッドセーフではありません。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d81424e116 "><samp class="codeph">bool is_active() const</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d81424e118 "><p>タスク領域が初期化された場合は <samp class="codeph">true</samp> を返し、その他の場合は <samp class="codeph">false</samp> を返します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d81424e116 "><samp class="codeph">int max_concurrency() const</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d81424e118 "><p>領域の並列レベルを返します。領域を初期化する必要はなく、初期化を行いません。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d81424e116 "><samp class="codeph">template&lt;F&gt; void enqueue(const F&amp;)</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d81424e118 "><p>指定されたファンクターを処理するため、タスクを領域に追加し、直ちにリターンします。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> 呼び出しスレッドは領域にジョインする必要はありません。つまり、領域外の任意の数のスレッドは、ブロックすることなくワークを追加できます。</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> 領域に追加されたタスクが、ほかのタスクと同時に実行される保証はありません。</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> ファンクターでスローされた例外がキャッチされない場合の動作は不定です。</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d81424e116 "><samp class="codeph">template&lt;F&gt; void enqueue(const F&amp;, priority_t)</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d81424e118 "><p>指定された優先度でタスクを追加します。その他は <samp class="codeph">enqueue(const F&amp;)</samp> に似ています。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d81424e116 "><p><samp class="codeph">template&lt;F&gt; void execute(F&amp;)</samp></p>
+<p><samp class="codeph">template&lt;F&gt; void execute(const F&amp;)</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d81424e118 "><p>可能であれば、呼び出しスレッドは領域をジョインして指定されたファンクターを実行し、領域を離れて以前のタスク・スケジューラー状態と浮動小数点設定に戻ります。</p>
+<p>ジョインできない場合は、ファンクターをタスクにラップし、領域に追加し、OS カーネルの同期オブジェクトを使用してジョインする機会を待ち、タスクの完了後に終了します。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> 領域 (B) を (<samp class="codeph">B.execute([]{ A.execute([]{ B.execute(f); }); });</samp> のように) 間接的に 2 回ジョインすると、この領域の有効な同時実行数が減り、デッドロックを引き起こすことがあります。</div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> 領域外の任意の数のスレッドがワークを追加し、待機することができます。ただし、ワークを実行できるのは、領域で指定されている最大スレッド数までです。</div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <samp class="codeph">execute</samp> により、ワーカースレッドに対する領域の要求が減り、ワーカーが領域を離れ、その結果呼び出しスレッドが実行できるようになる場合があります。</div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> ファンクターでスローされた例外はキャプチャーされ、<samp class="codeph">execute</samp> から再スローされます。正しい例外の伝播が利用できないか無効な場合、例外は (同じスレッドの例外でも) <samp class="codeph">tbb::captured_exception</samp> にラップされます。</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d81424e116 "><samp class="codeph">static int current_thread_index()</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d81424e118 "><p><strong>古い機能 (非推奨)</strong>。呼び出しスレッドがまだタスク・スケジューラーを初期化していない場合に -1 を返すことを除いて <samp class="codeph">this_task_arena::current_thread_index()</samp> (下記参照) と同じです。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、<samp class="codeph">task_arena</samp> 名前空間のメンバーの情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d81424e341">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d81424e343">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d81424e341 "><samp class="codeph">int current_thread_index()</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d81424e343 "><p>呼び出しスレッドで現在使用されているタスク領域のスレッド・インデックスを返します。スレッドがまだタスク・スケジューラーを初期化していない場合は <samp class="codeph">task_arena::not_initialized</samp> を返します。</p>
+<p>スレッド・インデックスは、0 から領域の並列レベルまでの整数です。スレッド・インデックスは、領域にジョインしているときにアプリケーション (マスター) スレッドとワーカースレッドの両方に割り当てられ、領域を離れるまで保持されます。領域を共有するスレッドのインデックスは一意です (つまり、領域内の 2 つのスレッドが同じインデックスを持つことはありません) が、必ずしも連続していません。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> タスクを実行しない場合、スレッドはいつでも領域を離れることがあるため、スレッドのインデックスは、同じタスクグループやアルゴリズムに属している 2 つのタスク間でも変わることがあります。</div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> 異なる領域を使用するスレッドは、同じ現在のインデックス値を持つことがあります。</div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <samp class="codeph">execute()</samp> に入れ子の領域をジョインすると、リターン時に戻される外側の領域のインデックスが保存され、現在のインデックス値が変更されることがあります。</div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> この方法は、例えば、領域に入ろうとしているスレッドを特定のハードウェアに関連付けるために、<samp class="codeph">task_scheduler_observer</samp> のプレビュー機能によって使用されます。</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d81424e341 "><samp class="codeph">int max_concurrency()</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d81424e343 "><p>呼び出しスレッドで現在使用されているタスク領域の並列レベルを返します。スレッドがまだタスク・スケジューラーを初期化していない場合、ハードウェア構成により自動的に決定された並列レベルを返します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/task_scheduler.html">タスク・スケジューラー</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../appendices/preview_features/task_scheduler_observer_ext_cls.html#task_scheduler_observer_ext_cls">task_scheduler_observer クラスの拡張</a></div>
+<div><a href="../task_groups.html#taskgroups">タスクグループ</a></div>
+<div><a href="task_scheduler_init_cls.html#task_scheduler_init_cls">task_scheduler_init クラス</a></div>
+<div><a href="../exceptions.html">例外</a></div>
+<div><a href="fpu_settings.html">浮動小数点設定</a></div></div></div>
+</body>
+</html>

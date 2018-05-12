@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="分割統治"/>
+<meta name="DC.subject" content="分割統治"/>
+<meta name="keywords" content="分割統治"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/Design_Patterns.html"/>
+<meta name="DC.Relation" scheme="URI" content="Agglomeration.html#Agglomeration"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="Divide_and_Conquer"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>分割統治</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="Divide_and_Conquer">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">分割統治</h1>
+<div><div class="section"><h2 class="sectiontitle">問題</h2><p>分割統治アルゴリズムを並列化する。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">コンテキスト</h2><p>分割統治はシリアル・アルゴリズムで広く使用されています。一般的な例は、クイックソートとマージソートです。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">影響</h2><ul><li><p>問題は別々に解くことができる複数の部分問題に変形することができます。</p>
+</li>
+<li><p>問題の分割やソリューションのマージのコストは、部分問題を解くコストと比較して相対的に低くなります。</p>
+</li>
+</ul>
+</div>
+<div class="section"><h2 class="sectiontitle">ソリューション</h2><p>インテル&reg; TBB で分割統治を実装する方法はいくつかあります。最適な選択肢は状況に依存します。</p>
+<ul><li><p>分割で同じ数の部分問題が常に生成される場合は、再帰と <samp class="codeph">tbb::parallel_invoke</samp> を使用します。</p>
+</li>
+<li><p>部分問題の数が異なる場合は、再帰と <samp class="codeph">tbb::task_group</samp> を使用します。</p>
+</li>
+<li><p>効率とスケーラビリティーが重要な場合は、<samp class="codeph">tbb::task</samp> と継続渡し形式を使用します。</p>
+</li>
+</ul>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>クイックソートは古典的な分割統治アルゴリズムで、ソート問題を 2 つの部分ソートに分割します。単純なシリアルバージョンは次のようになります。<a name="fnsrc_1" href="#fntarg_1"><sup>1</sup></a></p>
+<pre>void SerialQuicksort( T* begin, T* end ) {
+   if( end-begin&gt;1  ) {
+       using namespace std;
+       T* mid = partition( begin+1, end, bind2nd(less&lt;T&gt;(),*begin) );
+       swap( *begin, mid[-1] );
+       SerialQuicksort( begin, mid-1 );
+       SerialQuicksort( mid, end );
+   }
+}</pre><p>部分ソートの数は 2 つに固定されているため、<samp class="codeph">tbb::parallel_invoke</samp> を使用して単純な方法で部分ソートを並列化します。並列コードを次に示します。 
+		</p>
+<pre>void ParallelQuicksort( T* begin, T* end ) {
+   if( end-begin&gt;1 ) {
+       using namespace std;
+       T* mid = partition( begin+1, end, bind2nd(less&lt;T&gt;(),*begin) );
+       swap( *begin, mid[-1] );
+       tbb::parallel_invoke( [=]{ParallelQuicksort( begin, mid-1 );},
+                             [=]{ParallelQuicksort( mid, end );} );
+   }
+}</pre><p>部分ソートが小さくなりすぎるとシリアル実行のほうが効率が良くなるため、次のバージョン (変更点を<samp class="codeph"><span class="color(blue)" style="color:blue"><strong>太字</strong></span></samp>で表示) では、以前のシリアルコードを使用して 500 未満の要素のソートを行っています。 
+		</p>
+<pre>void ParallelQuicksort( T* begin, T* end ) {
+   if( end-begin&gt;=<span class="color(blue)" style="color:blue"><strong>500</strong></span> ) {
+       using namespace std;
+       T* mid = partition( begin+1, end, bind2nd(less&lt;T&gt;(),*begin) );
+       swap( *begin, mid[-1] );
+       tbb::parallel_invoke( [=]{ParallelQuicksort( begin, mid-1 );},
+                             [=]{ParallelQuicksort( mid, end );} );
+   } <span class="color(blue)" style="color:blue"><strong>else {
+       SerialQuicksort( begin, end );
+   }</strong></span>
+}</pre><p>変更は擬集化パターンのインスタンスです。</p>
+<p>次のサンプルでは、部分問題の数が異なる問題を扱います。問題は、木構造を含んでおり、2 種類のノードがあります。</p>
+<ul><li><p>葉ノードは個々のパーツを表します。</p>
+</li>
+<li><p>内部ノードはパーツのグループを表します。</p>
+</li>
+</ul>
+<p>問題は、ターゲットのノードと衝突するノードをすべて検索します。次のコードは、ツリーを移動するシリアル・ソリューションを示しています。ここでは、<samp class="codeph">Hits</samp> に <samp class="codeph">Target</samp> と衝突したノードをすべて記録します。</p>
+<pre>std::list&lt;Node*&gt; Hits;
+Node* Target;
+ 
+void SerialFindCollisions( Node&amp; x ) {
+   if( x.is_leaf() ) {
+       if( x.collides_with( *Target ) )
+           Hits.push_back(&amp;x);
+   } else {
+       for( Node::const_iterator y=x.begin();y!=x.end(); ++y )
+           SerialFindCollisions(*y);
+   }
+} </pre><p id="ParallelFindCollisions">並列バージョンを次に示します。 
+		</p>
+<pre>typedef tbb::enumerable_thread_specific&lt;std::list&lt;Node*&gt; &gt; LocalList;
+LocalList LocalHits; 
+Node* Target;    // ターゲットノード    
+ 
+void ParallelWalk( Node&amp; x ) {
+   if( x.is_leaf() ) {
+       if( x.collides_with( *Target ) )
+           LocalHits.local().push_back(&amp;x);
+   } else {
+       // x の子 y を並列で再帰的に処理
+       tbb::task_group g;
+       for( Node::const_iterator y=x.begin(); y!=x.end(); ++y )
+           g.run( [=]{ParallelWalk(*y);} );
+       // 再帰呼び出しが完了するまで待機
+       g.wait();
+   }
+}
+ 
+void ParallelFindCollisions( Node&amp; x ) {
+   ParallelWalk(x);
+   for(LocalList::iterator i=LocalHits.begin();i!=LocalHits.end(); ++i)
+       Hits.splice( Hits.end(), *i );
+} </pre><p>再帰移動は、並列に再帰呼び出しを行うために <samp class="codeph">task_group</samp> クラスを使用して並列化されます。 
+		</p>
+<p>並列性の導入による、別の重要な変更があります。<samp class="codeph">Hits</samp> を同時に更新することは安全ではないため、並列移動は変数 <samp class="codeph">LocalHits</samp> を使用して結果を集積します。この変数は <samp class="codeph">enumerable_thread_specific</samp> 型なので、各スレッドは個々の結果を集積します。移動が完了した後、結果が Hits に結合されます。</p>
+<p>結果はオリジナルのシリアルコードと同じ順序に<strong>なりません</strong>。</p>
+<p>並列化のオーバーヘッドが大きい場合は、擬集化パターンを使用します。例えば、特定のしきい値未満の部分木にシリアル移動を使用します。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../tbb_userguide/Design_Patterns/Design_Patterns.html">デザインパターン</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Agglomeration.html#Agglomeration">凝集化</a></div></div></div><p><a name="fntarg_1" href="#fnsrc_1"><sup>1</sup></a> 製品品質のクイックソートの実装では通常、小さな部分ソートには、より高度なピボット選択、再帰の代わりに明示的なスタック、ほかのソート・アルゴリズムを使用します。ここでは、並列パターンの解説に焦点を当てるため、単純なアルゴリズムを使用しています。</p>
+</body>
+</html>

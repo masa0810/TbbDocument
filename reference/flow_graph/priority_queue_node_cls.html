@@ -1,0 +1,149 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="priority_queue_node テンプレート・クラス"/>
+<meta name="DC.subject" content="priority_queue_node テンプレート・クラス"/>
+<meta name="keywords" content="priority_queue_node テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/flow_graph.html"/>
+<meta name="DC.Relation" scheme="URI" content="message_passing_protocol.html"/>
+<meta name="DC.Relation" scheme="URI" content="sender_and_buffer_policy.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="priority_queue_node_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>priority_queue_node テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="priority_queue_node_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">priority_queue_node テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p><span class="keyword">T</span> 型のメッセージの無制限バッファー。メッセージは優先度順に転送されます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>template&lt; typename T,
+          typename Compare = std::less&lt;T&gt;,
+          typename A = cache_aligned_allocator&lt;T&gt; &gt;
+class priority_queue_node;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/flow_graph.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><span class="keyword">priority_queue_node</span> は、サクセサーセットの 1 つのサクセサーへ優先度順にメッセージを転送する <span class="keyword">graph_node</span>、<span class="keyword">receiver&lt;T&gt;</span>、<span class="keyword">sender&lt;T&gt;</span> です。ノードに登録された順番で、サクセサーにメッセージが転送されます。サクセサーがメッセージを拒否すると、そのサクセサーはメッセージ・パッシング・プロトコルのポリシーに従ってサクセサーリストから削除され、セットの次のサクセサーが処理されます。これはサクセサーがメッセージを受け付けるまで、またはすべてのサクセサーが処理されるまで続行されます。サクセサーに転送されたアイテムはバッファーから削除されます。</p>
+<p><span class="keyword">Compare</span> で決定された最も優先度の高いメッセージが次に転送されます。</p>
+<p><span class="keyword">priority_queue_node</span> は予約可能で、一度に 1 つの予約をサポートします。<span class="keyword">priority_queue_node</span> が予約されている間、ほかのアイテムはサクセサーに転送されず、<span class="keyword">try_get</span> の呼び出しは <span class="keyword">false</span> を返します。予約されている間も、<span class="keyword">try_put</span> は <span class="keyword">true</span> を返し、<span class="keyword">priority_queue_node</span> にアイテムを追加します。</p>
+<p><span class="keyword">A</span> 型のアロケーターが、<span class="keyword">priority_queue_node</span> に内部メモリーを割り当てるために使用されます。</p>
+<p><span class="keyword">T</span> は、コピー構築可能および代入可能でなければなりません。</p>
+<p>サクセサーがメッセージを拒否した場合、「メッセージ・パッシング・プロトコル」で説明されているプロトコルを使用して処理されます。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p><samp class="codeph">Compare</samp> 関数オブジェクトは例外をスローしてはなりません。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+namespace flow {
+ 
+template&lt; typename T, typename Compare = std::less&lt;T&gt;,
+          typename A = cache_aligned_allocator&lt;T&gt;&gt;
+class priority_queue_node : public queue_node&lt;T&gt; {
+public:
+    typedef size_t size_type;
+    explicit priority_queue_node( graph &amp;g );
+    priority_queue_node( const priority_queue_node &amp;src );
+    ~priority_queue_node();
+ 
+    // receiver&lt;T&gt;
+    typedef T input_type;
+    typedef sender&lt;input_type&gt; predecessor_type;
+    bool try_put( const input_type &amp;v );
+    bool register_predecessor( predecessor_type &amp;p );
+    bool remove_predecessor( predecessor_type &amp;p );
+ 
+    // sender&lt;T&gt;
+    typedef T output_type;
+    typedef receiver&lt;output_type&gt; successor_type;
+    bool register_successor( successor_type &amp;r );
+    bool remove_successor( successor_type &amp;r );
+    bool try_get( output_type &amp;v );
+    bool try_reserve( output_type &amp;v );
+    bool try_release( );
+    bool try_consume( );
+};
+ 
+}
+}</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d58478e105">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d58478e107">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d58478e105 "><span class="keyword">explicit priority_queue_node( graph &amp;g )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d58478e107 "><p><span class="keyword">graph g</span> に属する空の <span class="keyword">priority_queue_node</span> を構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d58478e105 "><span class="keyword">priority_queue_node( const priority_queue_node &amp;src )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d58478e107 "><p><span class="keyword">src</span> と同じ <span class="keyword">graph g</span> に属する空の <span class="keyword">priority_queue_node</span> を構築します。プレデセッサーのリスト、サクセサーのリスト、バッファーのメッセージはコピーされません。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d58478e105 "><span class="keyword">bool try_put( const input_type &amp;v )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d58478e107 "><p><span class="keyword">priority_queue_node</span> に <span class="keyword">v</span> を追加します。<span class="keyword">v</span> の優先度が現在バッファーに格納されているすべてのメッセージで最も高い場合、アイテムをサクセサーに転送するタスクがキューにスポーンされます。</p>
+<p><strong>戻り値</strong>: <span class="keyword">true</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d58478e105 "><span class="keyword">bool register_predecessor( predecessor_type &amp;p )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d58478e107 "><p>値を拒否しないため、プレデセッサーのリストを維持する必要はありません。</p>
+<p><strong>戻り値</strong>: <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d58478e105 "><span class="keyword">bool remove_predecessor( predecessor_type &amp;p )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d58478e107 "><p>値を拒否しないため、プレデセッサーのリストを維持する必要はありません。</p>
+<p><strong>戻り値</strong>: <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d58478e105 "><span class="keyword">bool register_successor( successor_type &amp;r )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d58478e107 "><p>サクセサーのセットに <span class="keyword">r</span> を追加します。</p>
+<p><strong>戻り値</strong>: <span class="keyword">true</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d58478e105 "><span class="keyword">bool remove_successor( successor_type &amp;r )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d58478e107 "><p>サクセサーのセットから <span class="keyword">r</span> を削除します。</p>
+<p><strong>戻り値</strong>: <span class="keyword">true</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d58478e105 "><span class="keyword">bool try_get( output_type &amp;v )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d58478e107 "><p><strong>戻り値</strong>: ノードに利用できるメッセージがありノードが予約されていない場合は <span class="keyword">true</span>。その他の場合は <span class="keyword">false</span>。ノードが <span class="keyword">true</span> を返した場合、最も優先度の高いメッセージが <span class="keyword">v</span> にコピーされます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d58478e105 "><span class="keyword">bool try_reserve( output_type &amp;v )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d58478e107 "><p>呼び出しで <span class="keyword">true</span> が返された場合、ノードは予約され、予約が解除または消費されるまでメッセージは転送されません。</p>
+<p><strong>戻り値</strong>: ノードに利用できるメッセージがありノードが予約されていない場合は <span class="keyword">true</span>。その他の場合は <span class="keyword">false</span>。ノードが <span class="keyword">true</span> を返した場合、最も優先度の高いメッセージが <span class="keyword">v</span> にコピーされます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d58478e105 "><span class="keyword">bool try_release( )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d58478e107 "><p>ノードの予約を解除します。最後に成功した <span class="keyword">try_reserve</span> の呼び出しで返されたアイテムが <span class="keyword">priority_queue_node</span> に残されます。</p>
+<p><strong>戻り値</strong>: バッファーが現在予約されている場合は <span class="keyword">true</span>。その他の場合は <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d58478e105 "><span class="keyword">bool try_consume( )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d58478e107 "><p>ノードの予約を解除します。最後に成功した <span class="keyword">try_reserve</span> の呼び出しで返されたアイテムがキューの先頭からポップされます。</p>
+<p><strong>戻り値</strong>: バッファーが現在予約されている場合は <span class="keyword">true</span>。その他の場合は <span class="keyword">false</span>。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/flow_graph.html">フローグラフ</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="message_passing_protocol.html">メッセージ・パッシング・プロトコル</a></div>
+<div><a href="sender_and_buffer_policy.html">転送、バッファー、受信ポリシー</a></div></div></div>
+</body>
+</html>

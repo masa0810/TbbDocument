@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="Windows* の C/C++ 動的メモリー・インターフェイスの置換"/>
+<meta name="DC.subject" content="Windows* の C/C++ 動的メモリー・インターフェイスの置換"/>
+<meta name="keywords" content="Windows* の C/C++ 動的メモリー・インターフェイスの置換"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Automically_Replacing_malloc.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Windows_C_Dynamic_Memory_Interface_Replacement"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>Windows* の C/C++ 動的メモリー・インターフェイスの置換</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Windows_C_Dynamic_Memory_Interface_Replacement">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">Windows* の C/C++ 動的メモリー・インターフェイスの置換</h1>
+<div><p>プロキシー・ライブラリーのリリースバージョンは <samp class="codeph">tbbmalloc_proxy.dll</samp>、デバッグバージョンは <samp class="codeph">tbbmalloc_debug_proxy.dll</samp> です。</p>
+<p>以下の動的メモリー関数が置換されます。</p>
+<ul><li><p>標準 C ライブラリー関数: <samp class="codeph">malloc</samp>、<samp class="codeph">calloc</samp>、<samp class="codeph">realloc</samp>、<samp class="codeph">free</samp></p>
+</li>
+<li><p>置換可能なグローバル C++ 操作: <samp class="codeph">new</samp>、<samp class="codeph">delete</samp></p>
+</li>
+<li><p>Microsoft* C ランタイム・ライブラリー関数: <samp class="codeph">_msize</samp>、<samp class="codeph">_aligned_malloc</samp>、<samp class="codeph">_aligned_realloc</samp>、<samp class="codeph">_aligned_free</samp>、<samp class="codeph">_aligned_msize</samp></p>
+</li>
+</ul>
+<p>置換を行うには、次のいずれかの方法を使用します。</p>
+<ul><li><p> アプリケーションの起動時にロードされるバイナリーのソースコードに次のヘッダーを追加します。</p>
+<pre>#include "tbb/tbbmalloc_proxy.h"</pre></li>
+<li><p>あるいは、アプリケーションの起動時にロードされる .exe または .dll ファイルのリンカーオプションに、次の引数を追加します。</p>
+<p>32 ビット・コード (下線が 3 つであることに注意):</p>
+<pre>tbbmalloc_proxy.lib /INCLUDE:"___TBB_malloc_proxy"</pre><p>64 ビット・コード (下線が 2 つであることに注意):</p>
+<pre>tbbmalloc_proxy.lib /INCLUDE:"__TBB_malloc_proxy"</pre></li>
+</ul>
+<p>OS プログラムローダーは、プログラムロード時にプロキシー・ライブラリーとスケーラブル・メモリー・アロケーター・ライブラリーを検索可能でなければなりません。検索可能にするには、ライブラリーを含むディレクトリーを <samp class="codeph">PATH</samp> 環境変数に追加します。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Automically_Replacing_malloc.html">動的メモリー割り当て用の malloc とその他の C/C++ 関数の自動置換</a></div>
+</div>
+<div/>
+</body>
+</html>

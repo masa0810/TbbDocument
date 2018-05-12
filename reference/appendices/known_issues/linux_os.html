@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="Linux*"/>
+<meta name="DC.subject" content="既知の問題, Linux*"/>
+<meta name="keywords" content="既知の問題, Linux*"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/appendices/known_issues.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../../tbb_userguide/Linux_OS.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../../tbb_userguide/Linux_C_Dynamic_Memory_Interface_Replacement.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="linux_os"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>Linux*</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="linux_os">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">Linux*</h1>
+<div><p>インテル&reg; TBB のオープンソース・バージョンを <samp class="codeph">/usr/lib64</samp> のようなシステムフォルダーにインストールした場合、リンカーが予期しない順にライブラリーを検索してサンプルのリンクに失敗する場合があります。この問題を解決するには、<samp class="codeph">-L</samp> リンカーオプションを使用してインテル&reg; TBB ライブラリーの正しい場所を指定してください。この問題はプログラムの実行には影響しません。</p>
+<p>アプリケーションがダイナミック・メモリー・アロケーターを使用している場合、<samp class="codeph">LD_PRELOAD</samp> による置換はインテル&reg; VTune&#8482; Amplifier で解析されます。この問題を回避するには、<samp class="codeph">LD_PRELOAD</samp> に <samp class="codeph">libtbbmalloc_proxy.so.2</samp> および <samp class="codeph">libtbbmalloc.so.2</samp> をフルパスで指定するか、<samp class="codeph">LD_PRELOAD</samp> を設定するシェルスクリプトを使用してアプリケーションを開始するようにインテル&reg; VTune&#8482; Amplifier のプロジェクトをセットアップしてください。</p>
+<p>Clang および GNU libstdc++ ライブラリーを使用してコンパイルすると、インテル&reg; TBB ヘッダーは C++11 機能を正しく検出できません。この問題を回避するには、インテル&reg; TBB ヘッダーファイルをインクルードする前に、適切なバージョンの libstdc++ に <samp class="codeph">TBB_USE_GLIBCXX_VERSION</samp> マクロを定義してください。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/appendices/known_issues.html">既知の問題</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../../../tbb_userguide/Linux_OS.html">パッケージの内容: Linux*</a></div>
+<div><a href="../../../tbb_userguide/Linux_C_Dynamic_Memory_Interface_Replacement.html">Linux* の C/C++ 動的メモリー・インターフェイスの置換</a></div></div></div>
+</body>
+</html>

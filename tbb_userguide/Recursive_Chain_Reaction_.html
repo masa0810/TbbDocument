@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="再帰連鎖反応"/>
+<meta name="DC.subject" content="再帰連鎖反応"/>
+<meta name="keywords" content="再帰連鎖反応"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Useful_Task_Techniques.html"/>
+<meta name="DC.Relation" scheme="URI" content="Advanced_Example.html#tutorial_Advanced_Example"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Recursive_Chain_Reaction_"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>再帰連鎖反応</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Recursive_Chain_Reaction_">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">再帰連鎖反応</h1>
+<div><p>スケジューラーは、ツリー構造のタスクグラフで最も効率良く動作します。これは、"幅優先のスチールと深さ優先のワーク" 手法が最もうまく適用できるためです。また、ツリー構造のタスクグラフでは、多くのタスクを迅速に生成できます。例えば、マスタータスクが <var>N</var> 個の子を直接生成するには、O(<var>N</var>) ステップ必要です。しかし、ツリー構造のフォークでは、O(lg(<var>N</var>)) ステップしか必要ありません。</p>
+<p>ドメインが明らかにツリー構造ではないことがありますが、簡単にツリーにマップできます。例えば、<samp class="codeph">parallel_for</samp> (<samp class="codeph">tbb/parallel_for.h</samp>') は、整数シーケンスなど、反復空間で動作します。<samp class="codeph">parallel_for</samp> テンプレート関数は、定義を使用して反復空間をバイナリーツリーに再帰的にマップします。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Useful_Task_Techniques.html">役立つタスク手法</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Advanced_Example.html#tutorial_Advanced_Example">高度なサンプル</a> (反復空間を 2 分割する方法の定義)</div></div></div>
+</body>
+</html>

@@ -1,0 +1,233 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="function_node テンプレート・クラス"/>
+<meta name="DC.subject" content="function_node テンプレート・クラス"/>
+<meta name="keywords" content="function_node テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/flow_graph.html"/>
+<meta name="DC.Relation" scheme="URI" content="copy_body_func.html"/>
+<meta name="DC.Relation" scheme="URI" content="../task_scheduler/task_group_context.html"/>
+<meta name="DC.Relation" scheme="URI" content="../exceptions.html"/>
+<meta name="DC.Relation" scheme="URI" content="message_passing_protocol.html"/>
+<meta name="DC.Relation" scheme="URI" content="sender_and_buffer_policy.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="func_node_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>function_node テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="func_node_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">function_node テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p><span class="keyword">graph_node</span>、<span class="keyword">receiver&lt;Input&gt;</span>、<span class="keyword">sender&lt;Output&gt;</span> のテンプレート・クラス。このノードには、ユーザーが設定する同時実行数の制限を適用できます。デフォルトで、<span class="keyword">function_node</span> には入力に内部 FIFO バッファーがあります。同時実行数の制限により直ちに処理できないメッセージは、この FIFO バッファーに一時的に格納されます。テンプレートの引数で、この内部バッファーを無効にするように指定できます。FIFO バッファーが無効のときに、ノードの同時実行数の制限によりメッセージを直ちに処理できない場合、着信メッセージは拒否されます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>template &lt; typename Input,
+           typename Output = continue_msg,
+           graph_buffer_policy = queueing,
+           typename A = cache_aligned_allocator&lt;Input&gt; &gt;
+class function_node;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/flow_graph.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><span class="keyword">function_node</span> は、1 つの入力ポートで <span class="keyword">Input</span> 型のメッセージを受け取り、すべてのサクセサーにブロードキャストされる <span class="keyword">Output</span> 型の 1 つの出力メッセージを生成します。サクセサーがメッセージを拒否した場合、「メッセージ・パッシング・プロトコル」で説明されているプロトコルを使用して処理されます。</p>
+<p><span class="keyword">graph_buffer_policy == queueing</span> の場合、内部の無制限入力バッファーが <span class="keyword">A</span> 型のアロケーターから取得したメモリーを使用して維持されます。</p>
+<p><span class="keyword">function_node</span> は、内部定数しきい値 T と内部カウンター C を維持します。構築時に、C = 0、T はコンストラクターに渡された値に設定されます。<span class="keyword">try_put</span> 呼び出しの動作は、次の表のように、T と C の値によって決定されます。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl23" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">function_node の try_put 呼び出しの動作</span></caption><thead align="left"><tr><th class="cellrowborder" align="center" valign="top" width="25%" id="d51433e76"><p>しきい値 T の値</p>
+</th>
+<th class="cellrowborder" align="center" valign="top" width="25%" id="d51433e79"><p>カウンター C の値</p>
+</th>
+<th class="cellrowborder" align="center" valign="top" width="50%" id="d51433e82"><p><span class="keyword">bool try_put( const input_type &amp;v )</span></p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="25%" headers="d51433e76 "><p><span class="keyword">T == flow::unlimited</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="25%" headers="d51433e79 "><p>NA</p>
+</td>
+<td class="cellrowborder" valign="top" width="50%" headers="d51433e82 "><p><span class="keyword">body(v)</span> の結果をすべてのサクセサーにブロードキャストするタスクがスポーンされます。<span class="keyword">true</span> を返します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="25%" headers="d51433e76 "><p><span class="keyword">T != flow::unlimited</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="25%" headers="d51433e79 "><p>C &lt; T</p>
+</td>
+<td class="cellrowborder" valign="top" width="50%" headers="d51433e82 "><p>C をインクリメントします。<span class="keyword">body(v)</span> の結果をすべてのサクセサーにブロードキャストして C をデクリメントするタスクがスポーンされます。<span class="keyword">true</span> を返します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="25%" headers="d51433e76 "><p><span class="keyword">T != flow::unlimited</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="25%" headers="d51433e79 "><p>C &gt;= T</p>
+</td>
+<td class="cellrowborder" valign="top" width="50%" headers="d51433e82 "><p>テンプレート引数が <span class="keyword">graph_buffer_policy==queueing</span> の場合、<span class="keyword">v</span> は C &lt; T になるまで内部 FIFO バッファーに格納されます。T が C 未満になると、C がインクリメントされ、<span class="keyword">body(v)</span> の結果をすべてのサクセサーにブロードキャストして C をデクリメントするタスクがスポーンされます。<span class="keyword">true</span> を返します。</p>
+<p>テンプレート引数が <span class="keyword">graph_buffer_policy==rejecting</span> で C &gt;= T の場合、<span class="keyword">false</span> を返します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><span class="keyword">function_node</span> には、ユーザーが設定可能な同時実行数の制限が適用されます。<span class="keyword">flow::unlimited</span> を指定すると、ボディーの無制限の呼び出しを同時に実行できます。<span class="keyword">flow::serial</span> を指定すると、ボディーの 1 つの呼び出しのみ同時に実行できます。同時実行数を制限する <span class="keyword">size_t</span> 型の値を 1 から <span class="keyword">unlimited</span> の間で指定することもできます。</p>
+<p>引数で <span class="keyword">graph_buffer_policy==rejecting</span> を指定すると、<span class="keyword">function_node</span> は、「メッセージ・パッシング・プロトコル」で説明されているようにプレデセッサー・セットを維持します。<span class="keyword">function_node</span> の状態が C &gt;= T から C &lt; T に遷移すると、C &gt;= T になるまで、またはセットに有効なプレデセッサーがなくなるまで、プレデセッサーのセットから新しいメッセージを取得しようとします。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p><span class="keyword">function_node</span> は、グラフのターミナルノードとして動作できます。<span class="keyword">continue_msg</span> の <span class="keyword">Output</span> が使用され、サクセサーは接続されません。</p>
+</div>
+<p><span class="keyword">Input</span> と <span class="keyword">Output</span> は、コピー構築可能および代入可能でなければなりません。</p>
+<p><span class="keyword">function_node</span> のボディーコンセプトを次に示します。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl24" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">function_node&lt;Input, Output&gt; ボディーコンセプト</span></caption><thead align="left"><tr><th class="cellrowborder" align="center" valign="top" width="50%" id="d51433e208"><p>擬似署名</p>
+</th>
+<th class="cellrowborder" align="center" valign="top" width="50%" id="d51433e211"><p>意味</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="50%" headers="d51433e208 "><p><span class="keyword">B::B( const B&amp; )</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="50%" headers="d51433e211 "><p>コピー・コンストラクター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d51433e208 "><p><span class="keyword">B::~B()</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="50%" headers="d51433e211 "><p>デストラクター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d51433e208 "><p><span class="keyword">void operator=( const B&amp; )</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="50%" headers="d51433e211 "><p>代入。擬似署名の戻り型 <samp class="codeph">void</samp> は、<samp class="codeph">operator=</samp> は値を返す必要がないことを示します。<samp class="codeph">operator=</samp> は値を返すことができますが無視されます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d51433e208 "><p><span class="keyword">Output B::operator() (const Input &amp;v) const</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="50%" headers="d51433e211 "><p><span class="keyword">v</span> で操作を実行して <span class="keyword">Output</span> 型の値を返します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p><span class="keyword">function_node</span> に渡されるボディー・オブジェクトはコピーされます。そのため、メンバー変数を更新してもノードの構築に使用されたオリジナルのオブジェクトには影響しません。ノードの外部からボディー・オブジェクト内に保持されている状態を確認する場合は、<span class="keyword">copy_body</span> 関数を使用して更新されたコピーを取得します。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>ボディー・オブジェクトは、そのエンクロージング・グラフをスローまたはキャンセルすることがあります。詳細は、「task_group_context」および「例外」を参照してください。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+namespace flow {
+ 
+enum graph_buffer_policy {
+   rejecting, reserving, queueing, tag_matching };
+ 
+template &lt; typename Input, typename Output = continue_msg, 
+           graph_buffer_policy = queueing, 
+           typename A = cache_aligned_allocator&lt;Input&gt; &gt;
+class function_node :
+  public graph_node, public receiver&lt;Input&gt;,
+  public sender&lt;Output&gt; {
+public:
+    template&lt;typename Body&gt;
+    function_node( graph &amp;g, size_t concurrency, Body body );
+    function_node( const function_node &amp;src );
+ 
+    // receiver&lt;Input&gt;
+    typedef Input input_type;
+    typedef sender&lt;input_type&gt; predecessor_type;
+    bool try_put( const input_type &amp;v );
+    bool register_predecessor( predecessor_type &amp;p );
+    bool remove_predecessor( predecessor_type &amp;p );
+ 
+    // sender&lt;Output&gt;
+    typedef Output output_type;
+    typedef receiver&lt;output_type&gt; successor_type;
+    bool register_successor( successor_type &amp;r );
+    bool remove_successor( successor_type &amp;r );
+    bool try_get( output_type &amp;v );
+    bool try_reserve( output_type &amp;v );
+    bool try_release( );
+    bool try_consume( );
+};
+ 
+}
+}</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d51433e286">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d51433e288">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d51433e286 "><span class="keyword">template&lt; typename Body&gt; function_node(graph &amp;g, size_t concurrency, Body body)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d51433e288 "><p><span class="keyword">body</span> のコピーを呼び出す <span class="keyword">function_node</span> を構築します。ほとんどの場合、<span class="keyword">body</span> に対する <span class="keyword">concurrency</span> の呼び出しは同時に行われます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d51433e286 "><span class="keyword">function_node( const function_node &amp;src )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d51433e288 "><p><span class="keyword">src</span> の構築時の状態と同じ初期状態で <span class="keyword">function_node</span> を構築します。構築される <span class="keyword">function_node</span> には、<span class="keyword">src</span> と同じ <span class="keyword">graph</span> オブジェクトへの参照、<span class="keyword">src</span> で使用される初期 body のコピー、<span class="keyword">src</span> と同じ同時実行数しきい値が含まれます。<span class="keyword">src</span> のプレデセッサーおよびサクセサーはコピーされません。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>新しいボディー・オブジェクトは、<span class="keyword">src</span> の構築時に提供されたオリジナルのボディーのコピーからコピー構築されます。このため、<span class="keyword">src</span> の構築後に <span class="keyword">src</span> のボディーのメンバー変数に対して行われた変更は、新しい <span class="keyword">function_node</span> のボディーに影響しません。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d51433e286 "><span class="keyword">bool try_put( const input_type &amp;v )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d51433e288 "><p>詳細は、上記の表「<samp class="codeph">function_node</samp> の <samp class="codeph">try_put</samp> 呼び出しの動作」を参照してください。</p>
+<p><strong>戻り値</strong>: 入力が受け付けられた場合は <span class="keyword">true</span>。その他の場合は <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d51433e286 "><span class="keyword">bool register_predecessor( predecessor_type &amp;p )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d51433e288 "><p>プレデセッサーのセットに <span class="keyword">p</span> を追加します。</p>
+<p><strong>戻り値</strong>: <span class="keyword">true</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d51433e286 "><span class="keyword">bool remove_predecessor( predecessor_type &amp;p )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d51433e288 "><p>プレデセッサーのセットから <span class="keyword">p</span> を削除します。</p>
+<p><strong>戻り値</strong>: <span class="keyword">true</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d51433e286 "><span class="keyword">bool register_successor( successor_type &amp;r )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d51433e288 "><p>サクセサーのセットに <span class="keyword">r</span> を追加します。</p>
+<p><strong>戻り値</strong>: <span class="keyword">true</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d51433e286 "><span class="keyword">bool remove_successor( successor_type &amp;r )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d51433e288 "><p>サクセサーのセットから <span class="keyword">r</span> を削除します。</p>
+<p><strong>戻り値</strong>: <span class="keyword">true</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d51433e286 "><span class="keyword">bool try_get( output_type &amp;v )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d51433e288 "><p><span class="keyword">function_node</span> に出力のバッファーは含まれていないため、<span class="keyword">try_get</span> 呼び出しは常に拒否されます。</p>
+<p><strong>戻り値</strong>: <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d51433e286 "><span class="keyword">bool try_reserve( output_type &amp;v )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d51433e288 "><p><span class="keyword">function_node</span> に出力のバッファーは含まれていないため、予約することはできません。</p>
+<p><strong>戻り値</strong>: <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d51433e286 "><span class="keyword">bool try_release( )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d51433e288 "><p><span class="keyword">function_node</span> に出力のバッファーは含まれていないため、予約することはできません。</p>
+<p><strong>戻り値</strong>: <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d51433e286 "><span class="keyword">bool try_consume( )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d51433e288 "><p><span class="keyword">function_node</span> に出力のバッファーは含まれていないため、予約することはできません。</p>
+<p><strong>戻り値</strong>: <span class="keyword">false</span>。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/flow_graph.html">フローグラフ</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="copy_body_func.html">copy_body テンプレート関数</a></div>
+<div><a href="../task_scheduler/task_group_context.html">task_group_context クラス</a></div>
+<div><a href="../exceptions.html">例外</a></div>
+<div><a href="message_passing_protocol.html">メッセージ・パッシング・プロトコル</a></div>
+<div><a href="sender_and_buffer_policy.html">転送、バッファー、受信ポリシー</a></div></div></div>
+</body>
+</html>

@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="concurrent_bounded_queue テンプレート・クラス"/>
+<meta name="DC.subject" content="concurrent_bounded_queue テンプレート・クラス"/>
+<meta name="keywords" content="concurrent_bounded_queue テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/containers_overview.html"/>
+<meta name="DC.Relation" scheme="URI" content="concurrent_queue_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="concurrent_bounded_queue_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>concurrent_bounded_queue テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="concurrent_bounded_queue_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">concurrent_bounded_queue テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>並列操作を含む制限付きのデュアルキュー用のテンプレート・クラス。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>template&lt;typename T, class Alloc=cache_aligned_allocator&lt;T&gt; &gt;
+            class concurrent_bounded_queue;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/concurrent_queue.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">concurrent_bounded_queue</samp> は、<samp class="codeph">concurrent_queue</samp> に似ていますが、次のような相違点があります。</p>
+<ul><li><p>キューの大きさを指定することができます。デフォルトの大きさは、キューを実際には無制限にします。</p>
+</li>
+<li><p><samp class="codeph">push</samp> 操作を変更し、キューの大きさを超えずに完了できるようになるまで待機します。</p>
+</li>
+<li><p>アイテムをポップできるようになるまで待機する <samp class="codeph">pop</samp> 操作があります。</p>
+</li>
+<li><p><samp class="codeph">size_type</samp> を<strong>符号付き</strong>の型に変更します。</p>
+</li>
+<li><p>プッシュ操作の数からポップ操作の数を引いた値を返すように、<samp class="codeph">size()</samp> 操作を変更します。例えば、空のキューで 3 つのポップ操作が待機している場合、<samp class="codeph">size()</samp> は -3 を返します。</p>
+</li>
+<li>待機中のすべての <samp class="codeph">push</samp> 操作または <samp class="codeph">pop</samp> 操作をアボートし、例外をスローする <samp class="codeph">abort</samp> 操作があります。</li>
+</ul>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><p>比較しやすいように、<samp class="codeph">concurrent_queue</samp> と異なる部分を太字で示します。</p>
+<pre>namespace tbb {
+           template&lt;typename T, typename A=cache_aligned_allocator&lt;T&gt; &gt;
+           class concurrent_bounded_queue {
+           public:
+               // 型
+               typedef T value_type;
+               typedef A allocator_type;
+               typedef T&amp; reference;
+               typedef const T&amp; const_reference;
+               // size_type は符号付きの型
+               <strong>typedef std::ptrdiff_t size_type;</strong>
+               typedef std::ptrdiff_t difference_type;
+
+               explicit concurrent_bounded_queue(const allocator_type&amp; a = allocator_type());
+               concurrent_bounded_queue( const concurrent_bounded_queue&amp; src, const allocator_type&amp; a = allocator_type());
+               template&lt;typename InputIterator&gt;
+               concurrent_bounded_queue( InputIterator begin, InputIterator end, const allocator_type&amp; a = allocator_type());
+               // C++11 からサポート
+               concurrent_bounded_queue( concurrent_bounded_queue&amp;&amp; src );
+               concurrent_bounded_queue( concurrent_bounded_queue&amp;&amp; src, const allocator_type&amp; a );
+
+               ~concurrent_bounded_queue();
+
+               // キャパシティーを超えないで push できるまで待つ
+               void push( const T&amp; source );
+               // this が空の場合は待つ
+               <strong>void pop( T&amp; destination );</strong>
+               // C++11 からサポート
+               void push( T&amp;&amp; source );
+               // アイテムが指定された引数で構築される点を除いて push と同じ
+               template&lt;typename... Arguments&gt;
+               void emplace(Arguments&amp;&amp;... args);
+
+               // キャパシティーを超える場合は push をスキップ
+               <strong>bool try_push( const T&amp; source );</strong>
+               bool try_pop( T&amp; destination );
+               // C++11 からサポート
+               bool try_push( T&amp;&amp; source );
+               // アイテムが指定された引数で構築される点を除いて try_push と同じ
+               template&lt;typename... Arguments&gt;
+               bool try_emplace(Arguments&amp;&amp;... args);
+
+               <strong>void abort();</strong>
+               void clear();
+
+               // 並列修正中の呼び出しは安全で負のサイズを返す
+               <strong>size_type size() const;</strong>
+               bool empty() const;
+               <strong>size_type capacity() const;</strong>
+               <strong>void set_capacity( size_type capacity );</strong>
+               allocator_type get_allocator() const;
+
+               typedef <em>implementation-defined</em> iterator;
+               typedef <em>implementation-defined</em> const_iterator;
+
+               // イテレーター (低速、デバッグ用)
+               iterator unsafe_begin();
+               iterator unsafe_end();
+               const_iterator unsafe_begin() const;
+               const_iterator unsafe_end() const;
+        };
+    }</pre><p>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc"><samp class="codeph">concurrent_bounded_queue</samp> は <samp class="codeph">concurrent_queue</samp> と似ているため、次の表では異なるメソッドのみ説明します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d22682e140">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d22682e142">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d22682e140 "><span class="keyword">void push( const T&amp; source )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d22682e142 "><p>size()&lt;capacity になるまで待ってから、source のコピーをキューにプッシュします。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d22682e140 "><span class="keyword">void push( T&amp;&amp; source)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d22682e142 "><p>C++11 からサポート。size()&lt;capacity になるまで待ってから、source をキューに移動します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d22682e140 "><span class="keyword">template&lt;typename... Arguments&gt; void emplace(Arguments&amp;&amp;... args); </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d22682e142 "><p>C++11 からサポート。size()&lt;capacity になるまで待ってから、新しい要素をキューにプッシュします。要素は指定された引数で構築されます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d22682e140 "><span class="keyword">void pop( T&amp; destination )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d22682e142 "><p>値が利用可能になるまで待ち、値をキューからポップします。値を destination に代入し、オリジナルの値を破棄します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d22682e140 "><span class="keyword">void abort()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d22682e142 "><p><samp class="codeph">push</samp> 操作および <samp class="codeph">pop</samp> 操作により待機中のスレッドをウェイクアップし、それらのスレッドで <samp class="codeph">tbb::user_abort</samp> 例外をスローします。この機能は、<samp class="codeph">TBB_USE_EXCEPTIONS</samp> が設定されていない場合、利用できません。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d22682e140 "><span class="keyword">bool try_push( const T&amp; source )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d22682e142 "><p>size()&lt;capacity の場合、source のコピーをキューにプッシュします。</p>
+<p><strong>戻り値</strong>: コピーがプッシュされた場合は true、その他の場合は false。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d22682e140 "><span class="keyword">bool try_push( T&amp;&amp; source )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d22682e142 "><p>C++11 からサポート。size()&lt;capacity の場合、source をキューに移動します。</p>
+<p><strong>戻り値</strong>: アイテムが移動された場合は true、その他の場合は false。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d22682e140 "><span class="keyword">template&lt;typename... Arguments&gt; bool try_emplace(Arguments&amp;&amp;... args); </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d22682e142 "><p>C++11 からサポート。size()&lt;capacity の場合、指定された引数でアイテムを構築してアイテムをキューに移動します。</p>
+<p><strong>戻り値</strong>: アイテムが移動された場合は true、その他の場合は false。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d22682e140 "><span class="keyword">bool try_pop( T&amp; destination )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d22682e142 "><p>値が利用可能な場合、値をキューからポップして、destination に代入し、オリジナルの値を破棄します。その他の場合は、何もしません。</p>
+<p><strong>戻り値</strong>: 値がポップされた場合は true、その他の場合は false。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d22682e140 "><span class="keyword">size_type size() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d22682e142 "><p><strong>戻り値:</strong> プッシュの数からポップの数を引いた数を返します。対応するプッシュを待っているポップ操作がある場合、結果は負です。キューが一杯で、対応するポップを待っているプッシュ操作がある場合、結果は capacity() を超えることがあります。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d22682e140 "><span class="keyword">bool empty() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d22682e142 "><p><strong>戻り値</strong>: <samp class="codeph">size()&lt;=0</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d22682e140 "><span class="keyword">size_type capacity() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d22682e142 "><p><strong>戻り値</strong></p>
+<p>キューが保持できる値の最大数。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d22682e140 "><span class="keyword">void set_capacity( size_type capacity )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d22682e142 "><p>キューが保持できる値の最大数を設定します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/containers_overview.html">コンテナーの概要</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="concurrent_queue_cls.html">concurrent_queue</a></div></div></div>
+</body>
+</html>

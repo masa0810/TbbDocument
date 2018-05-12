@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="グラフ間の通信"/>
+<meta name="DC.subject" content="フローグラフのヒント, 異なるグラフのノードとの通信, グラフ間の通信"/>
+<meta name="keywords" content="フローグラフのヒント, 異なるグラフのノードとの通信, グラフ間の通信"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Flow_Graph_making_edges_tips.html"/>
+<meta name="DC.Relation" scheme="URI" content="use_make_edge.html#use_make_edge"/>
+<meta name="DC.Relation" scheme="URI" content="broadcast_or_send.html#broadcast_or_send"/>
+<meta name="DC.Relation" scheme="URI" content="use_source_node.html#use_source_node"/>
+<meta name="DC.Relation" scheme="URI" content="avoiding_data_races.html#avoiding_data_races"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="communicate_with_nodes"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>グラフ間の通信</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="communicate_with_nodes">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">グラフ間の通信</h1>
+<div><p>グラフノードはすべて、コンストラクターの引数の 1 つとしてグラフ・オブジェクトへの参照が必要です。同じグラフの一部であるノード間のエッジを構築する場合のみ安全です。エッジは、ランタイム・ライブラリーに対するグラフのトポロジーを表現します。異なるグラフの 2 つのノードを接続すると、<span class="keyword">graph::wait_for_all</span> の呼び出しや例外処理のようなグラフ全体の操作を理解することが困難になります。パフォーマンスを最適化するため、ライブラリーは、ユーザーが予期していないときにノードのプレデセッサーまたはサクセサーを呼び出すことがあります。</p>
+<p>2 つのグラフを接続しなければならない場合は、それらのグラフ間にエッジを作成せず、代わりに <span class="keyword">try_put</span> の明示的な呼び出しを使用します。ランタイム・ライブラリーが 2 つのノード間の関係を仮定する必要がなくなるため、グラフ境界を超えるイベントを理解しやすくなります。しかし、グラフ全体の操作を理解することはまだ困難です。例えば、次のグラフについて考えてみます。</p>
+<pre>    graph g;
+    function_node&lt; int, int &gt; n1( g, 1, [](int i) -&gt; int { 
+        cout &lt;&lt; "n1\n"; 
+        spin_for(i); 
+        return i; 
+    } );
+    function_node&lt; int, int &gt; n2( g, 1, [](int i) -&gt; int { 
+        cout &lt;&lt; "n2\n"; 
+        spin_for(i); 
+        return i; 
+    } );
+    make_edge( n1, n2 );
+
+    graph g2;
+    function_node&lt; int, int &gt; m1( g2, 1, [](int i) -&gt; int { 
+        cout &lt;&lt; "m1\n"; 
+        spin_for(i); 
+        return i; 
+    } );
+    function_node&lt; int, int &gt; m2( g2, 1, [&amp;](int i) -&gt; int { 
+        cout &lt;&lt; "m2\n"; 
+        spin_for(i); 
+        n1.try_put(i); 
+        return i; 
+    } );
+    make_edge( m1, m2 );
+
+    m1.try_put( 1 );
+
+    // 次の呼び出しは直ちにリターン
+    g.wait_for_all();
+    // 次の呼び出しは m1 と m2 の後にリターン
+    g2.wait_for_all();
+
+    // wait_for_all が両方のグラフで呼ばれたとしても
+    // n1 と n2 が完了する前にここに達する
+</pre><p>上記の例で、<span class="keyword">m1.try_put(1)</span> はノード <span class="keyword">m1</span> にメッセージを送ります。ノード m1 はボディーを実行し、ノード <span class="keyword">m2</span> にメッセージを送ります。次に、ノード <span class="keyword">m2</span> はボディーを実行し、明示的な <span class="keyword">try_put</span> を使用して <span class="keyword">n1</span> にメッセージを送ります。次に、<span class="keyword">n1</span> はボディーを実行し、<span class="keyword">n2</span> にメッセージを送ります。エッジが存在しないため、ランタイム・ライブラリーは <span class="keyword">m2</span> が <span class="keyword">n1</span> のプレデセッサーであると見なしません。 
+	 </p>
+<p>これらのグラフによってスポーンされたタスクがすべて完了するまで待つ場合は、両方のグラフで <span class="keyword">wait_for_all</span> 関数を呼び出す必要があります。ただし、グラフ間の通信があるため、呼び出しの順序が重要です。上記の (正しくない) コードセグメントでは、<span class="keyword">g</span> でアクティブなタスクがないため <span class="keyword">g.wait_for_all()</span> の呼び出しは直ちにリターンし、スポーンしていたタスクのみ <span class="keyword">g2</span> に属します。<span class="keyword">m1</span> と <span class="keyword">m2</span> は <span class="keyword">g2</span> に属するため、<span class="keyword">g2.wait_for_all</span> の呼び出しは m1 と m2 の両方が完了した後にリターンします。しかし、<span class="keyword">n1</span> と <span class="keyword">n2</span> は <span class="keyword">g</span> に属するため、この呼び出しは n1 と n2 を待機しません。このため、<span class="keyword">n1</span> と <span class="keyword">n2</span> が完了する前に、このコードセグメントの最後に達します。</p>
+<p><span class="keyword">wait_for_all</span> の呼び出しがスワップされると、コードは予想したとおりに動作します。</p>
+<pre>    g2.wait_for_all();
+    g.wait_for_all();
+
+    // すべてのタスクが完了
+</pre><p>これらの小さな 2 つのグラフがどのように対話するかを理解することはそれほど困難ではありませんが、複数のサイクルを含む大きな 2 つのグラフの場合は困難でしょう。このため、異なるグラフのノード間の通信は注意して行う必要があります。 
+	 </p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Flow_Graph_making_edges_tips.html">エッジの作成におけるフローグラフのヒント</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="use_make_edge.html#use_make_edge">make_edge と remove_edge の使用</a></div>
+<div><a href="broadcast_or_send.html#broadcast_or_send">1 つまたは複数のサクセサーへの送信</a></div>
+<div><a href="use_source_node.html#use_source_node">source_node の使用</a></div>
+<div><a href="avoiding_data_races.html#avoiding_data_races">データ競合の回避</a></div></div></div>
+</body>
+</html>

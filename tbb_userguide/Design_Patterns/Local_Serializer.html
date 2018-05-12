@@ -1,0 +1,171 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="ローカル・シリアライザー"/>
+<meta name="DC.subject" content="ローカル・シリアライザー"/>
+<meta name="keywords" content="ローカル・シリアライザー"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/Design_Patterns.html"/>
+<meta name="DC.Relation" scheme="URI" content="Non-Preemptive_Priorities.html#Non-Preemptive_Priorities"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="Local_Serializer"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>ローカル・シリアライザー</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="Local_Serializer">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">ローカル・シリアライザー</h1>
+<div><div class="section"><h2 class="sectiontitle">コンテキスト</h2><p>対話型プログラムを考えます。並列性と応答性を最大限にするために、ユーザーによって要求された操作をタスクとして実装することができます。操作の順序は重要になることがあります。例えば、プログラムがユーザーに編集可能なテキストを提示すると仮定します。ユーザーはテキストを選択する操作や選択したテキストを削除する操作を行います。このとき、同じバッファーで「選択」操作と「削除」操作を逆の順序で行うと問題になります。しかし、それぞれ異なるバッファーで操作を行えば問題はありません。したがって、目標は、異なるオブジェクト間のタスクの順序を制限することなく、オブジェクトと関連するタスクのシリアルな順序を確立することです。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">影響</h2><ul><li><p>特定のオブジェクトに関連する操作はシリアルに実行する必要があります。</p>
+</li>
+<li><p>ほかでワークを行うことが可能であるときにスレッドがロックで待機してしまうため、ロックを含む操作のシリアル化は効率的ではありません。</p>
+</li>
+</ul>
+</div>
+<div class="section"><h2 class="sectiontitle">ソリューション</h2><p>FIFO (先入れ先出し構造) を使用して、ワークアイテムを順番にします。可能であれば、常にアイテムが処理されるようにします。ワークアイテムが現れたときに処理しているアイテムがない場合、そのアイテムを処理します。処理しているアイテムがある場合は、現れたアイテムを FIFO にプッシュします。処理している現在のアイテムが完了したら、FIFO から別のアイテムをポップして処理します。</p>
+<p>このロジックは、FIFO に <samp class="codeph">concurrent_queue</samp> を使用し、<samp class="codeph">atomic&lt;int&gt;</samp> で待機および処理しているアイテム数をカウントすることにより、mutex なしで実装できます。この後のサンプルで、処理を詳細に説明します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>次のサンプルは、ノンプリエンプティブな優先度のサンプルにローカル・シリアライザーを加えたもので、3 つの優先度とローカル・シリアライザーを実装します。ユーザー・インターフェイスが続きます。</p>
+<pre>enum Priority {
+   P_High,
+   P_Medium,
+   P_Low
+};
+ 
+template&lt;typename Func&gt;
+void EnqueueWork( Priority p, Func f, Serializer* s=NULL );</pre><p>次の表の 3 つの条件が満たされると、テンプレート関数 <samp class="codeph">EnqueueWork</samp> はファンクター <var>f</var> を実行します。 
+		</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">3 つの条件</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="66.39676113360325%" id="d97053e83"><p>条件</p>
+</th>
+<th class="cellrowborder" valign="top" width="33.603238866396765%" id="d97053e86"><p>解決するクラス...</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="66.39676113360325%" headers="d97053e83 "><p><samp class="codeph">Serializer</samp> の事前に行うワークがすべて完了している。</p>
+</td>
+<td class="cellrowborder" valign="top" width="33.603238866396765%" headers="d97053e86 "><p><samp class="codeph">Serializer</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="66.39676113360325%" headers="d97053e83 "><p>スレッドが利用可能。</p>
+</td>
+<td class="cellrowborder" valign="top" width="33.603238866396765%" headers="d97053e86 "><p><samp class="codeph">RunWorkItem</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="66.39676113360325%" headers="d97053e83 "><p>優先度の高いワークは実行する準備ができていない。</p>
+</td>
+<td class="cellrowborder" valign="top" width="33.603238866396765%" headers="d97053e86 "><p><samp class="codeph">ReadyPileType</samp></p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>ファンクターの条件は表の上から下に解決されます。s が NULL の場合、最初の条件は存在しません。<samp class="codeph">EnqueueWork</samp> は <samp class="codeph">SerializedWorkItem</samp> のファンクターをパッケージして、ワーク間で最初の条件を解決するクラスに送ります。</p>
+<pre>template&lt;typename Func&gt;
+void EnqueueWork( Priority p, Func f, Serializer* s=NULL ) {
+   WorkItem* item = new SerializedWorkItem&lt;Func&gt;( p, f, s );
+   if( s )
+       s-&gt;add(item);
+   else
+       ReadyPile.add(item);
+}</pre><p><samp class="codeph">SerializedWorkItem</samp> は <samp class="codeph">WorkItem</samp> の派生クラスで、ワークの詳細を知ることなくワークの優先度が付けられた部分をパスする方法として提供されます。 
+		</p>
+<pre>// 優先度を付けるワークの抽象基本クラス
+class WorkItem {
+public:
+   WorkItem( Priority p ) : priority(p) {}
+   // 派生クラスは実際のワークを定義
+   virtual void run() = 0;
+   const Priority priority;
+};
+ 
+template&lt;typename Func&gt;
+class SerializedWorkItem: public WorkItem {
+   Serializer* serializer;
+   Func f;
+   /* オーバーライド */ void run() {
+       f();
+       Serializer* s = serializer;
+       // Serializer の次のファンクターを実行する前に f を破棄
+       delete this;
+       if( s )
+           s-&gt;noteCompletion();
+   }
+public:
+   SerializedWorkItem( Priority p, const Func&amp; f_, Serializer* s ) :
+       WorkItem(p), serializer(s), f(f_) 
+   {}
+};</pre><p><samp class="codeph">WorkItem</samp> 基本クラスは、ノンプリエンプティブな優先度のサンプルの WorkItem クラスと同じです。シリアル条件の概念は基本クラスから完全に隠されるため、フレームワークはほかの種類の条件や不足している条件を拡張することができます。<samp class="codeph">SerializedWorkItem</samp> クラスは本質的には「ノンプリエンプティブな優先度」のサンプルの <samp class="codeph">ConcreteWorkItem</samp> で、<samp class="codeph">Serializer</samp> の観点から拡張したものです。</p>
+<p>ファンクターを実行する時間になると、<samp class="codeph">run()</samp> 仮想メソッドが起動され、次の 3 つのステップを行います。</p>
+<ol><li><p>ファンクターを実行します。</p>
+</li>
+<li><p>ファンクターを破棄します。</p>
+</li>
+<li><p>ファンクターが完了し、次の待機ファンクターの条件がなくなったことを <samp class="codeph">Serializer</samp> に通知します。</p>
+</li>
+</ol>
+<p>ステップ 3 は、ConcreteWorkItem::run の操作とは異なります。ステップ 3 の後に実行することで並列性を高めることができる場合は、ステップ 2 をステップ 3 の後に実行することもできます。ただし、ステップ 2 にかかる時間がわずかでない場合、次のファンクターを実行する前に完了する必要があるため、示された順に実行することを推奨します。</p>
+<p><samp class="codeph">Serializer</samp> クラスはローカル・シリアライザーのコアを実装します。</p>
+<pre>class Serializer {
+   tbb::concurrent_queue&lt;WorkItem*&gt; queue;
+   tbb::atomic&lt;int&gt; count;         // キューに入れられたアイテムと実行中のアイテムのカウント
+   void moveOneItemToReadyPile() { // キューから ReadyPile にアイテムを転送
+       WorkItem* item;
+       queue.try_pop(item);
+       ReadyPile.add(item);
+   }
+public:
+   void add( WorkItem* item ) {
+       queue.push(item);
+       if( ++count==1 )
+           moveOneItemToReadyPile();
+   }
+   void noteCompletion() {        // WorkItem が完了すると呼び出される
+       if( ‐‐count!=0 )
+           moveOneItemToReadyPile();
+   }
+};</pre><p>クラスは 2 つのメンバーを保持します。 
+		</p>
+<ul><li><p>前のワークが完了するのを待つ WorkItem のキュー。</p>
+</li>
+<li><p>キューに入れられたワークまたは実行中のワークのカウント。</p>
+</li>
+</ul>
+<p>操作の順序に注意しながら <samp class="codeph">concurrent_queue&lt;WorkItem*&gt;</samp> と <samp class="codeph">atomic&lt;int&gt;</samp> を使用することで、mutex の使用を回避しています。カウントの変化は <samp class="codeph">Serializer</samp> クラスの動作を理解する鍵です。</p>
+<ul><li><p><samp class="codeph">add</samp> メソッドが <samp class="codeph">count</samp> を 0 から 1 にインクリメントした場合、ほかのワークが実行中でなく、ワークを <samp class="codeph">ReadyPile</samp> に移動すべきことを示しています。</p>
+</li>
+<li><p><samp class="codeph">noteCompletion</samp> メソッドがカウントをデクリメントする際に、1 から 0 のデクリメント<strong>でない</strong>場合、キューが空でなく、キューの別のアイテムを <samp class="codeph">ReadyPile</samp> に移動すべきことを示しています。</p>
+</li>
+</ul>
+<p><samp class="codeph">ReadyPile</samp> クラスは、ノンプリエンプティブな優先度のサンプルで説明しています。</p>
+<p>優先度が必要ない場合、<samp class="codeph">moveOneItemToReadyPile</samp> メソッドの 2 つのバリエーションがあります。バリエーションによって影響は異なります。</p>
+<ul><li><p><samp class="codeph">moveOneItemToReadyPile</samp> メソッドが <samp class="codeph">item-&gt;run()</samp> を直接起動します。このアプローチでは、<samp class="codeph">Serializer</samp> のオーバーヘッドが相対的に低くなり、スレッドの局所性が高くなります。しかし、これは公平 (フェア) ではありません。タスクの連続したストリームを <samp class="codeph">Serializer</samp> が処理する場合、スレッド操作はそのタスクのサービスを続けてほかを除外します。</p>
+</li>
+<li><p><samp class="codeph">moveOneItemToReadyPile</samp> メソッドが <samp class="codeph">task::enqueue</samp> を起動して、<samp class="codeph">item-&gt;run()</samp> を起動するタスクをキューに入れます。最初のアプローチよりもオーバーヘッドが高くなり、スレッドの局所性が低くなりますが、飢餓状態 (starvation) を回避できます。</p>
+</li>
+</ul>
+<p>公平性と局所性の高さは相反するものであり、最適な選択肢は状況に依存します。</p>
+<p>パターンは、Serializer クラスによって維持されているものよりも一般的なワークアイテムの条件に一般化します。一般化された <samp class="codeph">Serializer::add</samp> は、ワークアイテムに条件があるかどうかを判断して、条件がない場合は直ちに実行します。一般化された <samp class="codeph">Serializer::noteCompletion</samp> は、現在のワークアイテムの完了によって条件がなくなった (以前は条件があった) アイテムをすべて実行します。「実行」という用語は、ワークを直ちに実行することを意味します。さらに条件がある場合は、次の条件を解決するクラスにワークを転送します。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../tbb_userguide/Design_Patterns/Design_Patterns.html">デザインパターン</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Non-Preemptive_Priorities.html#Non-Preemptive_Priorities">ノンプリエンプティブな優先度</a></div></div></div>
+</body>
+</html>

@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="例外"/>
+<meta name="DC.subject" content="例外"/>
+<meta name="keywords" content="例外"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/reference.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/exceptions/tbb_exception.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/exceptions/captured_exception.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/exceptions/movable_exception.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/exceptions/specific_exceptions.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="Exceptions"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>例外</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="Exceptions">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">例外</h1>
+<div><div class="section"><p>インテル&reg; TBB は、タスクツリーの論理パスに沿って例外を伝えます。これらのパスはスレッドのスタックをまたいでいるため、スタック間で例外を移動できなければなりません。</p>
+<p>タスクで例外がスローされると、インテル&reg; TBB ランタイム内で次のようにキャッチされ、処理されます。</p>
+<ol class="ol_3"><li>タスクのキャンセルグループがすでにキャンセルされている場合は、例外は無視されます。</li>
+<li>その他の場合は、例外またはそれに類似するものがキャプチャーされ、グループがキャンセルされます。</li>
+<li>キャプチャーされた例外は、グループのすべてのタスクが完了するか、キャンセルされた後に、キャンセルグループのルートから再スローされます。</li>
+</ol>
+<p>次の条件が両方とも真の場合は、オリジナルの例外がキャプチャーされます。</p>
+<ul class="ul_4"><li>タスクの <samp class="codeph">task_group_context</samp> が、<samp class="codeph">TBB_USE_CAPTURED_EXCEPTION=0</samp> でコンパイルされた翻訳単位で作成されている。</li>
+<li>インテル&reg; TBB ライブラリーが、C++11 の <samp class="codeph">std::exception_ptr</samp> 機能をサポートするコンパイラーでビルドされている。</li>
+</ul>
+<p>その他の場合は、次のように、オリジナルの例外に類似する <em>x</em> がキャプチャーされます。</p>
+<ol class="ol_3"><li><samp class="codeph"><samp class="codeph"><em>x</em></samp></samp> が <samp class="codeph">tbb_exception</samp> の場合は、<samp class="codeph"><em>x</em>.move()</samp> でキャプチャーされます。</li>
+<li><samp class="codeph"><em>x</em></samp> が <samp class="codeph">std::exception</samp> の場合は、<samp class="codeph">tbb::captured_exception(typeid(<em>x</em>).name(),<em>x</em>.what())</samp> としてキャプチャーされます。</li>
+<li>その他の場合は、<samp class="codeph"><em>x</em></samp> は <samp class="codeph">name()</samp> および <samp class="codeph">what()</samp> で実装固有の値とともに <samp class="codeph">tbb::captured</samp> 例外としてキャプチャーされます。</li>
+</ol>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../reference/reference.html">インテル&reg; TBB デベロッパー・リファレンス</a></div>
+</div>
+<div>
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../reference/exceptions/tbb_exception.html">tbb_exception</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/exceptions/captured_exception.html">captured_exception</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/exceptions/movable_exception.html">movable_exception&lt;ExceptionData&gt;</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/exceptions/specific_exceptions.html">固有の例外</a><br/>
+</li>
+</ul>
+</div>
+</body>
+</html>

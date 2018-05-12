@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="ボディー・オブジェクト"/>
+<meta name="DC.subject" content="ボディー・オブジェクト"/>
+<meta name="keywords" content="ボディー・オブジェクト"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/flow_graph.html"/>
+<meta name="DC.Relation" scheme="URI" content="copy_body_func.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="body_objects"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>ボディー・オブジェクト</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="body_objects">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">ボディー・オブジェクト</h1>
+<div><p>一部のノードは、ユーザー定義ボディー・オブジェクトを実行します。これらのオブジェクトは、関数オブジェクトまたはラムダ式を具体化して作成します。ボディー・オブジェクトを使用するノードには、<span class="keyword">continue_node</span>、<span class="keyword">function_node</span>、<span class="keyword">source_node</span>、<span class="keyword">multifunction_node</span> が含まれます。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>フローグラフのノードに渡されたボディー・オブジェクトはコピーされます。そのため、メンバー変数を更新してもノードの構築に使用されたオリジナルのオブジェクトには影響しません。ノードの外部からボディー・オブジェクト内に保持されている状態を確認する場合は、<span class="option">copy_body</span> 関数を使用して更新されたコピーを取得します。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>source_node には、ノードのボディーを実行して取得した値が含まれる 1 アイテムのバッファーがあります。source_node から <samp class="codeph">N</samp> アイテム出ている場合、<span class="option">copy_body</span> で返されるボディーの状態は、<samp class="codeph">N + 1</samp> 回呼び出されたことを示します。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/flow_graph.html">フローグラフ</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="copy_body_func.html">copy_body テンプレート関数</a></div></div></div>
+</body>
+</html>

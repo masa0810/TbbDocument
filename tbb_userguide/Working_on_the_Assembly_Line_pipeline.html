@@ -1,0 +1,253 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="組み立てラインでの作業: パイプライン"/>
+<meta name="DC.subject" content="組み立てラインでの作業: パイプライン"/>
+<meta name="keywords" content="組み立てラインでの作業: パイプライン"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Parallelizing_Complex_Loops.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Using_Circular_Buffers.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Throughput_of_pipeline.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Non-Linear_Pipelines.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Summary_of_Loops_and_Pipelines.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Working_on_the_Assembly_Line_pipeline"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>組み立てラインでの作業: パイプライン</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Working_on_the_Assembly_Line_pipeline">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">組み立てラインでの作業: パイプライン</h1>
+<div><p>「パイプライン」は、従来の生産組み立てラインを模倣した一般的な並列パターンです。データは一連のパイプライン・フィルターを流れ、各フィルターではいくつかの方法でデータが処理されます。データの入力ストリームが与えられると、これらのフィルターのいくつかは並列に操作できるものがあります。例えば、ビデオ処理では、フレーム上のいくつかの操作はほかのフレームに依存しないため、複数のフレーム上で同時に操作できます。一方、前のフレームを最初に処理しなければならない操作もあります。</p>
+<p>インテル&reg; TBB の <samp class="codeph">pipeline</samp> クラスと <samp class="codeph">filter</samp> クラスは、パイプライン・パターンを実装します。単純なテキスト処理サンプルで、<samp class="codeph">pipeline</samp> と <samp class="codeph">filter</samp> を使用して並列処理を行う方法を説明します。サンプルは、テキストファイルを読み取り、テキストの 10 進数を 2 乗して、修正したテキストを新しいファイルに書き込みます。次にパイプラインの図を示します。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <samp class="codeph">parallel_pipline</samp> のフィルターに渡されるボディー・オブジェクトはコピーされることがあるため、その <samp class="codeph">operator()</samp> ではボディーの変更はできません。変更された場合は、<samp class="codeph">operator()</samp> がオリジナルとコピーのどちらで動作するかによって、<samp class="codeph">parallel_pipeline</samp> を起動するスレッドに対する可視性が変わります。この場合の注意点は、<samp class="codeph">parallel_pipeline</samp> がボディー・オブジェクトの <samp class="codeph">operator()</samp> を <samp class="codeph">const</samp> として宣言する必要があることです。</div>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="void" border="1" rules="none" cellspacing="2">
+<tbody><tr>
+<td class="noborder" valign="top" width="NaN%"><p>入力ファイルから<br/>チャンクを読む</p>
+</td>
+<td class="noborder" valign="top" width="NaN%"><br/>
+<img src="Images/image010.jpg" width="31" height="26"/><br/>
+</td>
+<td class="noborder" valign="top" width="NaN%"><p>チャンクの数を<br/>2 乗する</p>
+</td>
+<td class="noborder" valign="top" width="NaN%"><br/>
+<img src="Images/image010.jpg" width="31" height="26"/><br/>
+</td>
+<td class="noborder" valign="top" width="NaN%"><p>出力ファイルに<br/>チャンクを書く</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>ファイル I/O はシーケンシャルであると仮定します。2 乗フィルターは並列に実行できます。つまり、<var>n</var> チャンクを非常に速くシリアルに読み取ることができれば、それらが適切な順で出力ファイルに書き込まれている限り、<var>n</var> チャンクをそれぞれ並列に処理できます。I/O はシーケンシャルであるため、入出力のフォーマットは中間のフィルターに移動して、並列にできます。</p>
+<p>並列スケジュールのオーバーヘッドの影響を考慮して、フィルターは複数のテキストを処理します。各入力チャンクは約 4,000 文字です。各チャンクは、<samp class="codeph">TextSlice</samp> クラスのインスタンスで表されています。</p>
+<pre>// テキストのスライスを保持
+/** C++ 宣言はメモリーのはるかに大きなオブジェクトのヘッダーのみを表すため、
+   複数のメソッドをここで使用してインスタンスを割り当て/解放する必要がある*/
+class TextSlice {
+    // シーケンスの最後の 1 つ後の文字へのポインター
+    char* logical_end;
+    // シーケンスの最後の 1 つ後のバイトへのポインター
+    char* physical_end;
+public:
+    // max_size までの文字を保持できる TextSlice オブジェクトを割り当てる
+    static TextSlice* allocate( size_t max_size ) {
+        // null ターミネーター文字のためにスペースを +1 残す
+        TextSlice* t = (TextSlice*)tbb::tbb_allocator&lt;char&gt;().allocate( sizeof(TextSlice)+max_size+1 );
+        t-&gt;logical_end = t-&gt;begin();
+        t-&gt;physical_end = t-&gt;begin()+max_size;
+        return t;
+    }
+    // この TextSlice オブジェクトを解放する
+    void free() {
+        tbb::tbb_allocator&lt;char&gt;().deallocate((char*)this, sizeof(TextSlice)+(physical_end-begin())+1);
+    }
+    // シーケンスの最初へのポインター
+    char* begin() {return (char*)(this+1);}
+    // シーケンスの最後の 1 つ後の文字へのポインター
+    char* end() {return logical_end;}
+    // シーケンスの長さ
+    size_t size() const {return logical_end-(char*)(this+1);}
+    // シーケンスに追加できる最大文字数
+    size_t avail() const {return physical_end-logical_end;}
+    // このシーケンスにシーケンス [first,last) を追加
+    void append( char* first, char* last ) {
+        memcpy( logical_end, first, last-first );
+        logical_end += last-first;
+    }
+    // end() を指定された値に設定
+    void set_end( char* p ) {logical_end=p;}
+};</pre><p>次のコードは、パイプラインを構築して実行するトップレベルのコードです。 
+		<samp class="codeph">TextSlice</samp> をコピーするオーバーヘッドを回避するため、<samp class="codeph">TextSlice</samp> オブジェクトはポインターを使用してフィルター間で渡されます。 
+	 </p>
+<pre>void RunPipeline( int ntoken, FILE* input_file, FILE* output_file ) {
+    tbb::parallel_pipeline(
+        ntoken,
+        tbb::make_filter&lt;void,TextSlice*&gt;(
+            tbb::filter::serial_in_order, MyInputFunc(input_file) )
+    &amp;
+        tbb::make_filter&lt;TextSlice*,TextSlice*&gt;(
+            tbb::filter::parallel, MyTransformFunc() )
+    &amp;
+        tbb::make_filter&lt;TextSlice*,void&gt;(
+            tbb::filter::serial_in_order, MyOutputFunc(output_file) ) );
+} </pre><p><samp class="codeph">parallel_pipeline</samp> メソッドの <em><samp class="codeph"><em>ntoken</em></samp></em> 引数は、並列処理のレベルを制御します。
+		概念的には、トークンはパイプラインを流れます。シリアル・インオーダー・フィルターでは、各トークンはシリアルで順番に処理されます。並列フィルターでは、複数のトークンを並列に処理することができます。トークンの数に制限がない場合、出力フィルターの処理が追いつかないため、トークンを取得する中間フィルターで問題が発生することがあります。通常、この状況では、中間フィルターで不適切にリソースが消費されます。<samp class="codeph">parallel_pipeline</samp> メソッドの引数は、処理できるトークンの最大数を指定します。いったんこの制限に達すると、別のトークンが出力フィルターで破棄されるまで、パイプラインは入力フィルターで新しいトークンを作成しません。 
+	 </p>
+<p>第 2 引数は、フィルターのシーケンスを指定します。各フィルターは、<samp class="codeph">make_filter&lt;</samp><em>inputType</em><em>,</em><samp class="codeph">outputType</samp><samp class="codeph">&gt;(</samp><em>mode</em><samp class="codeph">,</samp><em>functor</em>) 関数で構築されます。</p>
+<ul><li><p><em>inputType</em> は、フィルターの入力値の型を指定します。入力フィルターの型は <samp class="codeph">void</samp> です。</p>
+</li>
+<li><p><em>outputType</em> は、フィルターの出力値の型を指定します。出力フィルターの型は <samp class="codeph">void</samp> です。</p>
+</li>
+<li><p><em>mode</em> は、フィルターがアイテムを処理する方法 (並列、シリアル・インオーダー、アウトオブオーダー) を指定します。</p>
+</li>
+<li><p><em>functor</em> は、入力値から出力値を生成する方法を指定します。</p>
+</li>
+</ul>
+<p>フィルターは <samp class="codeph">operator&amp;</samp> で連結されます。2 つのフィルターを連結する場合、最初のフィルターの <em>outputType</em> と 2 番目のフィルターの <em>inputType</em> が一致していなければなりません。</p>
+<p>フィルターは事前に構築して連結できます。前のサンプルの等価バージョンを次に示します。</p>
+<pre>void RunPipeline( int ntoken, FILE* input_file, FILE* output_file ) {
+    tbb::filter_t&lt;void,TextSlice*&gt; f1( tbb::filter::serial_in_order, 
+                                       MyInputFunc(input_file) );
+    tbb::filter_t&lt;TextSlice*,TextSlice*&gt; f2(tbb::filter::parallel, 
+                                            MyTransformFunc() );
+    tbb::filter_t&lt;TextSlice*,void&gt; f3(tbb::filter::serial_in_order, 
+                                      MyOutputFunc(output_file) );
+    tbb::filter_t&lt;void,void&gt; f = f1 &amp; f2 &amp; f3;
+    tbb::parallel_pipeline(ntoken,f);
+}</pre><p>フィルターはシーケンシャル・ファイルからチャンクを読み、出力フィルターはチャンクを同じ順序で書かなければならないため、このサンプルの入力フィルターは <samp class="codeph">serial_in_order</samp> でなければなりません。<samp class="codeph">serial_in_order</samp> フィルターはすべて、アイテムを同じ順序で処理します。
+		そのため、アイテムが <samp class="codeph">MyOutputFunc</samp> に <samp class="codeph">MyInputFunc</samp> と異なる順序で到達した場合、パイプラインはその前のアイテムが処理されるまで、<samp class="codeph">MyOutputFunc::operator()</samp> の呼び出しを自動的に遅延します。順序を保存しない、別の種類のシリアルフィルター <samp class="codeph">serial_out_of_order</samp> もあります。 
+	 </p>
+<p>中間フィルターは純粋にローカルデータを処理するため、この構文の任意の数の呼び出しは同時に実行できます。したがって、このフィルターは並列フィルターとして指定されます。</p>
+<p>では、各フィルターの構文について詳細に説明します。出力構文は最も単純です。この構文で行う処理は、<samp class="codeph">TextSlice</samp> をファイルに書くことと <samp class="codeph">TextSlice</samp> を解放することだけです。</p>
+<pre>// TextSlice をファイルに書き込む構文
+class MyOutputFunc {
+    FILE* my_output_file;
+public:
+    MyOutputFunc( FILE* output_file );
+    void operator()( TextSlice* item ) const;
+};
+ 
+MyOutputFunc::MyOutputFunc( FILE* output_file ) :
+    my_output_file(output_file)
+{
+}
+ 
+void MyOutputFunc::operator()( TextSlice* out ) const {
+    size_t n = fwrite( out-&gt;begin(), 1, out-&gt;size(), my_output_file );
+    if( n!=out-&gt;size() ) {
+        fprintf(stderr,"Can't write into file '%s'\n", OutputFileName);
+        exit(1);
+    }
+    out-&gt;free();
+} </pre><p><samp class="codeph">operator()</samp> メソッドは <samp class="codeph">TextSlice</samp> を処理します。<samp class="codeph">out</samp> 引数は、処理される <samp class="codeph">TextSlice</samp> を指します。この構文はパイプラインの最後のフィルターに使用されるため、<samp class="codeph">void</samp> を返します。 
+	 </p>
+<p>中間フィルターの構文は似ていますが、少し複雑です。この構文は、生成する <samp class="codeph">TextSlice</samp> のポインターを返します。</p>
+<pre>// 10 進数を 2 乗に変更する構文
+class MyTransformFunc {
+public:
+    TextSlice* operator()( TextSlice* input ) const;
+};
+
+TextSlice* MyTransformFunc::operator()( TextSlice* input ) const {
+    // 数が入力の最後の場合でも strtol が正しく動作するように null ターミネーターを追加
+    *input-&gt;end() = '\0';
+    char* p = input-&gt;begin();
+    TextSlice* out = TextSlice::allocate( 2*MAX_CHAR_PER_INPUT_SLICE );
+    char* q = out-&gt;begin();
+    for(;;) {
+        while( p&lt;input-&gt;end() &amp;&amp; !isdigit(*p) )
+            *q++ = *p++;
+        if( p==input-&gt;end() )
+            break;
+        long x = strtol( p, &amp;p, 10 );
+        // 注: ここでは入力文字列長の 2 倍の長さが用意されていて、
+        // 負でない整数 n の 2 乗の桁は n の 2 倍以上にならないため、
+        // オーバーフローをチェックする必要はない
+        long y = x*x;
+        sprintf(q,"%ld",y);
+        q = strchr(q,0);
+    }
+    out-&gt;set_end(q);
+    input-&gt;free();
+    return out;
+} </pre><p>数が境界を超えていないことを保証しなければならないため、入力構文は最も複雑です。数が境界を越えて次のスライスにも含まれる場合、不完全な数を次のスライスにコピーします。
+		また、入力の最後にいつ到達するかを示す必要もあります。このために、<samp class="codeph">stop()</samp> メソッドを型 <samp class="codeph">flow_control</samp> の特別な引数で呼び出します。この慣用句は、パイプラインの最初のフィルターに使用する構文に必要です。次のコードで<samp class="codeph"><span class="color(blue)" style="color:blue"><strong>太字</strong></span></samp>で示されている部分です。 
+	 </p>
+<pre>TextSlice* next_slice = NULL;
+
+class MyInputFunc {
+public:
+    MyInputFunc( FILE* input_file_ );
+    MyInputFunc( const MyInputFunc&amp; f ) : input_file(f.input_file) { }
+    ~MyInputFunc();
+    TextSlice* operator()( tbb::flow_control&amp; fc ) const;
+private:
+    FILE* input_file;
+};
+ 
+MyInputFunc::MyInputFunc( FILE* input_file_ ) :
+    input_file(input_file_) { }
+ 
+MyInputFunc::~MyInputFunc() {
+}
+ 
+TextSlice* MyInputFunc::operator()( <span class="color(blue)" style="color:blue"><strong>tbb::flow_control&amp; fc</strong></span> ) const {
+    // 次のスライスで利用可能なスペースに文字を読む
+    if( !next_slice )
+        next_slice = TextSlice::allocate( MAX_CHAR_PER_INPUT_SLICE );
+    size_t m = next_slice-&gt;avail();
+    size_t n = fread( next_slice-&gt;end(), 1, m, input_file );
+    if( !n &amp;&amp; next_slice-&gt;size()==0 ) {
+        // これ以上処理する文字はない
+        <span class="color(blue)" style="color:blue"><strong>fc.stop()</strong></span>;
+        return NULL;
+    } else {
+        // まだ処理する文字がある
+        TextSlice* t = next_slice;
+        next_slice = TextSlice::allocate( MAX_CHAR_PER_INPUT_SLICE );
+        char* p = t-&gt;end()+n;
+        if( n==m ) {
+            // 不完全な数を読む可能性がある  
+            // その場合は不完全な数の文字数を次のスライスに転送
+            while( p&gt;t-&gt;begin() &amp;&amp; isdigit(p[-1]) )
+                --p;
+            assert(p&gt;t-&gt;begin(),"Number too large to fit in buffer.\n");
+            next_slice-&gt;append( p, t-&gt;end()+n );
+        }
+        t-&gt;set_end(p);
+        return t;
+    }
+}</pre><p>構文は filter_t が構築されたときと、パイプラインを実行したときにコピーされるため、コピー・コンストラクターは必ず定義する必要があります。</p>
+<p><samp class="codeph">parallel_pipeline</samp> は、インテル&reg; TBB 3.0 で追加された新しい構文です。<samp class="codeph">examples/pipeline/square</samp> ディレクトリーには、フィルターが継承で定義される古い低レベルの構文を使用した 2 乗サンプルの完全なコードが含まれています。両方の構文の説明は、『デベロッパー・リファレンス』を参照してください。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Parallelizing_Complex_Loops.html">複雑なループの並列化</a></div>
+</div>
+<div>
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../tbb_userguide/Using_Circular_Buffers.html">循環バッファーの使用</a><br/>
+</li>
+<li class="ulchildlink"><a href="../tbb_userguide/Throughput_of_pipeline.html">パイプラインの処理能力</a><br/>
+</li>
+<li class="ulchildlink"><a href="../tbb_userguide/Non-Linear_Pipelines.html">非線形パイプライン</a><br/>
+</li>
+<li class="ulchildlink"><a href="../tbb_userguide/Summary_of_Loops_and_Pipelines.html">ループとパイプラインのまとめ</a><br/>
+</li>
+</ul>
+</div>
+</body>
+</html>

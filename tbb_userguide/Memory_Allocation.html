@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="メモリー割り当て"/>
+<meta name="DC.subject" content="メモリー割り当て, 動的メモリー割り当て"/>
+<meta name="keywords" content="メモリー割り当て, 動的メモリー割り当て"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/title.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Which_Dynamic_Libraries_to_Use.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Automically_Replacing_malloc.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Memory_Allocation"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>メモリー割り当て</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Memory_Allocation">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">メモリー割り当て</h1>
+<div><p>インテル&reg; TBB には、STL テンプレート・クラス <span class="option">std::allocator</span> に似た、さまざまなメモリー・アロケーター・テンプレートが用意されています。<samp class="codeph">scalable_allocator&lt;T&gt;</samp> と <samp class="codeph">cache_aligned_allocator&lt;T&gt;</samp> の 2 つのテンプレートは、次のように、並列プログラムのクリティカルな問題に対処します。</p>
+<ul><li><p><strong>スケーラビリティー:</strong> スケーラビリティーの問題は、元々シリアルプログラム向けに設計されたメモリー・アロケーターを、スレッドで使用する際に発生します。スレッドは、1 回に 1 つのスレッドしか割り当てができない方法で、シングル共有プールで競合します。</p>
+<p>スケーラビリティーのボトルネックを回避するには、<samp class="codeph">scalable_allocator&lt;T&gt;</samp> テンプレートを使用します。このテンプレートは、メモリーを迅速に割り当ててリリースし、プログラムのパフォーマンスを向上させます。</p>
+</li>
+<li><p><strong>フォルス・シェアリング:</strong> シェアリングの問題は、2 つのスレッドが、同一キャッシュラインを共有する別々のワードにアクセスする際に生じます。問題は、キャッシュラインがプロセッサー・キャッシュ間の情報交換単位であるということです。1 つのプロセッサーがキャッシュラインを変更し、別のプロセッサーが同じキャッシュラインの読み取りを行う場合、たとえ、2 つのプロセッサーがライン中の異なるワードを処理していたとしても、ラインをプロセッサーから別のプロセッサーへ移動しなければなりません。フォルス・シェアリングは、キャッシュラインの移動に何百ものクロックが必要なため、パフォーマンスに影響します。</p>
+<p>常に別々のキャッシュライン上で割り当てるには、<samp class="codeph">cache_aligned_allocator&lt;T&gt;</samp> テンプレートを使用します。<samp class="codeph">cache_aligned_allocator</samp> によって割り当てられる 2 つのオブジェクトでは、フォルス・シェアリングが発生しないことが保証されます。しかし、1 つのオブジェクトが <samp class="codeph">cache_aligned_allocator</samp> で割り当てられ、もう 1 つのオブジェクトが別の方法で割り当てられた場合、フォルス・シェアリングを回避する保証はありません。</p>
+</li>
+</ul>
+<p>これらのアロケーター・テンプレートは、STL テンプレート・クラスの  <em>allocator</em> 引数として使用できます。次のコードは、<samp class="codeph">cache_aligned_allocator</samp> を割り当てに使用する STL ベクトルの宣言方法を示しています。</p>
+<pre>std::vector&lt;int,cache_aligned_allocator&lt;int&gt; &gt;;</pre><p><div class="Note"><h3 class="NoteTipHead">ヒント</h3> <samp class="codeph">cache_aligned_allocator</samp> は、たとえ小さなオブジェクトであっても、メモリーに対応するキャッシュラインを少なくとも 1 つ割り当てる必要があるため、多くの空間が必要になります。
+   そのため、フォルス・シェアリングが重要な問題になりそうな場合のみ、<samp class="codeph">cache_aligned_allocator&lt;T&gt;</samp> を使用するようにしてください。
+</div>
+</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/title.html">インテル&reg; TBB デベロッパー・ガイド</a></div>
+</div>
+<div>
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../tbb_userguide/Which_Dynamic_Libraries_to_Use.html">使用するダイナミック・ライブラリー</a><br/>
+</li>
+<li class="ulchildlink"><a href="../tbb_userguide/Automically_Replacing_malloc.html">動的メモリー割り当て用の malloc とその他の C/C++ 関数の自動置換</a><br/>
+</li>
+</ul>
+</div>
+</body>
+</html>

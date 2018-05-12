@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="simple_partitioner クラス"/>
+<meta name="DC.subject" content="simple_partitioner クラス"/>
+<meta name="keywords" content="simple_partitioner クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/algorithms/partitioners.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="simple_partitioner_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>simple_partitioner クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="simple_partitioner_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">simple_partitioner クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>範囲が再分割できなくなるまで並列ループが範囲を分割するように指定します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/partitioner.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>class simple_partitioner;</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">simple_partitioner</samp> は、ループ・テンプレートが、各サブ範囲 <em>r</em> が再分割できなくなるまで再帰的に範囲を分割するように指定します。次の条件が満たされなければなりません: <samp class="codeph">!r.is_divisible()</samp>。これは、範囲引数が指定できるループ・テンプレートのデフォルトの動作です。</p>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>並列ループで <samp class="codeph">simple_partitioner</samp> と <samp class="codeph">blocked_range</samp> を使用する場合、blocked_range で適切な粒度を指定するようにしてください。デフォルトの粒度は 1 です。このデフォルト設定では、効率良く実行するには、サブ範囲が小さくなりすぎることがあります。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre> 
+namespace tbb {
+    class simple_partitioner {
+    public:
+        simple_partitioner();
+        ~simple_partitioner();
+    }
+}
+</pre></div>
+<div class="section">
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d6489e71">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d6489e73">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d6489e71 "><span class="keyword">simle_partitioner()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d6489e73 "><p><samp class="codeph">simple_partitioner</samp> を構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d6489e71 "><span class="keyword">~simple_partitioner()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d6489e73 "><p>この <samp class="codeph">simple_partitioner</samp> を破棄します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section"/>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/algorithms/partitioners.html">パーティショナー</a></div>
+</div>
+<div/>
+</body>
+</html>

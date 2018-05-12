@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="フローグラフの基本: 予約"/>
+<meta name="DC.subject" content="フローグラフの基本, 予約"/>
+<meta name="keywords" content="フローグラフの基本, 予約"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Basic_Flow_Graph_concepts.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="flow_graph_reservations"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>フローグラフの基本: 予約</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="flow_graph_reservations">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">フローグラフの基本: 予約</h1>
+<div><p>インテル&reg; TBB フローグラフの <samp class="codeph">join_node</samp> には 4 つのポリシーがあります: <samp class="codeph">queueing</samp>、<samp class="codeph">reserving</samp>、<samp class="codeph">key_matching</samp> および <samp class="codeph">tag_matching</samp>。<samp class="codeph">join_node</samp> は、出力メッセージを作成する前に、各入力ポートにメッセージを必要とします。reserving <samp class="codeph">join_node</samp> には内部バッファーがなく、各入力ポートにメッセージが揃うまで入力ポートからメッセージを pull しません。各入力ポートで一時的にメッセージを予約し、すべての入力ポートがメッセージを受け取ってから出力メッセージを作成します。いずれかの入力ポートがメッセージの予約に失敗すると、<samp class="codeph">join_node</samp> はメッセージを pull しません。</p>
+<p>reserving <samp class="codeph">join_node</samp> をサポートするため、一部のノードは出力の<strong>予約</strong>をサポートしています。予約の仕組みは次のとおりです。<ul><li>reserving <samp class="codeph">join_node</samp> に push モードで接続されているノードがメッセージを push しようとすると、<samp class="codeph">join_node</samp> は push を拒否し、ノード間のエッジを pull モードに変更します。</li>
+<li>reserving 入力ポートは、 pull モードの各エッジで <samp class="codeph">try_reserve</samp> を呼び出します。この呼び出しは失敗することがあります。その場合、reserving 入力ポートは失敗したエッジを push に変更し、pull モードのエッジで接続されている次のノードを予約しようとします。入力ポートのプレデセッサーが予約状態の間、ほかのノードは予約されている値を取得できません。</li>
+<li>各入力ポートが pull モードのエッジを予約すると、reserving <samp class="codeph">join_node</samp> は予約したメッセージを使用して出力メッセージを作成し、接続されているノードに push しようとします。</li>
+<li>メッセージがサクセサーにプッシュされると、(<samp class="codeph">try_consume()</samp> を呼び出すことで) 予約されていたプレデセッサーにメッセージが使用されたこと (つまり、メッセージがプッシュされたこと) が通知され、プレデセッサー・ノードによってメッセージが破棄されます。</li>
+<li>メッセージがサクセサーに push されなかった場合は、(<samp class="codeph">try_release()</samp> を呼び出すことで) 予約されていたプレデセッサーにメッセージが使用されなかったことが通知されます。そして、メッセージはほかのノードによって push/pull される可能性があります。</li>
+</ul>
+reserving <samp class="codeph">join_node</samp> は、各入力ポートの少なくとも 1 つのエッジが pull モードの場合のみ push を試み、すべての入力ポートがメッセージを受け取った場合のみメッセージを作成し push しようとするため、reserving <samp class="codeph">join_node</samp> の各入力ポートのプレデセッサーの少なくとも 1 つは予約可能でなければなりません。</p>
+<p>以下は、reserving <samp class="codeph">join_node</samp> の動作を示すサンプルです。<samp class="codeph">buffer_node</samp> は、出力エッジを push から pull に変更できるように、出力をバッファーします。<samp class="codeph">broadcast_node</samp> は、メッセージをバッファーしません。また、<samp class="codeph">try_get()</samp> と <samp class="codeph">try_reserve()</samp> をサポートしません。</p>
+<pre>
+void run_example2() {  // Flow_Graph_Reservation.xml の例
+    graph g;
+    broadcast_node&lt;int&gt; bn(g);
+    buffer_node&lt;int&gt; buf1(g);
+    buffer_node&lt;int&gt; buf2(g);
+    typedef join_node&lt;tuple&lt;int,int&gt; reserving&gt; join_type;
+    join_type jn(g);
+    buffer_node&lt;join_type::output_type&gt; buf_out(g);
+    join_type::output_type tuple_out;
+    int icnt;
+
+    // join_node プレデセッサーは両方とも予約可能な buffer_node
+    make_edge(buf1,input_port&lt;0&gt;jn));
+    make_edge(bn,input_port&lt;0&gt;jn));      // broadcast_node をアタッチ
+    make_edge(buf2,input_port&lt;1&gt;jn));
+    make_edge(jn, buf_out);
+    bn.try_put(2);
+    buf1.try_put(3);
+    buf2.try_put(4);
+    buf2.try_put(7);
+    g.wait_for_all();
+    while (buf_out.try_get(tuple_out)) {
+        printf("join_node output == (%d,%d)\n",get&lt;0&gt;tuple_out), get&lt;1&gt;tuple_out) );
+    }
+    if(buf1.try_get(icnt)) printf("buf1 had %d\n", icnt);
+    else printf("buf1 was empty\n");
+    if(buf2.try_get(icnt)) printf("buf2 had %d\n", icnt);
+    else printf("buf2 was empty\n");
+}
+</pre><p>
+             このサンプルで、reserving <samp class="codeph">join_node</samp><samp class="codeph">jn</samp> の port 0 のプレデセッサーは 2 つです: <samp class="codeph">buffer_node</samp><samp class="codeph">buf1</samp> と <samp class="codeph">broadcast_node</samp><samp class="codeph">bn</samp>。
+             <samp class="codeph">join_node</samp> の port 1 のプレデセッサーは 1 つです: <samp class="codeph">buffer_node</samp><samp class="codeph">buf2</samp>。
+         </p>
+<div class="fignone" id="reserve_step1"><br/><div class="imagecenter"><img src="./Images/flow_graph_reserve_buffers_1.png" height="222" width="400" alt="bn.try_put(2)" align="center"/></div><br/></div>
+<p>ここでは、実行パスの 1 つについて考えてみます (タスクのスケジュールはやや異なるかもしれませんが、結果は同じになります)。</p>
+<pre>
+    bn.try_put(2);
+</pre><p><samp class="codeph">bn</samp> は <samp class="codeph">jn</samp> に 2 の転送を試みます。  <samp class="codeph">jn</samp> はこれを受け付けず、<samp class="codeph">bn</samp> から <samp class="codeph">jn</samp> への矢印が逆方向になります。
+             bn と jn はどちらもメッセージをバッファーしないため、メッセージは破棄されます。
+             <samp class="codeph">jn</samp> の入力に利用できないプレデセッサーがあるため、<samp class="codeph">jn</samp> は何もしません。
+         </p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>予約をサポートしないノードは、reserving <samp class="codeph">join_node</samp> にアタッチすると正しく動作しません。上記のサンプルは、この問題が発生する原因を示しています。非 reserving ノードは予約のサポートが必要なノードに接続<strong>しないで</strong>ください。</p>
+</div>
+<div class="fignone" id="reserve_step2"><br/><div class="imagecenter"><img src="./Images/flow_graph_reserve_buffers_2.png" height="222" width="400" alt="bn.try_put(2)" align="center"/></div><br/></div>
+<pre>
+    buf1.try_put(3);
+</pre><p><samp class="codeph">buf1</samp> は <samp class="codeph">jn</samp> に 3 の転送を試みます。  <samp class="codeph">jn</samp> はこれを受け付けず、<samp class="codeph">buf1</samp> から <samp class="codeph">jn</samp> への矢印が逆方向になります。
+             <samp class="codeph">jn</samp> の入力に利用できないプレデセッサーがあるため、<samp class="codeph">jn</samp> は何もしません。
+         </p>
+<div class="fignone" id="reserve_step3"><br/><div class="imagecenter"><img src="./Images/flow_graph_reserve_buffers_3.png" height="222" width="400" alt="buf1.try_put(3)" align="center"/></div><br/></div>
+<pre>
+    buf2.try_put(4);
+</pre><p><samp class="codeph">buf2</samp> は <samp class="codeph">jn</samp> に 4 の転送を試みます。  <samp class="codeph">jn</samp> はこれを受け付けず、<samp class="codeph">buf2</samp> から <samp class="codeph">jn</samp> への矢印が逆方向になります。
+             <samp class="codeph">jn</samp> のすべての入力のプレデセッサーが利用可能になったため、メッセージを構築し、 <samp class="codeph">jn</samp> から転送するためのタスクがスポーンされます。  この時点では、まだタスクが実行されていないと仮定します。
+         </p>
+<div class="fignone" id="reserve_step4"><br/><div class="imagecenter"><img src="./Images/flow_graph_reserve_buffers_4.png" height="222" width="400" alt="buf2.try_put(4)" align="center"/></div><br/></div>
+<pre>
+    buf2.try_put(7);
+</pre><p><samp class="codeph">buf2</samp> のサクセサーがないため (<samp class="codeph">jn</samp> への矢印が逆方向になったため)、値 7 は格納されます。
+         </p>
+<div class="fignone" id="reserve_step5"><br/><div class="imagecenter"><img src="./Images/flow_graph_reserve_buffers_5.png" height="222" width="400" alt="buf2.try_put(7)" align="center"/></div><br/></div>
+<p>ここで、<samp class="codeph">jn</samp> を実行するためにスポーンされたタスクが実行されます。<ul><li><samp class="codeph">jn</samp> は <samp class="codeph">bn</samp> の予約を試み、失敗します。<samp class="codeph">bn</samp> への矢印が順方向に戻ります。</li>
+<li><samp class="codeph">jn</samp> は <samp class="codeph">buf1</samp> の予約を試み、成功します (予約されいてたノードはグレーで示します)。<samp class="codeph">jn</samp> は <samp class="codeph">buf1</samp> から値 3 を受け取りますが、この値は (<samp class="codeph">jn</samp> からのメッセージ転送が失敗した場合に備えて) <samp class="codeph">buf1</samp> に残ります。</li>
+<li><samp class="codeph">jn</samp> は <samp class="codeph">buf2</samp> の予約を試み、成功します。<samp class="codeph">jn</samp> は <samp class="codeph">buf2</samp> から値 4 を受け取りますが、この値は <samp class="codeph">buf2</samp> に残ります。</li>
+<li><samp class="codeph">jn</samp> は出力メッセージ <samp class="codeph">tuple&lt;3,4&gt;</samp> を構築します。</li>
+</ul>
+</p>
+<div class="fignone" id="reserve_step6"><br/><div class="imagecenter"><img src="./Images/flow_graph_reserve_buffers_6.png" height="222" width="400" alt="jn はバッファーを予約し、メッセージを構築します。" align="center"/></div><br/></div>
+<p>そして、<samp class="codeph">jn</samp> はメッセージを <samp class="codeph">buf_out</samp> に push し、メッセージが受け付けられます。push に成功したため、<samp class="codeph">jn</samp> は <samp class="codeph">buf1</samp> と <samp class="codeph">buf2</samp> に予約された値が使用されたことを通知し、バッファーは値を破棄します。<samp class="codeph">jn</samp> は再度予約を試みます。<ul><li><samp class="codeph">bn</samp> から <samp class="codeph">jn</samp> のエッジが push モードのため、<samp class="codeph">bn</samp> からは pull されません。</li>
+<li><samp class="codeph">jn</samp> は <samp class="codeph">bub1</samp> の予約を試み、失敗します。<samp class="codeph">buf1</samp> への矢印が順方向に戻ります。</li>
+<li><samp class="codeph">jn</samp> は何もしません。</li>
+</ul>
+</p>
+<div class="fignone" id="reserve_step7"><br/><div class="imagecenter"><img src="./Images/flow_graph_reserve_buffers_7.png" height="222" width="400" alt="jn は buf1 の予約に失敗し、矢印が逆方向になります。" align="center"/></div><br/></div>
+<p>グラフにおけるすべての処理が終わり、<samp class="codeph">wait_for_all()</samp> が完了します。以下は、このサンプルコードの出力です。</p>
+<pre>
+join_node output == (3,4)
+buf1 was empty
+buf2 had 7
+</pre></div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Basic_Flow_Graph_concepts.html">基本的なフローグラフの概念</a></div>
+</div>
+<div/>
+</body>
+</html>

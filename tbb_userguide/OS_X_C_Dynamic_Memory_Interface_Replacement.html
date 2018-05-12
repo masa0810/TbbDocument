@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="macOS* の C/C++ 動的メモリー・インターフェイスの置換"/>
+<meta name="DC.subject" content="macOS* の C/C++ 動的メモリー・インターフェイスの置換"/>
+<meta name="keywords" content="macOS* の C/C++ 動的メモリー・インターフェイスの置換"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Automically_Replacing_malloc.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Linux_C_Dynamic_Memory_Interface_Replacement"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>macOS* の C/C++ 動的メモリー・インターフェイスの置換</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Linux_C_Dynamic_Memory_Interface_Replacement">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">macOS* の C/C++ 動的メモリー・インターフェイスの置換</h1>
+<div><p>プロキシー・ライブラリーのリリースバージョンは <samp class="codeph">libtbbmalloc_proxy.dylib</samp>、デバッグバージョンは <samp class="codeph">libtbbmalloc_proxy_debug.dylib</samp> です。</p>
+<p>以下の動的メモリー関数が置換されます。</p>
+<ul><li><p>標準 C ライブラリー関数: <samp class="codeph">malloc</samp>、<samp class="codeph">calloc</samp>、<samp class="codeph">realloc</samp>、<samp class="codeph">free</samp></p>
+</li>
+<li><p>標準 POSIX* 関数: <samp class="codeph">posix_memalign</samp></p>
+</li>
+<li><p>置換可能なグローバル C++ 操作: <samp class="codeph">new</samp>、<samp class="codeph">delete</samp></p>
+</li>
+<li><p>その他の関数: <samp class="codeph">valloc</samp>、<samp class="codeph">malloc_size</samp></p>
+</li>
+</ul>
+<p><samp class="codeph">DYLD_INSERT_LIBRARIES</samp> 環境変数を使用して (実行ファイルを変更しないで) プログラムロード時にプロキシー・ライブラリーをロードするか、メイン実行ファイルをプロキシー・ライブラリーとリンクして、置換を行うことができます。</p>
+<p>OS プログラムローダーは、プログラムロード時にプロキシー・ライブラリーとスケーラブル・メモリー・アロケーター・ライブラリーを検索可能でなければなりません。検索可能にするには、ライブラリーを含むディレクトリーを <samp class="codeph">DYLD_LIBRARY_PATH</samp> 環境変数に追加します。</p>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>下記のサンプルは、メモリー割り当て置換インターフェイスを使用するように <samp class="codeph">DYLD_INSERT_LIBRARIES</samp> を設定する方法とプログラムをリンクする方法を示しています。</p>
+<pre># プロキシー・ライブラリーのリリースバージョンをロードするように DYLD_INSERT_LIBRARIES を設定
+DYLD_INSERT_LIBRARIES=libtbbmalloc_proxy.dylib 
+# プロキシー・ライブラリーのリリースバージョンとリンク
+clang++ foo.o bar.o -ltbbmalloc_proxy -o a.out
+</pre><p>ライブラリーのデバッグバージョンを使用するには、上記のサンプルの <em>tbbmalloc_proxy</em> を <em>tbbmalloc_proxy_debug</em> に置き換えます。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Automically_Replacing_malloc.html">動的メモリー割り当て用の malloc とその他の C/C++ 関数の自動置換</a></div>
+</div>
+<div/>
+</body>
+</html>

@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="データ競合の回避"/>
+<meta name="DC.subject" content="フローグラフのヒント, データ競合の回避"/>
+<meta name="keywords" content="フローグラフのヒント, データ競合の回避"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Flow_Graph_making_edges_tips.html"/>
+<meta name="DC.Relation" scheme="URI" content="use_make_edge.html#use_make_edge"/>
+<meta name="DC.Relation" scheme="URI" content="broadcast_or_send.html#broadcast_or_send"/>
+<meta name="DC.Relation" scheme="URI" content="communicate_with_nodes.html#communicate_with_nodes"/>
+<meta name="DC.Relation" scheme="URI" content="use_source_node.html#use_source_node"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="avoiding_data_races"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>データ競合の回避</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="avoiding_data_races">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">データ競合の回避</h1>
+<div><p>フローグラフのエッジは、利用するライブラリーの依存関係を明確にします。同様に、<span class="keyword">function_node</span> および <span class="keyword">multifunction_node</span> オブジェクトの同時実行数の制限は、ランタイム・ライブラリーが許可する同時起動の最大数を制限します。これらの制限はライブラリーによる制限です。ライブラリーは自動的にデータ競合を防止しません。これらのメカニズムを利用して明示的にデータ競合を防ぐ必要があります。</p>
+<p>例えば、次のコードにはノード <span class="keyword">f</span> で参照されるグローバル・カウント・オブジェクトの同時アクセスを防ぐものが何もないため、データ競合が発生します。<pre>  graph g;
+  int src_count = 1;
+  int global_sum = 0;
+  int limit = 100000;
+
+  source_node&lt; int &gt; src( g, [&amp;]( int &amp;i ) -&gt; bool {
+    if ( src_count &lt;= limit ) {
+      i = src_count++;
+      return true;
+    } else {
+      return false;
+    }
+  } );
+
+  function_node&lt; int, int &gt; f( g, unlimited, [&amp;]( int i ) -&gt; int {
+    global_sum += i;  // global_sum のデータ競合
+    return i; 
+  } );
+
+  make_edge( src, f );
+  g.wait_for_all();
+
+  cout &lt;&lt; "global sum = " &lt;&lt; global_sum 
+       &lt;&lt; " and closed form = " &lt;&lt; limit*(limit+1)/2 &lt;&lt; "\n";
+</pre></p>
+<p>上記の例を実行すると、データ競合により、予想よりも少ないグローバル合計が計算されるでしょう。<span class="keyword">f</span> で許可される並列性を <span class="keyword">unlimited</span> から <span class="keyword">1</span> に変更することで、この例のデータ競合が回避され、各値が <span class="keyword">f</span> で順番に処理されるようになります。例では、<span class="keyword">source_node</span> がグローバルな値である <span class="keyword">src_count</span> を更新しています。しかし、<span class="keyword">source_node</span> は常にシリアルに実行されるため、データ競合は発生しません。 
+	 </p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Flow_Graph_making_edges_tips.html">エッジの作成におけるフローグラフのヒント</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="use_make_edge.html#use_make_edge">make_edge と remove_edge の使用</a></div>
+<div><a href="broadcast_or_send.html#broadcast_or_send">1 つまたは複数のサクセサーへの送信</a></div>
+<div><a href="communicate_with_nodes.html#communicate_with_nodes">グラフ間の通信</a></div>
+<div><a href="use_source_node.html#use_source_node">source_node の使用</a></div></div></div>
+</body>
+</html>

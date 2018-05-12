@@ -1,0 +1,264 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="concurrent_queue テンプレート・クラス"/>
+<meta name="DC.subject" content="concurrent_queue テンプレート・クラス"/>
+<meta name="keywords" content="concurrent_queue テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/containers_overview.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="concurrent_queue_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>concurrent_queue テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="concurrent_queue_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">concurrent_queue テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>並列操作を含むキュー用のテンプレート・クラス。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><p><pre>
+template&lt;typename T, typename Alloc=cache_aligned_allocator&lt;T&gt; &gt;
+class concurrent_queue;
+</pre></p>
+</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><p><pre>#include "tbb/concurrent_queue.h"</pre></p>
+</div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">concurrent_queue</samp> は、複数のスレッドがアイテムのプッシュとポップを同時に行うことができる FIFO (先入れ先出し) データ構造です。大きさは無制限で、対象のマシン上のメモリー制限に従います。</p>
+<p>インターフェイスは、同時変更を安全に行えるようにしている点を除いて、STL <samp class="codeph">std::queue</samp> に似ています。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">STL のキューとインテル&reg; TBB の concurrent_queue の相違点</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="NaN%" id="d28948e52"><p><strong>機能</strong></p>
+</th>
+<th class="cellrowborder" valign="top" width="NaN%" id="d28948e56"><p><strong>STL std::queue</strong></p>
+</th>
+<th class="row-nocellborder" valign="top" width="NaN%" id="d28948e60"><p><strong>concurrent_queue</strong></p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="NaN%" headers="d28948e52 "><p>front および back へのアクセス</p>
+</td>
+<td class="cellrowborder" valign="top" width="NaN%" headers="d28948e56 "><p><samp class="codeph">front</samp> メソッドと <samp class="codeph">back</samp> メソッド</p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d28948e60 "><p>提供されません。並列操作が行われている間は安全ではありません。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d28948e52 "><p><samp class="codeph">T</samp> 型をデフォルト宣言できるようにする</p>
+</td>
+<td class="cellrowborder" valign="top" width="NaN%" headers="d28948e56 "><p>×</p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d28948e60 "><p>○</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d28948e52 "><p><samp class="codeph">unsafe_size()</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="NaN%" headers="d28948e56 "><p>キューのアイテムの数を返します。</p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d28948e60 "><p>キューのアイテムの数を返します。同時に処理中の <samp class="codeph">push</samp> 操作または <samp class="codeph">try_pop</samp> 操作がある場合は誤った値を返す可能性があります。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d28948e52 "><p>キュー q が空でなければ、アイテムをコピーしてポップする</p>
+</td>
+<td class="cellrowborder" valign="top" width="NaN%" headers="d28948e56 "><p>bool b=!q.empty();</p>
+<p>if(b) {</p>
+<p>x=q.front();</p>
+<p>q.pop();</p>
+<p>}</p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d28948e60 "><p>bool b = <em>q</em>.try_pop(x)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>
+namespace tbb {
+    template&lt;typename T, typename A = cache_aligned_allocator&lt;T&gt; &gt;
+    class concurrent_queue {
+    public:
+        // 型
+        typedef T value_type;
+        typedef T&amp; reference;
+        typedef const T&amp; const_reference;
+        typedef std::size_t size_type;
+        typedef std::ptrdiff_t difference_type;
+        typedef A allocator_type;
+
+        explicit concurrent_queue( const allocator_type&amp; a = allocator_type() );
+        concurrent_queue( const concurrent_queue&amp; src, const allocator_type&amp; a = allocator_type() );
+        template&lt;typename InputIterator&gt;
+        concurrent_queue( InputIterator first, InputIterator last, const allocator_type&amp; a = allocator_type() );
+        // C++11 からサポート
+        concurrent_queue( concurrent_queue&amp;&amp; src );
+        concurrent_queue( concurrent_queue&amp;&amp; src, const allocator_type&amp; a );
+
+        ~concurrent_queue();
+
+        void push( const T&amp; source );
+        bool try_pop( T&amp; destination );
+        // C++11 からサポート
+        void push( T&amp;&amp; source );
+        template&lt;typename... Args&gt;
+        void emplace(Args&amp;&amp;... args);
+
+        void clear();
+
+        size_type unsafe_size() const;
+        bool empty() const;
+        allocator_type get_allocator() const;
+
+        typedef <em>implementation-defined</em> iterator;
+        typedef <em>implementation-defined</em> const_iterator;
+
+        // イテレーター (低速、デバッグ用)
+        iterator unsafe_begin();
+        iterator unsafe_end();
+        const_iterator unsafe_begin() const;
+        const_iterator unsafe_end() const;
+    };
+}
+      </pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d28948e162">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d28948e164">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d28948e162 "><span class="keyword">concurrent_queue( const allocator_type&amp; a = allocator_type() )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d28948e164 "><p>空のキューを構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d28948e162 "><span class="keyword">concurrent_queue( const concurrent_queue&amp; src, const allocator_type&amp; a = allocator_type() ) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d28948e164 "><p><em>src</em> のコピーを構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d28948e162 "><span class="keyword">template&lt;typename InputIterator&gt; concurrent_queue( InputIterator first, InputIterator last, const allocator_type&amp; a = allocator_type() ) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d28948e164 "><p>半開区間 [<em>first,last</em>) のイテレーターの要素のコピーを含むキューを構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d28948e162 "><span class="keyword">concurrent_queue( concurrent_queue&amp;&amp; src ) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d28948e164 "><p>C++11 からサポート。<em>src</em> のコンテンツを移動することにより新しいキューを構築します。<em>src</em> は無指定の状態のままですが、安全に破棄することができます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d28948e162 "><span class="keyword">concurrent_queue( concurrent_queue&amp;&amp; src, const allocator_type&amp; a ) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d28948e164 "><p>C++11 からサポート。指定されたアロケーターを使用して <em>src</em> のコンテンツを移動することにより新しいキューを構築します。<em>src</em> は無指定の状態のままですが、安全に破棄することができます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d28948e162 "><span class="keyword">~concurrent_queue()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d28948e164 "><p>キューのすべてのアイテムを破棄します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d28948e162 "><span class="keyword">void push( const T&amp; source )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d28948e164 "><p><samp class="codeph">source</samp> のコピーをキューにプッシュします。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d28948e162 "><span class="keyword">void push(T&amp;&amp; elem)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d28948e164 "><p>C++11 からサポート。要素の move コンストラクターを使用することにより指定された要素をキューにプッシュします (利用可能な場合)。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d28948e162 "><span class="keyword">template&lt;typename... Arguments&gt; void emplace(Arguments&amp;&amp;... args); </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d28948e164 "><p>C++11 からサポート。新しい要素をキューにプッシュします。要素は指定された引数で構築されます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d28948e162 "><span class="keyword">bool try_pop ( T&amp; destination )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d28948e164 "><p>値が利用可能な場合、値をキューからポップして、destination に代入し、オリジナルの値を破棄します。その他の場合は、何もしません。</p>
+<p><strong>戻り値</strong>: 値がポップされた場合は <samp class="codeph">true</samp>、その他の場合は <samp class="codeph">false</samp>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d28948e162 "><span class="keyword">void clear()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d28948e164 "><p>キューを消去します。その後、<samp class="codeph">size()==0</samp> にします。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d28948e162 "><span class="keyword">size_type unsafe_size() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d28948e164 "><p><strong>戻り値</strong>: キューのアイテムの数。同時に処理中の変更がある場合、戻り値は実際のキューのアイテム数とは異なることがあります。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d28948e162 "><span class="keyword">bool empty() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d28948e164 "><p><strong>戻り値</strong>: キューにアイテムがない場合は <samp class="codeph">true</samp>。その他の場合は false。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d28948e162 "><span class="keyword">allocator_type get_allocator() const </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d28948e164 "><p><strong>戻り値</strong>: キューの構築に使用されるアロケーターのコピー。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">例外の安全性</h2><p><samp class="codeph">concurrent_queue</samp> クラスは、次の例外の安全性を保証します。</p>
+<ul><li><p>コンストラクターの <samp class="codeph">push</samp> および無指定の <samp class="codeph">try_pop</samp> メソッドで、構築中またはデータアイテムのコピー中に例外がスローされた場合:<ul><li><p>キューは有効なままです。同じキューの同時処理操作および将来の操作は影響を受けません。</p>
+</li>
+<li><p>コンストラクターや <samp class="codeph">push</samp> によって追加されるデータアイテム、および <samp class="codeph">try_pop</samp> によって削除されるデータアイテムは失われます。</p>
+</li>
+</ul>
+</p>
+</li>
+<li><p><samp class="codeph">concurrent_queue</samp> のほかのすべてのメソッドは例外をスローしません。</p>
+</li>
+</ul>
+<p>これらは、T 型のデストラクターが例外をスローしない場合のみ保証されます。その他の場合、動作は不定です。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">イテレーター</h2><p><samp class="codeph">concurrent_queue</samp> は、単独でプログラマーがデバッグ中にキューを検査できるように制限付きのイテレーター・サポートを提供します。iterator 型および const_iterator 型を提供します。どちらも、前方イテレーター用の通常の STL 規則に従います。反復順は、以前プッシュされたものから最近プッシュされたものの順になります。変更すると、<samp class="codeph">concurrent_queue</samp> を参照するすべてのイテレーターが無効になります。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>イテレーターは比較的遅いため、デバッグにのみ使用してください。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>次のプログラムは、整数 0..9 でキューを構築した後、キューを標準出力にダンプします。その結果、0 1 2 3 4 5 6 7 8 9 が出力されます。</p>
+<pre>
+#include "tbb/concurrent_queue.h"
+#include &lt;iostream&gt;
+
+using namespace std;
+using namespace tbb;
+
+int main() {
+    concurrent_queue&lt;int&gt; queue;
+    for( int i=0; i&lt;10; ++i )
+        queue.push(i);
+    typedef concurrent_queue&lt;int&gt;::iterator iter;
+    for( iter i(queue.unsafe_begin()); i!=queue.unsafe_end(); ++i )
+        cout &lt;&lt; *i &lt;&lt; " ";
+    cout &lt;&lt; endl;
+    return 0;
+}
+</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d28948e372">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d28948e374">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d28948e372 "><span class="keyword">iterator unsafe_begin()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d28948e374 "><p><strong>戻り値</strong>: キューの最初を指す <samp class="codeph">iterator</samp>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d28948e372 "><span class="keyword">iterator unsafe_end()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d28948e374 "><p><strong>戻り値</strong>: キューの最後を指す <samp class="codeph">iterator</samp>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d28948e372 "><span class="keyword">const_iterator unsafe_begin() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d28948e374 "><p><strong>戻り値</strong>: キューの最初を指す <samp class="codeph">const_iterator</samp>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d28948e372 "><span class="keyword">const_iterator unsafe_end() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d28948e374 "><p><strong>戻り値</strong>: キューの最後を指す <samp class="codeph">const_iterator</samp>。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/containers_overview.html">コンテナーの概要</a></div>
+</div>
+<div/>
+</body>
+</html>

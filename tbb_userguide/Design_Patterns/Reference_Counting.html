@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="参照カウント"/>
+<meta name="DC.subject" content="参照カウント"/>
+<meta name="keywords" content="参照カウント"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/Design_Patterns.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="Reference_Counting"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>参照カウント</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="Reference_Counting">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">参照カウント</h1>
+<div><div class="section"><h2 class="sectiontitle">問題</h2><p>使用されなくなったオブジェクトを破棄する。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">コンテキスト</h2><p>多くの場合、オブジェクトが将来使用されないことが分かっているときは、オブジェクトを破棄することが望まれます。参照カウントは、注意深く行えば並列プログラミングに拡張できる一般的なシリアル・ソリューションです。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">影響</h2><ul><li><p>参照に循環がある場合、その循環が明示的に分解されていなければ、基本的な参照カウントでは不十分です。</p>
+</li>
+<li><p>アトミックカウントはハードウェアで相対的にコストがかかります。</p>
+</li>
+</ul>
+</div>
+<div class="section"><h2 class="sectiontitle">ソリューション</h2><p>スレッドセーフな参照カウントは、インクリメント/デクリメントがアトミックに行われ、デクリメントと「カウントがゼロかどうか」のテストを単一のアトミック操作として行う必要があることを除いて、シリアル参照カウントに似ています。次のサンプルはこのために <samp class="codeph">tbb::atomic&lt;int&gt;</samp> を使用しています。</p>
+<pre>template&lt;typename T&gt;
+class counted {
+   tbb::atomic&lt;int&gt; my_count;
+   T value;
+public:
+   // 単一の参照でオブジェクトを構築
+   counted() {my_count=1;}
+   // 参照を追加
+   void add_ref() {++my_count;}
+   // 参照を削除して最後の参照だった場合は true を返す
+   bool remove_ref() {return ‐‐my_count==0;}
+   // オブジェクトへの参照を取得
+   T&amp; get() {
+       assert(my_count&gt;0);
+       return my_value;
+   }
+};</pre><p>カウントがゼロかどうかをテストするために個別の読み取りを使用することは正しくありません。次のコードは <samp class="codeph">remove_ref</samp>() メソッドの正しくない実装です。2 つのスレッドがデクリメントを実行して <samp class="codeph">my_count</samp> の読み取りがどちらもゼロになった場合、2 つの呼び出し元はどちらも最後の参照を削除したと誤って伝えられます。 
+		</p>
+<pre>      ‐‐my_count;
+      return my_count==0.<span class="color(blue)" style="color:blue"><strong>// 間違い!</strong></span></pre><p>オブジェクトが削除される前にすべての保留中の書き込みが完了するように、デクリメントには <em>release</em> フェンスを用いる必要があります。</p>
+<p>参照カウントが非常に小さな場合、コピーと参照カウントのインクリメントとの間にはタイミング的な問題があるため、アトミックにポインターをコピーしてその参照カウントをインクリメントする単純な方法はありません。このため、別のスレッドがカウントをデクリメントしてオブジェクトを削除することになります。この問題に対応するには、「ハザードポインター」と「pass the buck」の 2 つの方法があります。詳細は、下記の参考資料を参照してください。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">バリエーション</h2><p>アトミック・インクリメント/デクリメントは、通常のインクリメント/デクリメントより桁を大きくすることができますが、よりコストがかかります。冗長なインクリメント/デクリメント操作をなくすシリアル最適化は、アトミックな参照カウントでより重要になります。</p>
+<p>ポインターが共有されず対象が共有される場合、重み付けされた参照カウントを使用してコストを減らすことができます。各ポインターに <em>weight</em> (重み) を関連付けます。参照カウントは、重みの合計です。ポインター <samp class="codeph">x</samp> は、x と x' 間の元の重みを分割することにより、参照カウントを更新しないで、ポインター <samp class="codeph">x</samp>' としてコピーすることができます。x の重みが小さくなりすぎて分割できない場合、最初に定数 W を参照カウントと x の重みに追加します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">参考資料</h2><p>D. Bacon および V.T.   Rajan、"Concurrent Cycle Collection in Reference Counted Systems" in <cite>Proc.</cite><cite> European Conf. on Object-Oriented Programming</cite> (June 2001)。サイクルを収集する参照カウントに基づくガベージコレクターについて説明。</p>
+<p>M. Michael、"Hazard Pointers: Safe Memory Reclamation for Lock-Free Objects" in IEEE Transactions on Parallel and Distributed Systems (June 2004)。「ハザードポインター」手法について説明。</p>
+<p>M. Herlihy、V. Luchangco、および M. Moir、"The Repeat Offender Problem: A Mechanism for Supporting Dynamic-Sized, Lock-Free Data Structures" in <cite>Proceedings of the 16th International Symposium on Distributed Computing</cite> (Oct. 2002)。「pass the buck」手法について説明。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../tbb_userguide/Design_Patterns/Design_Patterns.html">デザインパターン</a></div>
+</div>
+<div/>
+</body>
+</html>

@@ -1,0 +1,164 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="parallel_scan テンプレート関数"/>
+<meta name="DC.subject" content="parallel_scan テンプレート関数"/>
+<meta name="keywords" content="parallel_scan テンプレート関数"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/algorithms.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/algorithms/parallel_scan_func/pre_scan_tag_and_final_scan_tag_clses.html"/>
+<meta name="DC.Relation" scheme="URI" content="parallel_scan_func/pre_scan_tag_and_final_scan_tag_clses.html#pre_scan_tag_and_final_scan_tag_clses"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="parallel_scan_func"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>parallel_scan テンプレート関数</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="parallel_scan_func">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">parallel_scan テンプレート関数</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2> 並列プリフィクスを計算するテンプレート関数。</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/parallel_scan.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>
+template&lt;typename Range, typename Body&gt; 
+void parallel_scan( const Range&amp; range, Body&amp; body );
+
+template&lt;typename Range, typename Body&gt; 
+void parallel_scan( const Range&amp; range, Body&amp; body, const auto_partitioner&amp; );
+
+template&lt;typename Range, typename Body&gt; 
+void parallel_scan( const Range&amp; range, Body&amp; body, const simple_partitioner&amp; );
+</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">parallel_scan</samp>(<em>range</em>,<em>body</em>) は、並列プリフィクス (並列スキャンとも呼ばれる) を計算します。この計算は、並列計算における高度なコンセプトで、シリアルな依存性があるように見えるシナリオで役立つことがあります。</p>
+<p>並列プリフィクスの数学的な定義は以下のとおりです。× を左単位元が id<sub>×</sub> の結合操作にします。シーケンス <em>z</em><sub>0</sub>, <em>z</em><sub>1</sub>, ...<em>z</em><sub>n-1</sub> の × の並列プリフィクスはシーケンス <em>y</em><sub>0</sub>, <em>y</em><sub>1</sub>, <em>y</em><sub>2</sub>, ...<em>y</em><sub>n-1</sub> です。</p>
+<ul><li>y<sub>0</sub> = id<sub>×</sub> × z<sub>0</sub></li>
+<li>y<sub>i</sub> = y<sub>i-1</sub> × z<sub>i</sub></li>
+</ul>
+<p>例えば、× が加算の場合、並列プリフィクスは合計と一致します。並列プリフィクスのシリアル実装は以下のようになります。</p>
+<pre>
+T temp = id<sub>×</sub>;
+for( int i=1; i&lt;=n; ++i ) {
+    temp = temp × z[i];
+    y[i] = temp;
+}
+</pre><p>並列プリフィクスは、× のアプリケーションを再構築して 2 つのパスにすることで、この処理を並列実行します。シリアル・プリフィクス・プログラムの 2 倍まで × を呼び出す可能性があります。正しい粒度と十分なハードウェア・スレッドが指定されると、より多くのワークを行う場合でも、複数のハードウェア・スレッドにわたってワークを分散することができるので、シリアル・プリフィクスより性能が優れています。</p>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p><samp class="codeph">parallel_scan</samp> は 2 つのパスが必要なため、2 つのハードウェア・スレッドしかないシステムでは速度向上はわずかです。<samp class="codeph">parallel_scan</samp> は、将来のマルチコアシステム向けの手法の中でも非常に有望なものの 1 つです。本質的にシーケンシャルに見える問題をどのように並列化することができるかを示しているため、その手法自体も興味深いものです。</p>
+<p><samp class="codeph">parallel_scan&lt;Range,Body&gt;</samp> テンプレートは、並列プリフィクスを汎用的に実装します。以下の表で説明されている署名が必要です。</p>
+</div>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">parallel_scan の要件</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="50.24875621890548%" id="d4569e136"><p>擬似署名</p>
+</th>
+<th class="row-nocellborder" valign="top" width="49.75124378109454%" id="d4569e139"><p>意味</p>
+</th>
+</tr>
+</thead>
+<tbody><tr valign="top"><td class="cellrowborder" valign="top" width="50.24875621890548%" headers="d4569e136 "><p><samp class="codeph">void Body::operator()( const Range&amp; r, pre_scan_tag ) </samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="49.75124378109454%" headers="d4569e139 "><p>範囲 <samp class="codeph">r</samp> のサマリーを累積します。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" width="50.24875621890548%" headers="d4569e136 "><p><samp class="codeph">void Body::operator()( const Range&amp; r, final_scan_tag ) </samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="49.75124378109454%" headers="d4569e139 "><p>範囲 <samp class="codeph">r</samp> のスキャン結果とサマリーを計算します。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" width="50.24875621890548%" headers="d4569e136 "><p><samp class="codeph">Body::Body( Body&amp; b, split )</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="49.75124378109454%" headers="d4569e139 "><p><samp class="codeph">this</samp> と <samp class="codeph">b</samp> のサマリーを別々に累積できるように <samp class="codeph">b</samp> を分割します。Body <samp class="codeph">*this</samp> は、この表の次の行ではオブジェクト <samp class="codeph">a</samp> です。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" width="50.24875621890548%" headers="d4569e136 "><p><samp class="codeph"> void Body::reverse_join( Body&amp; a )</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="49.75124378109454%" headers="d4569e139 "><p><samp class="codeph">a</samp> によって累積されたサマリーを <samp class="codeph">this</samp> によって累積されたサマリーにマージします。<samp class="codeph">this</samp> は以前に <samp class="codeph">a</samp> の分割コンストラクターによって <samp class="codeph">a</samp> から作成されました。Body <samp class="codeph">*this</samp> は、この表の前の行ではオブジェクト <samp class="codeph">b</samp> です。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" width="50.24875621890548%" headers="d4569e136 "><p><samp class="codeph"> void Body::assign( Body&amp; b )</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="49.75124378109454%" headers="d4569e139 "><p><samp class="codeph">b</samp> のサマリーを <samp class="codeph">this</samp> に代入します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>サマリーには、十分な情報が含まれているため、2 つの連続するサブ範囲 <em>r</em> と <em>s</em> について、次のことが可能です。</p>
+<ul><li><em>r</em> の前にサブ範囲がない場合、<em>s</em> のスキャン結果は <em>s</em> と <em>r</em> のサマリーから計算できます。</li>
+<li><em>s</em> と連結された <em>r</em> のサマリーは、<em>r</em> と <em>s</em> のサマリーから計算できます。</li>
+</ul>
+<p>例えば、配列の合計を計算する場合、範囲 <em>r</em> のサマリーは <em>r</em> に対応する配列要素の合計です。</p>
+<p>以下の図は、<samp class="codeph">parallel_scan</samp> が整数 1 ～ 16 を含む配列の合計を計算する 1 つの方法を示しています。この図では、時間は下方向に経過します。色分けは、各 <samp class="codeph">Body</samp> オブジェクトを示します。サマリーは角括弧で示されています。</p>
+<ol><li>最初の 2 つのステップは、オリジナルの青のボディーをピンクと黄色のボディーに分割します。各ボディーは入力配列の 1/4 を並列に処理します。最後の 1/4 はステップ 5 で処理されます。</li>
+<li>青のボディーは、最後のスキャンと 1 ～ 4 のサマリーを計算します。ピンクと黄色のボディーは、それぞれ 5 ～ 8 と 9 ～ 12 のプリスキャンを行い、サマリーを計算します。</li>
+<li>ピンクのボディーは、青のボディーと reverse_join を行い、1 ～ 8 のサマリーを計算します。</li>
+<li>黄色のボディーは、ピンクのボディーと reverse_join を行い、1 ～ 12 のサマリーを計算します。</li>
+<li>青、ピンク、黄色のボディーは、最後のスキャンと配列のそれぞれの部分のサマリーを計算します。</li>
+<li>黄色のサマリーが青のボディーに代入されます。ピンクと黄色のボディーは破棄されます。</li>
+</ol>
+<p>配列の最初と最後の 1/4 はプリスキャンされていません。ワーカースレッドが少数の場合や余分なワーカースレッドがない場合、パフォーマンスを向上するため、<samp class="codeph">parallel_scan</samp> テンプレートは、可能であればプリスキャンを回避しようとします。利用可能なワーカースレッドがない場合、<samp class="codeph">parallel_scan</samp> は、最後のスキャンを使用してサブ範囲を左から右に処理することで、プリスキャンなしでサブ範囲を処理します。そのため、最後のスキャンは、サマリーと最後のスキャン結果を計算する必要があります。サマリーは、次のサブ範囲がワーカースレッドによってプリスキャンされていない場合に必要になります。</p>
+<p><strong>parallel_scan の実行例</strong></p>
+<img src="../Resources/parll_scan.jpg"/><p>次のコードは、<samp class="codeph">parallel_scan</samp> を使用して前述の × を使用したシーケンシャルの例と同じ結果を計算するために、これらの署名をどのように実装しなければならないかを示しています。</p>
+<pre>
+using namespace tbb;
+
+class Body {
+    T sum;
+    T* const y;
+    const T* const z;
+public:
+    Body( T y_[], const T z_[] ) : sum(id<sub>×</sub>), z(z_), y(y_) {}
+    T get_sum() const {return sum;}
+
+    template&lt;typename Tag&gt;
+    void operator()( const blocked_range&lt;int&gt;&amp; r, Tag ) {
+        T temp = sum;
+        for( int i=r.begin(); i&lt;r.end(); ++i ) {
+            temp = temp × z[i];
+            if( Tag::is_final_scan() )
+                y[i] = temp;
+        }
+        sum = temp;
+    }
+    Body( Body&amp; b, split ) : z(b.z), y(b.y), sum(id<sub>×</sub>) {}
+    void reverse_join( Body&amp; a ) { sum = a.sum × sum;}
+    void assign( Body&amp; b ) {sum = b.sum;}
+};
+
+float DoParallelScan( T y[], const T z[], int n ) {
+    Body body(y,z);
+    parallel_scan( blocked_range&lt;int&gt;(0,n), body );
+    return body.get_sum();
+}
+</pre><p><samp class="codeph">operator()</samp> の定義は、<samp class="codeph">parallel_scan</samp> を使用するときの典型的なパターンを説明します。</p>
+<ul><li>1 つのテンプレートで両方のバージョンを定義します。これは必須ではありませんが、2 つのバージョンは通常似ているため、コーディングの労力を省くことができます。ライブラリーは、バージョンを区別できるように、スタティック・メソッド <samp class="codeph">is_final_scan()</samp> を定義します。</li>
+<li>プリスキャン可変要素は × リダクションを計算しますが、<samp class="codeph">y</samp> を更新しません。プリスキャンはルックアヘッドの局部リダクションを生成するために <samp class="codeph">parallel_scan</samp> によって使用されます。</li>
+<li>最後のスキャン可変要素は × リダクションを計算して <samp class="codeph">y</samp> を更新します。</li>
+</ul>
+<p><samp class="codeph">reverse_join</samp> 操作は、引数が逆であることを除けば、<samp class="codeph">parallel_reduce</samp> によって使用される <samp class="codeph">join</samp> 操作に似ています。つまり、<samp class="codeph">this</samp> は × の<strong>右</strong>の引数です。<samp class="codeph">parallel_scan</samp> テンプレート関数は、並列のワークを生成するかどうか、そしていつ生成するかを決定します。したがって、× が結合操作で Body のメソッドがそれを正確に表現することは重要です。浮動小数点加算のような結合操作は、<samp class="codeph">parallel_scan</samp> で使用される結合則に依存して結果が異なって丸められる場合があることを理解して使用する必要があります。再結合は、たとえ同じマシン上であっても実行ごとに異なることがあります。しかし、ワーカースレッドが利用可能でない場合、このセクションのはじめに示されているシリアル形式に関連付けられて実行されます。</p>
+<p><samp class="codeph">simple_partitioner</samp> を使用するようにコードを変更した場合は、必ず粒度を指定してください。粒度は次のように指定します。ここでは、粒度を 1000 に指定しています。</p>
+<pre>parallel_scan(blocked_range&lt;int&gt;(0,n,1000), total, simple_partitioner() );
+</pre></div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/algorithms.html">アルゴリズム</a></div>
+</div>
+<div class="See Also">
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../../reference/algorithms/parallel_scan_func/pre_scan_tag_and_final_scan_tag_clses.html">pre_scan_tag クラスと final_scan_tag クラス</a><br/>
+</li>
+</ul>
+<h2>関連情報</h2>
+<div class="linklist">
+<div><a href="parallel_scan_func/pre_scan_tag_and_final_scan_tag_clses.html#pre_scan_tag_and_final_scan_tag_clses">pre_scan_tag クラスと final_scan_tag クラス</a> </div></div></div>
+</body>
+</html>

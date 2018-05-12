@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="ベクトル全体の操作"/>
+<meta name="DC.subject" content="ベクトル全体の操作"/>
+<meta name="keywords" content="ベクトル全体の操作"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/containers_overview/concurrent_vector.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="whole_vector_operations"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>ベクトル全体の操作</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="whole_vector_operations">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">ベクトル全体の操作</h1>
+<div><div class="section"><div class="Note"><h3 class="NoteTipHead">注意</h3> <p>同じインスタンス上でこれらの操作を同時に呼び出すことは安全ではありません。</p>
+</div>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d42813e26">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d42813e28">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d42813e26 "><span class="keyword">void reserve( size_type n )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d42813e28 "><p>少なくとも <samp class="codeph"><em>n</em></samp> 要素の予約空間。</p>
+<p><strong>スロー</strong>: <samp class="codeph"><em>n</em>&gt;max_size()</samp> の場合、<samp class="codeph">std::length_error</samp>。アロケーターが例外をスローした場合も、例外をスローすることがあります。</p>
+<p><strong>安全性</strong>: 例外がスローされると、インスタンスは有効な状態のままになります。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d42813e26 "><span class="keyword">void shrink_to_fit() </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d42813e28 "><p>内部表現を簡潔にし、フラグメンテーションを減らします。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d42813e26 "><span class="keyword">void swap( concurrent_vector&amp; x )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d42813e28 "><p>2 つのベクトルのコンテンツをスワップします。時間が O(1) かかります。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d42813e26 "><span class="keyword">void clear()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d42813e28 "><p>すべての要素を消去します。その後、<samp class="codeph">size()==0</samp> にします。内部配列は解放されません。</p>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>内部配列を解放するには、<samp class="codeph">clear()</samp> の後に <samp class="codeph">shrink_to_fit()</samp> を呼び出します。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d42813e26 "><span class="keyword"> ~concurrent_vector()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d42813e28 "><p>すべての要素を消去し、ベクトルを破棄します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/containers_overview/concurrent_vector.html">concurrent_vector テンプレート・クラス</a></div>
+</div>
+<div/>
+</body>
+</html>

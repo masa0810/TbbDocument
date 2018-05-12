@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="高度なトピック: 異なる種類の反復空間"/>
+<meta name="DC.subject" content="高度なトピック: 異なる種類の反復空間"/>
+<meta name="keywords" content="高度なトピック: 異なる種類の反復空間"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Parallelizing_Simple_Loops.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Advanced_Topic_Other_Kinds_of_Iteration_Spaces"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>高度なトピック: 異なる種類の反復空間</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Advanced_Topic_Other_Kinds_of_Iteration_Spaces">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">高度なトピック: 異なる種類の反復空間</h1>
+<div><p>これまでのサンプルでは、範囲の指定に <samp class="codeph">blocked_range&lt;T&gt;</samp> クラスを使用しました。このクラスは多くの状況で役立ちますが、すべての状況で適切であるとは限りません。プログラマーは、インテル&reg; TBB を使用して独自の反復空間オブジェクトを定義できます。オブジェクトには、基本分割コンストラクター、オプションの比例分割コンストラクター （有効にする特性値を指定）、2 つのプレディケート・メソッドを使用して、サブ空間にオブジェクトを分割する方法を指定する必要があります。クラスを <samp class="codeph">R</samp> とすると、メソッドとコンストラクターは次のようになります。</p>
+<pre>
+class R {
+    // 範囲が空の場合は true
+    bool empty() const;
+    // 範囲が空でないサブ範囲に分割できる場合は true
+    bool is_divisible() const;
+    // r をサブ範囲 r と *this に分割
+    R( R&amp; r, split );
+    // r を比率 p でサブ範囲 r と *this に分割
+    R( R&amp; r, proportional_split p );
+    // 比例分割コンストラクターの使用を許可
+    static const bool is_splittable_in_proportion = true;
+    ...
+};
+    </pre><p><samp class="codeph">empty</samp> メソッドは、範囲が空の場合に true を返します。<samp class="codeph">is_divisible</samp> メソッドは、範囲が空ではない 2 つのサブ範囲に分割された場合に true を返します。この分割はオーバーヘッドが生じてもメリットがあります。基本分割コンストラクターの引数は 2 つ必要です。
+    </p>
+<ul><li><p>第 1 引数は型 <samp class="codeph">R</samp></p>
+</li>
+<li><p>第 2 引数は型 <span class="option">tbb::split</span></p>
+</li>
+</ul>
+<p>第 2 引数は使用されません。この引数は、コンストラクターを通常のコピー・コンストラクターと区別するために用いられます。基本分割コンストラクターは、<samp class="codeph">r</samp> をほぼ同じサイズの 2 つに分割し、<samp class="codeph">r</samp> を前半として更新して、構築されたオブジェクトを後半とします。</p>
+<p>基本分割コンストラクターとは異なり、比例分割コンストラクターはオプションで、<samp class="codeph">tbb::proportional_split</samp> 型の第 2 引数を指定します。型には比率の値を返すメソッド <samp class="codeph">left</samp> および <samp class="codeph">right</samp> が含まれます。これらの値に従って <samp class="codeph">r</samp> を分割します。更新された <samp class="codeph">r</samp> は比例の左部分に対応し、構築されたオブジェクトは右部分に対応します。比例分割コンストラクターは、スタティック定数 <samp class="codeph">is_splittable_in_proportion</samp> がクラスで定義され、値が <samp class="codeph">true</samp> の場合にのみ使用されます。</p>
+<p>どちらの分割コンストラクターも、更新された <samp class="codeph">r</samp> 部分と構築されたオブジェクトが空でないことを保証する必要があります。並列アルゴリズムのテンプレートは、<samp class="codeph">r.is_divisible</samp> が true の場合のみ、分割コンストラクターを <samp class="codeph">r</samp> 上で呼び出します。</p>
+<p>反復空間は、リニアである必要はありません。2 次元の範囲例、<samp class="codeph">tbb/blocked_range2d.h</samp> を参照してください。分割コンストラクターは、範囲を最長軸に沿って分割しようとします。<samp class="codeph">parallel_for</samp> とともに使用すると、キャッシュの利用効率を高めながら、ループは "再帰的にブロック" されます。このキャッシュの動作は、<samp class="codeph">parallel_for</samp> を <samp class="codeph">blocked_range2d&lt;T&gt;</samp> に対して使用することで、単一プロセッサーでも、同等のシーケンシャル・コードよりもループの実行が速くなることを意味します。</p>
+<div class="section"><h2 class="sectiontitle">コードサンプル</h2><p><samp class="codeph">examples/parallel_for/seismic</samp> ディレクトリーには、<samp class="codeph">parallel_for</samp> と <samp class="codeph">blocked_range</samp> をベースとした地震波シミュレーションが含まれています。また、<samp class="codeph">examples/parallel_for/tacheon</samp> ディレクトリーには、<samp class="codeph">parallel_for</samp> と <samp class="codeph">blocked_range2d</samp> をベースとした、より複雑なレイ・トレーシングのサンプルが含まれています。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Parallelizing_Simple_Loops.html">単純なループの並列化</a></div>
+</div>
+<div/>
+</body>
+</html>

@@ -1,0 +1,167 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="indexer_node テンプレート・クラス"/>
+<meta name="DC.subject" content="indexer_node テンプレート・クラス"/>
+<meta name="keywords" content="indexer_node テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/flow_graph.html"/>
+<meta name="DC.Relation" scheme="URI" content="message_passing_protocol.html"/>
+<meta name="DC.Relation" scheme="URI" content="sender_and_buffer_policy.html"/>
+<meta name="DC.Relation" scheme="URI" content="input_port_func.html"/>
+<meta name="DC.Relation" scheme="URI" content="tagged_msg_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="indexer_node_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>indexer_node テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="indexer_node_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">indexer_node テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>入力ポートで受け取ったメッセージをすべてのサクセサーにブロードキャストするノード。各ポートで受け取ったメッセージは個別にブロードキャストされます。出力は、タグと値を含むタグ付きメッセージです。タグは、メッセージを受け取った入力ポートを識別します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>template&lt;typename T0, typename T1...typename TN&gt;
+ class indexer_node;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre> #include "tbb/flow_graph.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p>indexer_node は、<samp class="codeph">graph_node</samp> および <samp class="codeph">sender&lt;indexer_node&lt;T0..TN&gt;::output_type &gt;</samp> です。入力の <samp class="codeph">T0 .. TN</samp> に対応する <samp class="codeph">receiver&lt;Ti&gt;</samp> である入力ポートのタプルが含まれます。異なる型の複数の入力レシーバーをサポートしており、受け取ったメッセージをサクセサーにブロードキャストします。<samp class="codeph">join_node</samp> とは異なり、入力ポートで受け取ったメッセージは、<samp class="codeph">indexer_node</samp> のすべてのサクセサーに個別にブロードキャストされます。ブロードキャストの前に、メッセージは、メッセージを受け取ったポートのインデックスでタグ付けされます。</p>
+<p><samp class="codeph">input_port</samp> テンプレート関数は、特定の入力ポートへの参照を取得するための構文を単純化します。</p>
+<p><samp class="codeph">indexer_node</samp> のサクセサーがメッセージを拒否した場合、「メッセージ・パッシング・プロトコル」で説明されているプロトコルを使用して処理されます。入力ポートが着信メッセージを拒否することはありません。</p>
+<p>入力リスト <samp class="codeph">T0, T1 ... TN</samp> の型は、コピー構築可能および代入可能でなければなりません。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><pre>#include&lt;cstdio&gt;
+#include "tbb/flow_graph.h"
+
+using namespace tbb::flow;
+
+int main() {
+  graph g;
+  function_node&lt;int,int&gt; f1( g, unlimited,
+                               [](const int &amp;i) { return 2*i; } );
+  function_node&lt;float,float&gt; f2( g, unlimited,
+                               [](const float &amp;f) { return f/2; } );
+
+  typedef indexer_node&lt;int,float&gt; my_indexer_type;
+  my_indexer_type o(g);
+
+  function_node&lt; my_indexer_type::output_type &gt;
+    f3( g, unlimited,
+        []( const my_indexer_type::output_type &amp;v ) {
+            if (v.tag() == 0) {
+              printf("Received an int %d\n", 
+                     cast_to&lt;int&gt;(v));
+            } else {
+              printf("Received a float %f\n", 
+                     cast_to&lt;float&gt;(v));
+           }
+        }
+    );
+  make_edge( f1, input_port&lt;0&gt;(o) );
+  make_edge( f2, input_port&lt;1&gt;(o) );
+  make_edge( o, f3 );
+
+  f1.try_put( 3 );
+  f2.try_put( 3 );
+  g.wait_for_all();
+  return 0;
+ }</pre><p>上記のサンプルでは、3 つの <samp class="codeph">function_node</samp> オブジェクトが作成されます。<samp class="codeph">f1</samp> は int i に 2 を掛けて、<samp class="codeph">f2</samp> は <samp class="codeph">float f</samp> を 2 で割って、<samp class="codeph">f3</samp> は <samp class="codeph">f1</samp> と <samp class="codeph">f2</samp> の値を受け取って出力します。<samp class="codeph">indexer_node o</samp> は、<samp class="codeph">f1</samp> と <samp class="codeph">f2</samp> の出力をラップし、それぞれの結果を <samp class="codeph">f3</samp> に送ります。このサンプルは構文を示すことを目的としているため、ノードでほとんど作業を行っていません。 
+		</p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+namespace flow {
+  template&lt;typename T0, typename T1...typename TN&gt;
+  class indexer_node : public graph_node,
+  public sender&lt;<var>implementation-dependent-output-type</var> &gt; {
+  public:
+    typedef tagged_msg&lt; size_t tag, T result&gt; output_type;
+    typedef receiver&lt;output_type&gt; successor_type;
+    implementation-dependent-tuple input_ports_type;
+
+    indexer_node(graph &amp;g);
+    indexer_node(const indexer_node &amp;src);
+    input_ports_type &amp;input_ports();
+    bool register_successor( successor_type &amp;r );
+    bool remove_successor( successor_type &amp;r );
+    bool try_get( output_type &amp;v );
+    bool try_reserve( output_type &amp; );
+    bool try_release( );
+    bool try_consume( );
+  };
+}
+}</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d53637e127">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d53637e129">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d53637e127 "><span class="keyword">indexer_node(graph &amp;g)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d53637e129 "><p><samp class="codeph">graph g</samp> に属する <samp class="codeph">indexer_node</samp> を構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d53637e127 "><span class="keyword">indexer_node( const indexer_node &amp;src )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d53637e129 "><p><samp class="codeph">indexer_node</samp> を構築します。プレデセッサーのリスト、入力ポートのメッセージ、サクセサーはコピーされません。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d53637e127 "><span class="keyword">input_ports_type&amp; input_ports()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d53637e129 "><p><strong>戻り値</strong>: <samp class="codeph">receiver</samp> の <samp class="codeph">flow::tuple</samp>。各要素は <samp class="codeph">tbb::receiver&lt;T&gt;</samp> から継承されます。T はその入力で想定されるメッセージの型です。各タプル要素は、<samp class="codeph">flow::receiver&lt;T&gt;</samp> と同じように使用できます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d53637e127 "><span class="keyword">bool register_successor( successor_type &amp; r )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d53637e129 "><p>サクセサーのセットに <samp class="codeph">r</samp> を追加します。</p>
+<p><strong>戻り値</strong>: <samp class="codeph">true</samp>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d53637e127 "><span class="keyword">bool remove_successor( successor_type &amp; r )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d53637e129 "><p>サクセサーのセットから <samp class="codeph">r</samp> を削除します。</p>
+<p><strong>戻り値</strong>: <samp class="codeph">true</samp>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d53637e127 "><span class="keyword">bool try_get( output_type &amp;v )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d53637e129 "><p><samp class="codeph">indexer_node</samp> にバッファーは含まれていないため、get はサポートしていません。</p>
+<p><strong>戻り値</strong>: <samp class="codeph">false</samp>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d53637e127 "><span class="keyword">bool try_reserve( output_type &amp; )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d53637e129 "><p><samp class="codeph">indexer_node</samp> にバッファーは含まれていないため、予約することはできません。</p>
+<p><strong>戻り値</strong>: <samp class="codeph">false</samp>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d53637e127 "><span class="keyword">bool try_release( )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d53637e129 "><p><samp class="codeph">indexer_node</samp> にバッファーは含まれていないため、予約することはできません。</p>
+<p><strong>戻り値</strong>: <samp class="codeph">false</samp>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d53637e127 "><span class="keyword">bool try_consume( )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d53637e129 "><p><samp class="codeph">indexer_node</samp> にバッファーは含まれていないため、予約することはできません。</p>
+<p><strong>戻り値</strong>: <samp class="codeph">false</samp>。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>Microsoft* Windows* オペレーティング・システムでは、配列型を indexer_node に渡すときに既知の問題があります。</p>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/flow_graph.html">フローグラフ</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="message_passing_protocol.html">メッセージ・パッシング・プロトコル</a></div>
+<div><a href="sender_and_buffer_policy.html">転送、バッファー、受信ポリシー</a></div>
+<div><a href="input_port_func.html">input_port テンプレート・クラス</a></div>
+<div><a href="tagged_msg_cls.html">tagged_msg テンプレート・クラス</a></div></div></div>
+</body>
+</html>

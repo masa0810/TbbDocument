@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="凝集化"/>
+<meta name="DC.subject" content="凝集化"/>
+<meta name="keywords" content="凝集化"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/Design_Patterns.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="Agglomeration"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>凝集化</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="Agglomeration">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">凝集化</h1>
+<div><div class="section"><h2 class="sectiontitle">問題</h2><p>並列化の粒度が細かすぎて、並列スケジュールや通信のオーバーヘッドが大きすぎる。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">コンテキスト</h2><p>多くのアルゴリズムでは、タスクあたりの命令数が少ない、非常に細かな粒度で並列化を行うことができます。しかし、スレッド間の同期には通常、桁違いに大きなサイクル数が必要になります。例えば、2 つの配列の要素単位の加算は完全に並列に行うことができますが、スカラー加算が別のタスクとしてスケジュールされた場合、ほとんどの時間は加算ではなく同期に費やされるでしょう。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">影響</h2><ul><li><p>個々の計算は並列に行うことが可能ですが、小さいものです。インテル&reg; TBB の実用的な処理では、「小さい」とは 10,000 サイクル未満を意味します。</p>
+</li>
+<li><p>並列化はパフォーマンス向上が目的であり、セマンティクス上の理由から必要なわけではありません。</p>
+</li>
+</ul>
+</div>
+<div class="section"><h2 class="sectiontitle">ソリューション</h2><p>計算のグループをブロックにします。ブロック内の計算をシリアルに評価します。</p>
+<p>ブロックサイズは (並列化のオーバーヘッドを考慮してもメリットがある) 十分な大きさにしてください。ブロックサイズが大きすぎると、ブロック数が非常に少なくなり、プロセッサー間で均等に処理を分散できなくなるため、並列化やロード・バランシングが制限されることがあります。</p>
+<p>ブロックサイズは通常、次の 2 点を考慮して決定します。</p>
+<ul><li><p>ブロック間の同期を最小限にする。</p>
+</li>
+<li><p>ブロック間のキャッシュ・トラフィックを最小限にする。</p>
+</li>
+</ul>
+<p>計算が完全に独立していて、ブロックも独立している場合、キャッシュ・トラフィックのみを考慮してください。</p>
+<p>ループが「小さい」場合 (10,000 クロックサイクル未満の場合)、最適な集合が単一ブロックになるため、ループを並列化するのは非実用的です。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>「範囲」引数が指定できるインテル&reg; TBB のループ・テンプレート (<samp class="codeph">tbb::parallel_for</samp> など) は、自動凝集化をサポートしています。</p>
+<p>凝集化を行うときは、キャッシュの影響を考慮してください。可能であれば、キャッシュラインがグループ間をまたがないようにしてください。</p>
+<p>キャッシュライン境界は内部のレートに影響します。例えば、計算で 2D グリッドが形成され、最も近いポイントとのみ通信する場合、ブロックごとの計算は (ブロックのエリアで) 2 次的に増加しますが、ブロック間の通信は (ブロックの周囲で) 直線的に増加します。次の図は、8x8 グリッドを凝集化する 4 つの異なる方法を示しています。このような解析を行う場合、キャッシュライン単位で転送される情報を考慮するようにしてください。ここでは、ブロックが論理グリッドに関して正方形ではなく、キャッシュラインのグリッドに関して正方形の場合に、周囲が最小になります。</p>
+<div class="fignone" id="fig1"><span class="figcap">8×8 グリッドの 4 つの異なる凝集化</span><img width="301" height="293" src="Images/image002a.jpg"/></div>
+<p>ベクトル化についても考慮してください。長い連続したデータのサブセットを含むブロックには、ベクトル化が有効です。</p>
+<p>再帰計算では、ほとんどの処理は木構造の葉ノードで行われます。ソリューションは、次の図で示されているように、グループを部分木として扱うことです。</p>
+<div class="fignone" id="fig2"><span class="figcap">再帰計算の凝集化</span><img width="291" height="150" src="Images/image003a.jpg"/></div>
+<p>多くの場合、このような凝集化は、あるしきい値に達すると再帰的に続けて行われます。例えば、再帰ソートは、特定のしきい値を超えた場合にのみ部分問題を並列に解きます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">参考資料</h2><p>用語 "agglomeration" (凝集化) は、Ian Foster が著書 <cite>Designing and Building Parallel Programs</cite> (<a href="http://www.mcs.anl.gov/~itf/dbpp" target="_blank">http://www.mcs.anl.gov/~itf/dbpp</a> (英語)) で使用したものです。Agglomeration は、4 ステップの <strong>PCAM</strong> 設計法の一部にも含まれています。</p>
+<ol><li><p><strong>P</strong>artitioning (分割) - プログラムをできるだけ小さなタスクに分割します。</p>
+</li>
+<li><p><strong>C</strong>ommunication (通信) – タスク間で必要な通信を特定します。インテル&reg; TBB を使用する場合、通常はキャッシュラインの転送を使用します。これは自動で行われますが、タスク間で起きていることを理解すると、凝集化ステップを進めやすくなります。</p>
+</li>
+<li><p><strong>A</strong>gglomeration (凝集化) – タスクを組み合わせてより大きなタスクにします。彼の書籍には、さまざまな考察の広範なリストが含まれています。</p>
+</li>
+<li><p><strong>M</strong>apping (マッピング) – タスクをプロセッサーにマップします。インテル&reg; TBB では、タスク・スケジューラーがこのステップを行います。</p>
+</li>
+</ol>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../tbb_userguide/Design_Patterns/Design_Patterns.html">デザインパターン</a></div>
+</div>
+<div/>
+</body>
+</html>

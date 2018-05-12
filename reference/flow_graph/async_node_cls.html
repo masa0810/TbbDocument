@@ -1,0 +1,268 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="async_node テンプレート・クラス"/>
+<meta name="DC.subject" content="async_node テンプレート・クラス"/>
+<meta name="keywords" content="async_node テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/flow_graph.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="async_node_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>async_node テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="async_node_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">async_node テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p><samp class="codeph">graph_node</samp>、<samp class="codeph">receiver&lt;Input&gt;</samp>、<samp class="codeph">sender&lt;Output&gt;</samp> のテンプレート・クラス。着信メッセージのユーザー定義ボディーを実行します。ボディーは、インテル&reg; TBB スレッドプール外で処理するように、入力メッセージを外部処理に渡します。このノードは、外部処理とフローグラフの通信を可能にする <samp class="codeph">gateway_type</samp> インターフェイスも提供します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>
+template &lt; typename Input,
+           typename Output,
+           typename Policy = queueing,
+           typename Allocator=cache_aligned_allocator&lt;Input&gt; &gt;
+class async_node;
+</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>
+#include "tbb/flow_graph.h"
+</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">async_node</samp> を利用することで、フローグラフとユーザーまたは別のランタイムによって管理される外部処理の通信が可能です。このノードは <samp class="codeph">Input</samp> 型のメッセージを受け取り、メッセージを外部処理に渡すためボディーを呼び出します。結果のリターンと async_node の出力ポートへの push には、<samp class="codeph">gateway_type</samp> を利用します。</p>
+<p><samp class="codeph">async_node</samp> には、ユーザーが設定可能な同時実行数の制限が適用されます。<samp class="codeph">flow::unlimited</samp> を指定すると、ボディーの無制限の呼び出しを同時に実行できます。<samp class="codeph">flow::serial</samp> を指定すると、ボディーの 1 つの呼び出しのみ同時に実行できます。同時実行数を制限する <samp class="codeph">size_t</samp> 型の値を 1 から <samp class="codeph">unlimited</samp> の間で指定することもできます。</p>
+<p><samp class="codeph">async_node</samp> のボディーコンセプトを次に示します。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl8" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">async_node ボディーコンセプト</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" id="d46486e85"><p>擬似署名</p>
+</th>
+<th class="row-nocellborder" valign="top" id="d46486e88"><p>意味</p>
+</th>
+</tr>
+</thead>
+<tbody><tr valign="top"><td class="cellrowborder" valign="top" headers="d46486e85 "><p><samp class="codeph">B::B( const B&amp; )</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d46486e88 "><p>コピー・コンストラクター。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d46486e85 "><p><samp class="codeph">B::~B()</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d46486e88 "><p>デストラクター。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d46486e85 "><p><samp class="codeph">void operator=( const B&amp; )</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d46486e88 "><p>代入。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d46486e85 "><p><samp class="codeph">void B::operator()( const input_type &amp;v, gateway_type &amp;gateway ) </samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d46486e88 "><p>入力値 <samp class="codeph">v</samp> はフローグラフにより外部処理に渡されます。<samp class="codeph">gateway</samp> インターフェイスにより、外部処理とエンクロージング・フローグラフの通信が可能です。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p><samp class="codeph">async_node</samp> に渡されるボディー・オブジェクトはコピーされます。そのため、メンバー変数を更新してもノードの構築に使用されたオリジナルのオブジェクトには影響しません。ノードの外部からボディー・オブジェクト内に保持されている状態を確認する場合は、<samp class="codeph">copy_body</samp> 関数を使用して更新されたコピーを取得します。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>ボディー・オブジェクトは、例外をスローまたはそのエンクロージング・グラフをキャンセルすることがあります。詳細は、「<samp class="codeph">task_group_context</samp>」および「例外」を参照してください。</p>
+</div>
+<p>次に <samp class="codeph">gateway_type</samp> インターフェイスを示します。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl9" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">gateway_type インターフェイス</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" id="d46486e157"><p>擬似署名</p>
+</th>
+<th class="row-nocellborder" valign="top" id="d46486e160"><p>意味</p>
+</th>
+</tr>
+</thead>
+<tbody><tr valign="top"><td class="cellrowborder" valign="top" headers="d46486e157 "><p><samp class="codeph">bool try_put( const output_type &amp;v )</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d46486e160 "><p><samp class="codeph">v</samp> を <samp class="codeph">async_node</samp> のすべてのサクセサーにブロードキャストします。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d46486e157 "><p><samp class="codeph">void reserve_wait()</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d46486e160 "><p>ワークが外部処理に渡されたことをフローグラフに通知します。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d46486e157 "><p><samp class="codeph">void release_wait()</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d46486e160 "><p>外部処理に渡されたワークが完了したことをフローグラフに通知します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>外部処理に渡される入力メッセージごとに <samp class="codeph">gateway_type::reserve_wait()</samp> メソッドを呼び出す必要はありません。各 <samp class="codeph">gateway_type::reserve_wait()</samp> 呼び出しには、対応する <samp class="codeph">gateway_type::release_wait()</samp> 呼び出しが必要です。</p>
+<p><samp class="codeph">graph::wait_for_all()</samp> は、対応する <samp class="codeph">release_wait()</samp> のない reserve_wait() が存在する間は終了しません。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>次のサンプルで <samp class="codeph">async_node</samp> は、ユーザースレッドによって処理されるように、<samp class="codeph">AsyncActivity</samp> にワークを渡します。</p>
+<pre>
+#include "tbb/flow_graph.h"
+#include "tbb/concurrent_queue.h"
+#include &lt;thread&gt;
+
+using namespace tbb::flow;
+typedef int input_type;
+typedef int output_type;
+typedef tbb::flow::async_node&lt;input_type, output_type&gt; async_node_type;
+
+class AsyncActivity {
+public:
+    typedef async_node_type::gateway_type gateway_type;
+
+    struct work_type {
+        input_type input;
+        gateway_type* gateway;
+    };
+
+    AsyncActivity() : service_thread( [this]() {
+        while( !end_of_work() ) {
+            work_type w;
+            while( my_work_queue.try_pop(w) ) {
+                output_type result = do_work( w.input );
+                // 結果をグラフに返す
+                w.gateway-&gt;try_put( result );
+                // ワーク完了を通知する
+                w.gateway-&gt;release_wait();
+            }
+        }
+    } ) {}
+
+    void submit( input_type i, gateway_type* gateway ) {
+        work_type w = {i, gateway};
+        gateway-&gt;reserve_wait();
+        my_work_queue.push(w);
+    }
+private:
+    bool end_of_work() {
+        // スレッドを終了すべきであることを示す
+    }
+
+    output_type do_work( input_type&amp; v ) {
+        // 入力を処理し、出力に変換する
+    }
+
+    tbb::concurrent_queue&lt;work_type&gt; my_work_queue;
+    std::thread service_thread;
+};
+
+int main() {
+    AsyncActivity async_activity;
+    tbb::flow::graph g;
+
+    async_node_type async_consumer( g, unlimited,
+    // 非同期処理を初期化するユーザー・ファンクター
+    [&amp;] ( input_type input, async_node_type::gateway_type&amp; gateway ) {
+    async_activity.submit( input, &amp;gateway );
+    } );
+
+    tbb::flow::source_node&lt;input_type&gt; s( g, [](input_type&amp; v)-&gt;bool { /* 非同期処理用のデータを生成する */ } );
+    tbb::flow::async_node&lt;output_type&gt; f( g, unlimited, [](const output_type&amp; v) { /* 非同期処理からデータを取得する */ } );
+
+    tbb::flow::make_edge( s, async_consumer );
+    tbb::flow::make_edge( async_consumer, f );
+
+    g.wait_for_all();
+}
+</pre></div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>
+namespace tbb {
+    namespace flow {
+
+        template &lt; typename Input, typename Output, 
+                   typename Allocator = cache_aligned_allocator&lt;Input&gt; &gt;
+        class async_node : public graph_node, public receiver&lt;Input&gt;, public sender&lt;Output&gt; {
+        public:
+            template &lt;typename Body&gt;
+            async_node( graph&amp; g, size_t concurrency, Body body );
+            async_node( const async_node&amp; src );
+
+            typedef <em>implementation-defined</em> gateway_type;
+            gateway_type&amp; gateway();
+
+            // receiver&lt;Input&gt;
+            typedef Input input_type;
+            typedef sender&lt;input_type&gt; predecessor_type;
+            bool try_put( const input_type&amp; v );
+            bool register_predecessor( predecessor_type&amp; p );
+            bool remove_predecessor( predecessor_type&amp; p );
+
+            // sender&lt;Output&gt;
+            typedef Output output_type;
+            typedef receiver&lt;output_type&gt; successor_type;
+            bool register_successor( successor_type&amp; r );
+            bool remove_successor( successor_type&amp; r );
+            bool try_get( output_type&amp; v );
+            bool try_reserve( output_type&amp; v );
+            bool try_release();
+            bool try_consume();
+        };
+
+    }
+}
+</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d46486e241">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d46486e243">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d46486e241 "><samp class="codeph">template&lt;typename Body&gt; async_node(graph&amp; g, size_t concurrency, Body body)</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d46486e243 "><p><samp class="codeph">body</samp> のコピーを呼び出す <samp class="codeph">async_node</samp> を構築します。ほとんどの場合、<samp class="codeph">body</samp> に対する concurrency の呼び出しは同時に行われます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d46486e241 "><samp class="codeph">async_node( const async_node&amp; src )</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d46486e243 "><p><samp class="codeph">src</samp> の構築時の状態と同じ初期状態で <samp class="codeph">async_node</samp> を構築します。構築される <samp class="codeph">async_node</samp> には、<samp class="codeph">src</samp> と同じ グラフ・オブジェクトへの参照、<samp class="codeph">src</samp> で使用される初期 body のコピー、<samp class="codeph">src</samp> と同じ同時実行数しきい値が含まれます。<samp class="codeph">src</samp> のプレデセッサーおよびサクセサーはコピーされません。<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>新しいボディー・オブジェクトは、<samp class="codeph">src</samp> の構築時に提供されたオリジナルのボディーのコピーからコピー構築されます。このため、<samp class="codeph">src</samp> の構築後に <samp class="codeph">src</samp> のボディーのメンバー変数に対して行われた変更は、新しい <samp class="codeph">async_node</samp> のボディーに影響しません。</p>
+</div>
+</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d46486e241 "><samp class="codeph">gateway_type&amp; gateway()</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d46486e243 "><p><samp class="codeph">gateway_type</samp> インターフェイスへの参照を返します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d46486e241 "><samp class="codeph">bool try_put( const input_type&amp; v )</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d46486e243 "><p><samp class="codeph">body(v)</samp> を実行するタスクがスポーンされます。</p>
+<p><strong>戻り値</strong>: 常に <samp class="codeph">true</samp>。<samp class="codeph">v</samp> を 外部処理に渡すのは <samp class="codeph">body</samp> の責任です。<samp class="codeph">body</samp> によってメッセージが適切に処理されなかった場合、そのメッセージは失われます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d46486e241 "><samp class="codeph">bool try_get( output_type&amp; v )</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d46486e243 "><p><samp class="codeph">async_node</samp> に出力のバッファーは含まれていないため、<samp class="codeph">try_get</samp> 呼び出しは常に拒否されます。</p>
+<p><strong>戻り値</strong>: false。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d46486e241 "><samp class="codeph">bool try_reserve( output_type&amp; v )</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d46486e243 "><p><samp class="codeph">async_node</samp> に出力のバッファーは含まれていないため、予約することはできません。</p>
+<p><strong>戻り値</strong>: false。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d46486e241 "><samp class="codeph">bool try_release()</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d46486e243 "><p><samp class="codeph">async_node</samp> に出力のバッファーは含まれていないため、予約することはできません。</p>
+<p><strong>戻り値</strong>: false。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d46486e241 "><samp class="codeph">bool try_consume()</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d46486e243 "><p><samp class="codeph">async_node</samp> に出力のバッファーは含まれていないため、予約することはできません。</p>
+<p><strong>戻り値</strong>: false。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/flow_graph.html">フローグラフ</a></div>
+</div>
+<div/>
+</body>
+</html>

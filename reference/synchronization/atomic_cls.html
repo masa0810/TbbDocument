@@ -1,0 +1,189 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="atomic テンプレート・クラス"/>
+<meta name="DC.subject" content="atomic テンプレート・クラス"/>
+<meta name="keywords" content="atomic テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/synchronization.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="atomic_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>atomic テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="atomic_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">atomic テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>アトミック操作用のテンプレート・クラス。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>template&lt;typename T&gt; atomic;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/atomic.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">atomic&lt;T&gt;</samp> は、アトミック read、write、fetch-and-add、fetch-and-store、compare-and-swap をサポートします。T は、整数型、列挙型またはポインター型です。T がポインター型の場合、算術演算はポインター算術として解釈されます。例えば、<samp class="codeph"><em>x</em></samp> に <samp class="codeph">atomic&lt;float*&gt;</samp> 型が含まれ float が 4 バイトの場合、<samp class="codeph"><em>++x</em></samp> は 4 バイト単位で <samp class="codeph"><em>x</em></samp> を進めます。<samp class="codeph">T</samp> が列挙型、<samp class="codeph">void*</samp>、<samp class="codeph">bool</samp> の場合、<samp class="codeph">atomic&lt;T&gt;</samp> ではポインター算術は使用できません。</p>
+<p>一部のメソッドでは、より選択的なメモリーフェンスが可能なテンプレート形式のメソッドのバリエーションが含まれます。IA-32 プロセッサーおよびインテル&reg; 64 アーキテクチャー対応のプロセッサーでは、非テンプレート形式のバリエーションと同じ効果になります。IA-64 アーキテクチャーのプロセッサーでは、メモリー・サブシステムに読み取りと書き込みの順序についてより広い裁量権を与えることで、パフォーマンスを改善します。次の表は、非テンプレート形式の暗黙的な操作の順序を示しています。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl29" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">非テンプレート形式の暗黙的な操作の順序</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="NaN%" id="d70582e75"><p>種類</p>
+</th>
+<th class="cellrowborder" valign="top" width="NaN%" id="d70582e78"><p>説明</p>
+</th>
+<th class="row-nocellborder" valign="top" width="NaN%" id="d70582e81"><p>デフォルト</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="NaN%" headers="d70582e75 "><p>acquire (取得)</p>
+</td>
+<td class="cellrowborder" valign="top" width="NaN%" headers="d70582e78 "><p>アトミック操作の後の操作はアトミック操作を決して越えません。</p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d70582e81 "><p>read (読み取り)</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d70582e75 "><p>release (解放)</p>
+</td>
+<td class="cellrowborder" valign="top" width="NaN%" headers="d70582e78 "><p>アトミック操作の前の操作はアトミック操作を決して越えません。</p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d70582e81 "><p>write (書き込み)</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d70582e75 "><p>連続して一貫</p>
+</td>
+<td class="cellrowborder" valign="top" width="NaN%" headers="d70582e78 "><p>アトミック操作の両側の操作はアトミック操作を決して越えません。連続して一貫したアトミック操作はグローバルな順序になります。</p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d70582e81 "><samp class="codeph"> fetch_and_store, fetch_and_add, compare_and_swap </samp></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p><samp class="codeph">atomic&lt;T&gt;</samp> クラスのコピー・コンストラクターはアトミックではありません。<samp class="codeph">atomic&lt;T&gt;</samp> をアトミックにコピーするには、コピーをデフォルト宣言して、そのコピーに代入します。下記の例は、この違いを示しています。</p>
+</div>
+<pre>      
+           atomic&lt;T&gt; y(x);  // アトミックではない
+           atomic&lt;T&gt; z;
+           z=x;             // アトミック代入</pre><p>コピー・コンストラクターはコンパイラーが生成するためアトミックではありません。C++03 では、自明でないコンストラクターが含まれていると、名前空間スコープを動的に初期化する前に名前空間スコープ・インスタンスがゼロに初期化されるという、<samp class="codeph">atomic&lt;T&gt;</samp> の重要なプロパティーが動作しなくなります。このプロパティーは、プログラムのスタートアップの初期に実行するコードでは不可欠です。 
+		</p>
+<p>C++03 では、特定の値で <samp class="codeph">atomic&lt;T&gt;</samp> を作成するには、デフォルト宣言してから、後で値を代入してください。C++11 からは、<samp class="codeph">constexpr</samp> の単一引数コンストラクターが利用できます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+                enum memory_semantics {
+                    acquire,
+                    release
+                };
+             
+                struct atomic&lt;T&gt; {
+                    typedef T value_type;
+                    
+                    // C++11 からサポート
+                    atomic() = default;
+                    constexpr atomic(T arg)
+             
+                    template&lt;memory_semantics M&gt;
+                    value_type compare_and_swap( value_type new_value, 
+                                                 value_type comparand );
+             
+                    value_type compare_and_swap( value_type new_value, 
+                                                 value_type comparand );
+             
+                    template&lt;memory_semantics M&gt;
+                    value_type fetch_and_store( value_type new_value );
+             
+                    value_type fetch_and_store( value_type new_value );
+             
+                    operator value_type() const;
+             
+                    value_type operator=( value_type new_value );
+                    atomic&lt;T&gt;&amp; operator=( const atomic&lt;T&gt;&amp; value );
+             
+                    // T が整数型またはポインター型の場合のみ
+                    // 次のメンバーが存在
+             
+                    template&lt;memory_semantics M&gt;
+                    value_type fetch_and_add( value_type addend );
+             
+                    value_type fetch_and_add( value_type addend );
+             
+                    template&lt;memory_semantics M&gt;
+                    value_type fetch_and_increment();
+             
+                    value_type fetch_and_increment();
+             
+                    template&lt;memory_semantics M&gt;
+                    value_type fetch_and_decrement();
+             
+                    value_type fetch_and_decrement();
+             
+                    value_type operator+=(value_type);
+                    value_type operator-=(value_type);
+                    value_type operator++();
+                    value_type operator++(int);
+                    value_type operator--();
+                    value_type operator--(int);
+                };
+            } </pre><p>atomic&lt;T*&gt; を T へのポインターのように使用できるように、特殊な atomic&lt;T*&gt; も定義します。 
+		</p>
+<pre>        T* operator-&gt;() const;</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d70582e155">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d70582e157">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d70582e155 "><span class="keyword">memory_semantics Enum </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d70582e157 "><p>より選択的な操作の制御が可能なテンプレート・バリエーションの選択に使用する値を定義します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d70582e155 "><span class="keyword">atomic() = default </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d70582e157 "><p>C++11 からサポート。</p>
+<p>コンパイラーにより生成されるデフォルト・コンストラクター。このコンストラクターは、ユーザー定義コンストラクターが何も宣言されていない場合と同じように動作します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d70582e155 "><span class="keyword">constexpr atomic(value_type arg) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d70582e157 "><p>C++11 からサポート。</p>
+<p>arg の値で <samp class="codeph">*this</samp> を初期化します。引数が変換時定数の場合、初期化は変換時に行われます。その他の場合、初期化は実行時に行われます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d70582e155 "><span class="keyword">value_type fetch_and_add( value_type addend )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d70582e157 "><p><samp class="codeph"><em>x</em></samp> を <samp class="codeph">*this</samp> の値にします。addend をアトミックに追加して <em><samp class="codeph"><em>x = x +</em> addend</samp></em> にします。</p>
+<p><strong>戻り値</strong>: <samp class="codeph"><em>x</em></samp> のオリジナルの値。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d70582e155 "><span class="keyword"> value_type fetch_and_increment()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d70582e157 "><p>x を <samp class="codeph">*this</samp> の値にします。アトミックにインクリメントして <samp class="codeph"><em>x = x</em> + 1</samp> にします。</p>
+<p><strong>戻り値</strong>: <samp class="codeph"><em>x</em></samp> のオリジナルの値。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d70582e155 "><span class="keyword">value_type fetch_and_decrement()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d70582e157 "><p><samp class="codeph"><em>x</em></samp> を <em>*this</em> の値にします。アトミックにデクリメントして <samp class="codeph"><em>x = x</em> -1</samp> にします。</p>
+<p><strong>戻り値</strong>: <samp class="codeph"><em>x</em></samp> のオリジナルの値。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d70582e155 "><span class="keyword">value_type compare_and_swap</span><p>value_type compare_and_swap( value_type new_value, value_type comparand )</p>
+</td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d70582e157 "><p><em>x</em> を <samp class="codeph">*this</samp> の値にします。comparand で <samp class="codeph"><em>x</em></samp> をアトミックに比較して、等しい場合は <samp class="codeph"><em>x</em></samp>=new_value に設定します。</p>
+<p><strong>戻り値</strong>: <samp class="codeph">x</samp> のオリジナルの値。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d70582e155 "><span class="keyword">value_type fetch_and_store( value_type new_value )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d70582e157 "><p><samp class="codeph">x</samp> を <samp class="codeph">*this</samp> の値にします。new_value で <samp class="codeph"><em>x</em></samp> の古い値をアトミックに交換します。</p>
+<p><strong>戻り値</strong>: <samp class="codeph"><em>x</em></samp> のオリジナルの値。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/synchronization.html">同期</a></div>
+</div>
+<div/>
+</body>
+</html>

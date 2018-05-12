@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="パイプライン・フィルター構築用のインターフェイス"/>
+<meta name="DC.subject" content="パイプライン・フィルター構築用のインターフェイス"/>
+<meta name="keywords" content="パイプライン・フィルター構築用のインターフェイス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/appendices/compatibility_features.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../algorithms/pipeline_cls/filter_cls.html#filter_cls"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="interface_for_constructing_a_pipeline_filter"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>パイプライン・フィルター構築用のインターフェイス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="interface_for_constructing_a_pipeline_filter">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">パイプライン・フィルター構築用のインターフェイス</h1>
+<div><p>インテル&reg; TBB のいくつかのリリースを経て、フィルターを構築するインターフェイスが進化しました。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、インターフェイスの変更点を示します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d11816e28">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d11816e30">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d11816e28 "><span class="keyword">filter::filter( bool is_serial )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d11816e30 "><p><samp class="codeph">is_serial</samp> が true の場合、シリアル・インオーダー・フィルターを構築します。<samp class="codeph">is_serial</samp> が false の場合、並列フィルターを構築します。これらのコンストラクターの代わりに <samp class="codeph">filter( filter::mode)</samp> コンストラクターが使用されます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d11816e28 "><span class="keyword">filter::serial</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d11816e30 "><p>フィルターモード <samp class="codeph">filter::serial</samp> は filter::serial_in_order に名前が変わりました。新しい名前は <samp class="codeph">filter::serial_out_of_order</samp> モードとより区別がつきやすくなりました。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/appendices/compatibility_features.html">互換性機能</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../../algorithms/pipeline_cls/filter_cls.html#filter_cls">filter クラス</a></div></div></div>
+</body>
+</html>

@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="Windows*"/>
+<meta name="DC.subject" content="既知の問題, Windows*"/>
+<meta name="keywords" content="既知の問題, Windows*"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/appendices/known_issues.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../../tbb_userguide/windows_os_ug.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../../tbb_userguide/Debug_Versus_Release_Libraries.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../../tbb_userguide/Windows_C_Dynamic_Memory_Interface_Replacement.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="windows_os"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>Windows*</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="windows_os">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">Windows*</h1>
+<div><p>一般に、アプリケーションの非デバッグ (「リリース) ビルドは非デバッグバージョンのインテル&reg; TBB ライブラリーとリンクし、デバッグビルドはデバッグバージョンのライブラリーとリンクする必要があります。Windows* では、<samp class="codeph">/MD</samp> オプションを指定してコンパイルしてインテル&reg; TBB リリース・ライブラリーを使用するか、<samp class="codeph">/MDd</samp> オプションを指定してコンパイルしてデバッグ・ライブラリーを使用してください。そうしないと、ランタイムエラーが発生することがあります。</p>
+<p>一部のインテル&reg; TBB のヘッダーファイルは、&lt;windows.h&gt; ヘッダーファイルをインクルードします。これは、min マクロと max マクロを定義し、その結果、標準 C++ ヘッダーファイル <samp class="codeph">&lt;limits&gt;</samp> と <samp class="codeph">&lt;algorithm&gt;</samp> の正常な動作を妨げます。プリプロセッサー・シンボル <samp class="codeph">NOMINMAX</samp> を定義することで、<samp class="codeph">&lt;windows.h&gt;</samp> が問題を引き起こすマクロを定義しないようにできます。インテル&reg; TBB と前述の C++ ヘッダーファイルを使用するプログラムは、コンパイラー引数に <samp class="codeph">/DNOMINMAX</samp> を指定してコンパイルしてください。</p>
+<p>デバッグバージョンの Microsoft* Universal CRT (<samp class="codeph">ucrtbased.dll</samp>、Microsoft* Visual C++* 14.0 から使用) とリンクしたアプリケーションでは、メモリー管理関数のダイナミック置換はサポートされていません。</p>
+<p>アプリケーションがスタティック MSVCRT ライブラリーまたはスタティック MSVCRT (vc_mt 引数) を指定してビルドしたインテル&reg; TBB ライブラリーを使用していて、ファンクターから <samp class="codeph">task_group::run_and_wait()</samp> に例外がスローされた場合、例外はインテル&reg; TBB で処理されず、タスクグループはキャンセルされません。この問題を回避するには、ファンクターで例外をキャッチしてタスクグループを明示的にキャンセルしてください。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/appendices/known_issues.html">既知の問題</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../../../tbb_userguide/windows_os_ug.html">パッケージの内容: Windows*</a></div>
+<div><a href="../../../tbb_userguide/Debug_Versus_Release_Libraries.html">デバッグ・ライブラリーとリリース・ライブラリー</a></div>
+<div><a href="../../../tbb_userguide/Windows_C_Dynamic_Memory_Interface_Replacement.html">Windows* の C/C++ 動的メモリー・インターフェイスの置換</a></div></div></div>
+</body>
+</html>

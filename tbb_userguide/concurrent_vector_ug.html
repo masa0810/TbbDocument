@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="concurrent_vector"/>
+<meta name="DC.subject" content="concurrent_vector"/>
+<meta name="keywords" content="concurrent_vector"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Containers.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Advanced_Idiom_Waiting_on_an_Element.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_concurrent_vector"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>concurrent_vector</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_concurrent_vector">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">concurrent_vector</h1>
+<div><p><samp class="codeph">concurrent_vector&lt;<var>T</var>&gt;</samp> は、動的に拡張可能な <var>T</var>  型の配列です。ほかのスレッドをその要素上で操作しているか、自身が拡張しているときに <samp class="codeph">concurrent_vector</samp> を安全に拡張できます。安全な同時拡張のため、<samp class="codeph">concurrent_vector</samp> には、動的配列の共通使用をサポートするサイズ変更用に、<samp class="codeph">push_back</samp>、<samp class="codeph">grow_by</samp>、<samp class="codeph">grow_to_at_least</samp> の 3 つのメソッドが用意されています。</p>
+<p><samp class="codeph">push_back(<var>x</var>)</samp> メソッドは、x を配列に安全に追加します。<samp class="codeph">grow_by(<var>n</var>)</samp> メソッドは、<samp class="codeph"><var>T</var>()</samp> で初期化した <samp class="codeph"><var>n</var></samp> 個の連続する要素を安全に追加します。どちらのメソッドも、最初に追加した要素を指すイテレーターを返します。各要素は <samp class="codeph"><var>T</var>()</samp> で初期化されます。例えば、次のルーチンは C の文字列を共有ベクトルに安全に追加します。</p>
+<pre>void Append( concurrent_vector&lt;char&gt;&amp; vector, const char* string ) {
+    size_t n = strlen(string)+1;
+    std::copy( string, string+n, vector.grow_by(n) );
+}</pre><p>関連する <samp class="codeph">grow_to_at_least(<var>n</var>)</samp> メソッドは、ベクトルがサイズ <var>n</var> よりも短い場合、ベクトルをそのサイズまで拡張します。これらのメソッドの同時呼び出しは、ベクトルに追加された順に要素を返す必要はありません。
+	 </p>
+<p><samp class="codeph">size()</samp> メソッドは、<samp class="codeph">push_back</samp>、<samp class="codeph">grow_by</samp> または <samp class="codeph">grow_to_at_least</samp> メソッドによって同時構築中の要素を含む、ベクトル要素の数を返します。<samp class="codeph">concurrent_vector</samp> の要素は連続するアドレスにならないため、サンプルでは <samp class="codeph">strcpy</samp> とポインターではなく、<span class="option">std::copy</span> とイテレーターを使用しています。イテレーターが <samp class="codeph">end()</samp> の値を超えて移動しない限り、<samp class="codeph">concurrent_vector</samp> が拡張する間も、安全にイテレーターを使用できます。しかし、イテレーターは同時構築されている要素を参照することがあります。そのため、構築とアクセスを同期させる必要があります。</p>
+<p><samp class="codeph">concurrent_vector&lt;<var>T</var>&gt;</samp> は、配列が消去されるまで要素を移動しません。これは、シングルスレッド・コードであっても STL <span class="option">std::vector</span> より利点があります。しかし、<samp class="codeph">concurrent_vector</samp> は <span class="option">std::vector</span> よりもオーバーヘッドが大きくなります。ほかのアクセスを処理する際に動的にサイズを変更する必要がある場合、または要素を移動してはならない場合のみ、<samp class="codeph">concurrent_vector</samp> を使用してください。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p><samp class="codeph">concurrent_vector</samp> の操作は、<strong>拡張</strong>に関しては並列化セーフですが、ベクトルの消去や破棄に関しては並列化セーフではありません。<samp class="codeph">concurrent_vector</samp> で処理を行っているほかの操作がある場合、<samp class="codeph">clear()</samp> メソッドを呼び出さないでください。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Containers.html">コンテナー</a></div>
+</div>
+<div>
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../tbb_userguide/Advanced_Idiom_Waiting_on_an_Element.html">高度な表現方法: 要素での待機</a><br/>
+</li>
+</ul>
+</div>
+</body>
+</html>

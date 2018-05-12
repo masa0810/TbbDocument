@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="互換性保持の問題"/>
+<meta name="DC.subject" content="既知の問題, 互換性保持"/>
+<meta name="keywords" content="既知の問題, 互換性保持"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/appendices/known_issues.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="interoperability_issues"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>互換性保持の問題</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="interoperability_issues">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">互換性保持の問題</h1>
+<div><p>同じプログラム内でインテル&reg; TBB と OpenMP* 構造を短い間隔で交互に呼び出していて、OpenMP* コードにインテル&reg; C++ コンパイラーを使用している場合、パフォーマンスを向上するため、<samp class="codeph">KMP_BLOCKTIME</samp> 環境変数を小さな値 (20 ミリ秒未満) に設定してください。<samp class="codeph">kmp_set_blocktime()</samp> ライブラリー呼び出しを使用してプログラム内でこの設定を行うこともできます。</p>
+<p>Linux* 向けプログラムでインテル&reg; TBB と OpenMP* を一緒に使用している場合、インテル&reg; TBB のタスク・スケジューラーが初期化される前に <samp class="codeph">KMP_AFFINITY</samp>、<samp class="codeph">OMP_PROC_BIND</samp>、その他の環境変数を使用してスレッド・アフィニティーを設定すると、インテル&reg; TBB で使用されるデフォルトのワーカースレッドの数が制限されることがあります。この問題を解決するには、インテル&reg; C++ コンパイラー 16.0 Update 1 以降およびインテル&reg; TBB 4.4 Update 2 以降に更新してください。</p>
+<p>インテル&reg; Xeon Phi&#8482; コプロセッサーでのオフロード実行のためにアプリケーションで <samp class="codeph">&lt;tbb/enumerable_thread_specific.h&gt;</samp> または <samp class="codeph">&lt;tbb/tbb.h&gt;</samp> をインクルードすると、<samp class="codeph">libpthread</samp> に関連するリンクエラーが発生することがあります。この問題を回避するには、<samp class="codeph">/Qoffload-option,mic,compiler,"-pthread"</samp> (Windows*) または <samp class="codeph">-qoffload-option,mic,compiler,"-pthread"</samp> (Linux*) コンパイラー・オプションを使用してください。</p>
+<p>オプション、関数、環境変数の詳細は、インテル&reg; C++ コンパイラーのドキュメントを参照してください。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/appendices/known_issues.html">既知の問題</a></div>
+</div>
+<div/>
+</body>
+</html>

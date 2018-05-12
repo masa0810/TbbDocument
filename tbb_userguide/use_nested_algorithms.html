@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="入れ子のアルゴリズムを使用したスケーラビリティーの向上"/>
+<meta name="DC.subject" content="フローグラフのヒント, 入れ子のアルゴリズムの使用, 入れ子のアルゴリズム, スケーラビリティーの向上"/>
+<meta name="keywords" content="フローグラフのヒント, 入れ子のアルゴリズムの使用, 入れ子のアルゴリズム, スケーラビリティーの向上"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Flow_Graph_nested_parallelism_tips.html"/>
+<meta name="DC.Relation" scheme="URI" content="use_nested_flow_graphs.html#use_nested_flow_graphs"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="use_nested_algorithms"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>入れ子のアルゴリズムを使用したスケーラビリティーの向上</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="use_nested_algorithms">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">入れ子のアルゴリズムを使用したスケーラビリティーの向上</h1>
+<div><p>フローグラフのスケーラビリティーを向上させる 1 つの方法は、ノードボディーの内部にほかの並列アルゴリズムを入れ子にすることです。アルゴリズムを入れ子にすることで、グラフのレベルで最も粗粒度の並列化を表現し、内部の入れ子でより細粒度の並列化を表現する、協調言語としてフローグラフを使用できます。</p>
+<p>下記の例では、5 つのノードが作成されています。<span class="keyword">source_node</span> は、ファイル <span class="keyword">matrix_source</span> から行列のシーケンスを読み取ります。2 つの <span class="keyword">function_node</span>、<span class="keyword">n1</span> および <span class="keyword">n2</span> は、これらの行列を受け取り、各要素に関数を適用して 2 つの新しい行列を生成します。最後の 2 つの <span class="keyword">function_node</span>、<span class="keyword">n1_sink</span> および <span class="keyword">n2_sink</span> は、生成された行列を処理します。<span class="keyword">matrix_source</span> は、<span class="keyword">n1</span> と <span class="keyword">n2</span> の両方に接続されます。ノード <span class="keyword">n1</span> は <span class="keyword">n1_sink</span> に接続され、<span class="keyword">n2</span> は <span class="keyword">n2_sink</span> に接続されます。<span class="keyword">n1</span> と <span class="keyword">n2</span> のラムダ式で、<span class="keyword">parallel_for</span> は行列の要素に関数を並列に適用するために使用されます。<span class="keyword">read_next_matrix</span>、<span class="keyword">f1</span>、<span class="keyword">f2</span>、<span class="keyword">consume_f1</span>、および <span class="keyword">consume_f2</span> 関数は提供されていません。</p>
+<pre>    graph g;
+    source_node&lt; double * &gt; matrix_source( g, [&amp;]( double * &amp;v ) -&gt; bool {
+      double *a = read_next_matrix();
+      if ( a ) {
+        v = a;
+        return true;
+      } else {
+        return false;
+      }
+    }, false );
+    function_node&lt; double *, double * &gt; n1( g, unlimited, [&amp;]( double *a ) -&gt; double * {
+      double *b = new double[N];
+      parallel_for( 0, N, [&amp;](int i) {
+        b[i] = f1(a[i]);
+      } );
+      return b;
+    } );
+    function_node&lt; double *, double * &gt; n2( g, unlimited, [&amp;]( double *a ) -&gt; double * {
+      double *b = new double[N];
+      parallel_for( 0, N, [&amp;](int i) {
+        b[i] = f2(a[i]);
+      } );
+      return b;
+    } );
+    function_node&lt; double *, double * &gt; n1_sink( g, unlimited, 
+      []( double *b ) -&gt; double * {
+        return consume_f1(b);
+    } );
+    function_node&lt; double *, double * &gt; n2_sink( g, unlimited, 
+      []( double *b ) -&gt; double * {
+        return consume_f2(b);
+    } );
+    make_edge( matrix_source, n1 );
+    make_edge( matrix_source, n2 );
+    make_edge( n1, n1_sink );
+    make_edge( n2, n2_sink );
+    matrix_source.activate();
+    g.wait_for_all();
+</pre></div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Flow_Graph_nested_parallelism_tips.html">入れ子の並列処理におけるフローグラフのヒント</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="use_nested_flow_graphs.html#use_nested_flow_graphs">入れ子のフローグラフの使用</a></div></div></div>
+</body>
+</html>

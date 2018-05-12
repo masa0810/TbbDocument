@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="PPL との互換性"/>
+<meta name="DC.subject" content="PPL との互換性"/>
+<meta name="keywords" content="PPL との互換性"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/appendices.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="ppl_compatibility"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>PPL との互換性</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="ppl_compatibility">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">PPL との互換性</h1>
+<div><p>インテル&reg; TBB 2.2 では、マイクロソフト社とインテルの共同討議に基づいた機能が追加されています。この機能は、インテル&reg; TBB と Microsoft* Parallel Patterns Library (PPL) 開発ソフトウェア間に、ある程度の互換性をもたらします。</p>
+<p>各機能は <samp class="codeph">tbb</samp> 名前空間にあり、"<span class="filepath">tbb/compat/ppl.h</span>" をインクルードすることで、Concurrency 名前空間に各機能を追加できます。以下に機能のリストを示します。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、機能と詳細な情報へのリンクを提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="46.08294930875576%" id="d13214e36">機能</th>
+<th class="cellrowborder" valign="top" width="53.91705069124424%" id="d13214e38">リンク</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="46.08294930875576%" headers="d13214e36 "><span class="keyword"/>parallel_for(<var>first</var>,<var>last</var>,<var>f</var>)</td>
+<td class="cellrowborder" valign="top" width="53.91705069124424%" headers="d13214e38 "><a class="underlined" href="../algorithms/parallel_for_func.html">parallel_for テンプレート関数</a></td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="46.08294930875576%" headers="d13214e36 "><span class="keyword"/>parallel_for(<var>first</var>,<var>last</var>,<var>step</var>,<var>f</var>)</td>
+<td class="cellrowborder" valign="top" width="53.91705069124424%" headers="d13214e38 "><a class="underlined" href="../algorithms/parallel_for_func.html">parallel_for テンプレート関数</a></td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="46.08294930875576%" headers="d13214e36 "><span class="keyword">parallel_for_each</span></td>
+<td class="cellrowborder" valign="top" width="53.91705069124424%" headers="d13214e38 "><a class="underlined" href="../algorithms/parallel_for_each_func.html">parallel_for_each テンプレート関数</a></td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="46.08294930875576%" headers="d13214e36 "><span class="keyword">parallel_invoke</span></td>
+<td class="cellrowborder" valign="top" width="53.91705069124424%" headers="d13214e38 "><a class="underlined" href="../algorithms/parallel_invoke_func.html">parallel_invoke テンプレート関数</a></td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="46.08294930875576%" headers="d13214e36 "><span class="keyword">critical_section</span></td>
+<td class="cellrowborder" valign="top" width="53.91705069124424%" headers="d13214e38 "><a class="underlined" href="../synchronization/ppl_compatibility/critical_section.html">critical_section</a></td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="46.08294930875576%" headers="d13214e36 "><span class="keyword">reader_writer_lock</span></td>
+<td class="cellrowborder" valign="top" width="53.91705069124424%" headers="d13214e38 "><a class="underlined" href="../synchronization/ppl_compatibility/reader_writer_lock_cls.html">reader_writer_lock クラス</a></td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="46.08294930875576%" headers="d13214e36 "><span class="keyword">task_handle</span></td>
+<td class="cellrowborder" valign="top" width="53.91705069124424%" headers="d13214e38 "><a class="underlined" href="../task_groups/task_handle_cls.html">task_handle テンプレート・クラス</a></td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="46.08294930875576%" headers="d13214e36 "><span class="keyword">task_group_status</span></td>
+<td class="cellrowborder" valign="top" width="53.91705069124424%" headers="d13214e38 "><a class="underlined" href="../task_groups/task_group_status_enum.html">task_group_status 列挙値</a></td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="46.08294930875576%" headers="d13214e36 "><span class="keyword">task_group</span></td>
+<td class="cellrowborder" valign="top" width="53.91705069124424%" headers="d13214e38 "><a class="underlined" href="../task_groups/task_group_cls.html">task_group クラス</a></td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="46.08294930875576%" headers="d13214e36 "><span class="keyword">make_task</span></td>
+<td class="cellrowborder" valign="top" width="53.91705069124424%" headers="d13214e38 "><a class="underlined" href="../task_groups/make_task_func.html">make_task テンプレート関数</a></td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="46.08294930875576%" headers="d13214e36 "><span class="keyword">structured_task_group</span></td>
+<td class="cellrowborder" valign="top" width="53.91705069124424%" headers="d13214e38 "><a class="underlined" href="../task_groups/structured_task_group_cls.html">structured_task_group クラス</a></td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="46.08294930875576%" headers="d13214e36 "><span class="keyword">is_current_task_group_cancelling</span></td>
+<td class="cellrowborder" valign="top" width="53.91705069124424%" headers="d13214e38 "><a class="underlined" href="../task_groups/is_current_task_group_canceling_func.html">is_current_task_group_canceling 関数</a></td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="46.08294930875576%" headers="d13214e36 "><span class="keyword">improper_lock</span></td>
+<td class="cellrowborder" valign="top" width="53.91705069124424%" headers="d13214e38 "><a class="underlined" href="../exceptions/specific_exceptions.html">固有の例外</a></td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="46.08294930875576%" headers="d13214e36 "><span class="keyword">invalid_multiple_scheduling</span></td>
+<td class="cellrowborder" valign="top" width="53.91705069124424%" headers="d13214e38 "><a class="underlined" href="../exceptions/specific_exceptions.html">固有の例外</a></td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="46.08294930875576%" headers="d13214e36 "><span class="keyword">missing_wait</span></td>
+<td class="cellrowborder" valign="top" width="53.91705069124424%" headers="d13214e38 "><a class="underlined" href="../exceptions/specific_exceptions.html">固有の例外</a></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><samp class="codeph">parallel_for</samp> では、上記の表でリストされているバリエーションのみ Concurrency 名前空間に追加されます。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>環境の違いや仕様の変更により、インテル&reg; TBB 実装と PPL 実装では機能の動作が異なることがあります。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/appendices.html">付録</a></div>
+</div>
+<div/>
+</body>
+</html>

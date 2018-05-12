@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="メッセージ・フローグラフの例"/>
+<meta name="DC.subject" content="メッセージ・フローグラフの例"/>
+<meta name="keywords" content="メッセージ・フローグラフの例"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/flow_graph.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="message_flow_graph_example"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>メッセージ・フローグラフの例</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="message_flow_graph_example">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">メッセージ・フローグラフの例</h1>
+<div><p>この例は、<span class="keyword">x =1</span> から 10 までの <span class="keyword">x*x + x*x*x</span> を計算します。この例のレイアウトは、下記の図のようになります。</p>
+<div class="fignone" id="fig6_message_flow_graph"><span class="figcap">単純なメッセージ・フローグラフ</span><br/><div class="imagecenter"><img src="../Resources/message_flow_graph.jpg" height="252" width="454" alt="単純なメッセージ・フローグラフ" align="center"/></div><br/></div>
+<p>各値は、<span class="keyword">input_node&lt;int&gt;</span><span class="keyword">input</span> から処理されます。このノードは、値を <span class="keyword">squarer</span> (<span class="keyword">x*x</span> を計算) および <span class="keyword">cuber</span> (<span class="keyword">x*x*x</span> を計算) にブロードキャストします。これらのノードの出力は、<span class="keyword">join</span> のポートの 1 つに格納されます。<span class="keyword">join_node&lt; tuple&lt;int,int&gt; &gt; join</span> で両方の値を含むタプルが作成され、<span class="keyword">summer</span> (両方の値を合計に追加) に送られます。<span class="keyword">squarer</span> と <span class="keyword">cuber</span> はどちらも無制限に並列化できます。つまり、複数の値を同時に処理できます。最後の <span class="keyword">summer</span> (共有の合計を更新) は、共有値をロックしなくてもいいように、一度に 1 つの受け取ったタプルのみ処理します。</p>
+<pre>#include &lt;cstdio&gt;
+#include "tbb/flow_graph.h"
+
+using namespace tbb::flow;
+
+struct square {
+  int operator()(int v) { return v*v; }
+};
+
+struct cube {
+  int operator()(int v) { return v*v*v; }
+};
+
+class sum {
+  int &amp;my_sum;
+public:
+  sum( int &amp;s ) : my_sum(s) {}
+  int operator()( tuple&lt; int, int &gt; v ) {
+    my_sum += get&lt;0&gt;(v) + get&lt;1&gt;(v);
+    return my_sum;
+  }
+};
+
+int main() {
+  int result = 0;
+
+  graph g;
+  broadcast_node&lt;int&gt; input(g);
+  function_node&lt;int,int&gt; squarer( g, unlimited, square() );
+  function_node&lt;int,int&gt; cuber( g, unlimited, cube() );
+  join_node&lt; tuple&lt;int,int&gt;, queueing &gt; join( g );
+  function_node&lt;tuple&lt;int,int&gt;,int&gt;
+      summer( g, serial, sum(result) );
+
+  make_edge( input, squarer );
+  make_edge( input, cuber );
+  make_edge( squarer, get&lt;0&gt;( join.input_ports() ) );
+  make_edge( cuber, get&lt;1&gt;( join.input_ports() ) );
+  make_edge( join, summer );
+
+  for (int i = 1; i &lt;= 10; ++i)
+      input.try_put(i);
+  g.wait_for_all();
+
+  printf("Final result is %d\n", result);
+  return 0;
+}</pre><p>上記のサンプルコードで、<span class="keyword">square</span>、<span class="keyword">cube</span>、<span class="keyword">sum</span> クラスは 3 つのユーザー定義操作を定義しています。各クラスは <span class="keyword">function_node</span> を作成するために使用されます。
+	 </p>
+<p><span class="keyword">main</span> 関数で、フローグラフがセットアップされ、値 1-10 が <span class="keyword">input</span> ノードに格納されます。この例のノードはすべて、周囲に <span class="keyword">int</span> 型の値オブジェクトを渡します。この例で使用されているノードはすべてテンプレート・クラスであるため、ポインターとオブジェクトを含む、コピー構築をサポートするすべての型で使用できます。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>値はノード間でコピーして渡されるため、大規模なオブジェクトの周囲で渡すとコピーのオーバーヘッドが発生します。オーバーヘッドを回避するには、代わりにオブジェクトへのポインターを渡してください。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>これは単純な構文の例にすぎません。フローグラフの各ノードは独立したタスクとして実行されるため、各ノードの粒度は、『インテル&reg; TBB 入門チュートリアル』で説明されているタスクの一般的なガイドラインに従ってください。</p>
+</div>
+<p>この例で使用されているクラスと関数は、「フローグラフ」からリンクされているトピックで詳細に説明されています。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/flow_graph.html">フローグラフ</a></div>
+</div>
+<div/>
+</body>
+</html>

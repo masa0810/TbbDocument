@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="parallel_while テンプレート・クラス"/>
+<meta name="DC.subject" content="parallel_while テンプレート・クラス"/>
+<meta name="keywords" content="parallel_while テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/appendices/compatibility_features.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="parallel_while_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>parallel_while テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="parallel_while_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">parallel_while テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>ワークアイテムを処理するテンプレート・クラス。</p>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>これは古いクラス (非推奨) です。代わりに parallel_do を使用してください。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>template&lt;typename Body&gt;
+ class parallel_while;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/parallel_while.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">parallel_while&lt;Body&gt;</samp> は、アイテムの並列反復を行います。各アイテムで行う処理は、Body 型の関数オブジェクトによって定義されます。アイテムは 2 つの方法で指定されます。</p>
+<ul><li><p>アイテムのストリーム。</p>
+</li>
+<li><p>ストリームの処理中に追加される追加アイテム。</p>
+</li>
+</ul>
+<p><a href="#tbl44">次の表</a>は、ストリームとボディーの要件を示しています。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl44" frame="border" border="1" cellspacing="0" rules="rows"><caption><span class="tablecap">ストリーム S とボディー B の parallel_while の要件</span></caption><thead align="left"><tr><th class="cellrowborder" align="left" valign="top" width="60%" id="d11972e65"><p>擬似署名</p>
+</th>
+<th class="cellrowborder" align="left" valign="top" width="40%" id="d11972e68"><p>意味</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" align="left" valign="top" width="60%" headers="d11972e65 "><p><samp class="codeph">bool S::pop_if_present( B::argument_type&amp; item )</samp></p>
+</td>
+<td class="cellrowborder" align="left" valign="top" width="40%" headers="d11972e68 "><p>次のストリームアイテムを取得します。<samp class="codeph">parallel_while</samp> は、同じストリーム・オブジェクトのメソッドを同時に呼び出しません。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" align="left" valign="top" width="60%" headers="d11972e65 "><p><samp class="codeph">B::operator()( B::argument_type&amp; item ) const</samp></p>
+</td>
+<td class="cellrowborder" align="left" valign="top" width="40%" headers="d11972e68 "><p>item を処理します。<samp class="codeph">parallel_while</samp> は、同じ ボディー・オブジェクトで <span class="keyword">item</span> が異なる operator を同時に呼び出します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" align="left" valign="top" width="60%" headers="d11972e65 "><p><samp class="codeph">B::argument_type()</samp></p>
+</td>
+<td class="cellrowborder" align="left" valign="top" width="40%" headers="d11972e68 "><p>デフォルト・コンストラクター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" align="left" valign="top" width="60%" headers="d11972e65 "><p><samp class="codeph">B::argument_type( const B::argument_type&amp; )</samp></p>
+</td>
+<td class="cellrowborder" align="left" valign="top" width="40%" headers="d11972e68 "><p>コピー・コンストラクター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" align="left" valign="top" width="60%" headers="d11972e65 "><p><samp class="codeph">~B::argument_type()</samp></p>
+</td>
+<td class="cellrowborder" align="left" valign="top" width="40%" headers="d11972e68 "><p>デストラクター。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>速度を向上するには、<samp class="codeph">B::operator()</samp> を少なくとも 10,000 命令にします。命令が少ない場合、parallel_while の内部オーバーヘッドが大きくなります。すべてのアイテムが入力ストリームから読み込まれる場合、<samp class="codeph">parallel_while</samp> の並列処理はスケーラブルではありません。スケーリングを達成するには、add メソッドがワークの断片を 2 つ以上追加するようにアルゴリズムを設計してください。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+ template&lt;typename Body&gt;
+ class parallel_while {
+ public:
+ parallel_while();
+ ~parallel_while();
+ typedef typename Body::argument_type value_type;
+ template&lt;typename Stream&gt;
+ void run( Stream&amp; stream, const Body&amp; body );
+ void add( const value_type&amp; item );
+ };
+ }</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d11972e165">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d11972e167">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d11972e165 "><span class="keyword">parallel_while&lt;Body&gt;()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d11972e167 "><p>まだ実行していない <samp class="codeph">parallel_while</samp> を構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d11972e165 "><span class="keyword">~parallel_while&lt;Body&gt;()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d11972e167 "><p><samp class="codeph">parallel_while</samp> を破棄します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d11972e165 "><span class="keyword">Template &lt;typename Stream&gt; void run( Stream&amp; stream, const Body&amp; body )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d11972e167 "><p><var>body</var> を <var>stream</var> の各アイテムと add メソッドによって追加されたほかのアイテムに適用します。次の条件が両方とも真の場合に終了します。</p>
+<ul><li><p><samp class="codeph">stream.pop_if_present</samp> が false を返した。</p>
+</li>
+<li><p><samp class="codeph">body(x)</samp> がストリームまたは add メソッドで生成されたすべてのアイテム <var>x</var> から戻った。</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d11972e165 "><span class="keyword">void add( const value_type&amp; item )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d11972e167 "><p><strong>要件</strong>: <samp class="codeph">parallel_while</samp> によって作成された <samp class="codeph"><var>body</var> .operator()</samp> への呼び出しから呼び出されること。その他の場合、<span class="keyword">run</span> メソッドの終了セマンティクスは未定義です。</p>
+<p><strong>効果</strong>: 処理するアイテムのコレクションにアイテムを追加します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/appendices/compatibility_features.html">互換性機能</a></div>
+</div>
+<div/>
+</body>
+</html>

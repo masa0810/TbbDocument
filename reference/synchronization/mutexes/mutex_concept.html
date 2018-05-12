@@ -1,0 +1,339 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="Mutex コンセプト"/>
+<meta name="DC.subject" content="Mutex コンセプト"/>
+<meta name="keywords" content="Mutex コンセプト"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/synchronization/mutexes.html"/>
+<meta name="DC.Relation" scheme="URI" content="../c_11_synchronization.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../../tbb_userguide/Mutual_Exclusion.html#tutorial_Mutual_Exclusion"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="mutex_concept"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>Mutex コンセプト</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="mutex_concept">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">Mutex コンセプト</h1>
+<div><div class="section"><p>この mutex とロックのインターフェイスは、ハイパフォーマンス向けに設計された単純なものです。インターフェイスは、次の理由により、C++ ライブラリーで広く使用されている「スコープ・ロック・パターン」を使用します。</p>
+<ol class="ol_3"><li>プログラマーがロックを解放することを覚えておく必要がありません。</li>
+<li>ロックで保護されている排他制御領域から例外がスローされた場合、ロックを解放します。</li>
+</ol>
+<p>パターンには、<em>mutex</em> と「ロック」の 2 つの部分があります。ロック・オブジェクトのコンストラクターはロックを取得し、ロック・オブジェクトのデストラクターはロックを解放します。次に例を示します。</p>
+<pre>
+{
+    // myLock を構築して myMutex のロックを取得
+    M::scoped_lock myLock( myMutex );
+    // ... ロック中に実行する処理  ...
+    // myLock を破棄して myMutex のロックを解放
+}
+</pre><p>ロック中の処理が例外をスローすると、ロックは自動的に解放され、ブロックは終了します。 
+		</p>
+<p>次の表は、mutex 型 M の Mutex コンセプトの要件を示しています。
+		</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">Mutex コンセプト</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" id="d71863e41"><p><strong>擬似署名</strong></p>
+</th>
+<th class="cellrowborder" valign="top" id="d71863e45"><p><strong>意味</strong></p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" headers="d71863e41 "><p><samp class="codeph">M()</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e45 "><p>ロックしていない mutex を構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e41 "><p><samp class="codeph">~M()</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e45 "><p>ロックしていない mutex を破棄します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e41 "><p><samp class="codeph">typename M::scoped_lock</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e45 "><p>対応するスコープロックの種類。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e41 "><p><samp class="codeph">M::scoped_lock()</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e45 "><p>mutex を取得しないでロックを構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e41 "><p><samp class="codeph">M::scoped_lock(M&amp;)</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e45 "><p>ロックを構築して mutex のロックを取得します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e41 "><p><samp class="codeph">M::~scoped_lock()</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e45 "><p>ロックを解放します (取得している場合)。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e41 "><p><samp class="codeph">M::scoped_lock::acquire(M&amp;)</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e45 "><p>mutex のロックを取得します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e41 "><p><samp class="codeph">bool M::scoped_lock::try_acquire(M&amp;)</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e45 "><p>mutex のロックを取得しようとします。ロックが取得された場合は true、その他の場合は false を返します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e41 "><p><samp class="codeph">M::scoped_lock::release()</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e45 "><p>ロックを解放します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e41 "><p><samp class="codeph">static const bool M::is_rw_mutex</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e45 "><p>mutx がリーダー/ライター mutex の場合は true。その他の場合は false。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e41 "><p><samp class="codeph">static const bool M::is_recursive_mutex</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e45 "><p>mutx が再帰 mutex の場合は true。その他の場合は false。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e41 "><p><samp class="codeph">static const bool M::is_fair_mutex</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e45 "><p>mutx がフェアの場合は true。その他の場合は false。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>mutex 型および <samp class="codeph">M::scoped_lock</samp> 型は、コピーおよび移動できません。</p>
+<p>次の表は、Mutex コンセプトをモデル化するクラスを要約したものです。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">Mutex コンセプトをモデル化する mutex</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" id="d71863e166"><p/>
+</th>
+<th class="cellrowborder" valign="top" id="d71863e168"><p><strong>スケーラブル</strong></p>
+</th>
+<th class="cellrowborder" valign="top" id="d71863e172"><p><strong>フェア</strong></p>
+</th>
+<th class="cellrowborder" valign="top" id="d71863e176"><p><strong>リエントラント</strong></p>
+</th>
+<th class="cellrowborder" valign="top" id="d71863e180"><p><strong>長い待機</strong></p>
+</th>
+<th class="cellrowborder" valign="top" id="d71863e184"><p><strong>サイズ</strong></p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" headers="d71863e166 "><p><samp class="codeph">mutex</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e168 "><p>OS 依存</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e172 "><p>OS 依存</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e176 "><p>×</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e180 "><p>ブロック</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e184 "><p>3 ワード以上</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e166 "><p><samp class="codeph">recursive_mutex</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e168 "><p>OS 依存</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e172 "><p>OS 依存</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e176 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e180 "><p>ブロック</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e184 "><p>3 ワード以上</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e166 "><p><samp class="codeph">spin_mutex</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e168 "><p>×</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e172 "><p>×</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e176 "><p>×</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e180 "><p>イールド</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e184 "><p>1 バイト</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e166 "><p><samp class="codeph">speculative_spin_mutex</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e168 "><p>HW 依存</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e172 "><p>×</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e176 "><p>×</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e180 "><p>イールド</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e184 "><p>2 キャッシュライン</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e166 "><p><samp class="codeph">queuing_mutex</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e168 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e172 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e176 "><p>×</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e180 "><p>イールド</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e184 "><p>1 ワード</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e166 "><p><samp class="codeph">spin_rw_mutex</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e168 "><p>×</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e172 "><p>×</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e176 "><p>×</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e180 "><p>イールド</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e184 "><p>1 ワード</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e166 "><p><samp class="codeph">speculative_spin_rw_mutex</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e168 "><p>HW 依存</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e172 "><p>×</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e176 "><p>×</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e180 "><p>イールド</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e184 "><p>3 キャッシュライン</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e166 "><p><samp class="codeph">queuing_rw_mutex</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e168 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e172 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e176 "><p>×</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e180 "><p>イールド</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e184 "><p>1 ワード</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e166 "><p><samp class="codeph">null_mutex</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e168 "><p>-</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e172 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e176 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e180 "><p>-</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e184 "><p>空</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e166 "><p><samp class="codeph">null_rw_mutex</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e168 "><p>-</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e172 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e176 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e180 "><p>-</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e184 "><p>空</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>null mutex の特徴と動作の説明は、『インテル&reg; TBB デベロッパー・ガイド』を参照してください。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">C++11 との互換性</h2><p><samp class="codeph">mutex、recursive_mutex、spin_mutex</samp>、<samp class="codeph">spin_rw_mutex</samp> クラスは、次の表で説明されているように、C++11 インターフェイスをサポートしています。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">一部の mutex で利用可能な C++11 のメソッド</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" id="d71863e409"><p><strong>擬似署名</strong></p>
+</th>
+<th class="cellrowborder" valign="top" id="d71863e413"><p><strong>意味</strong></p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" headers="d71863e409 "><p><samp class="codeph">void M::lock()</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e413 "><p>ロックを取得します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e409 "><p><samp class="codeph">bool M::try_lock()</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e413 "><p>mutex のロックを取得しようとします。ロックが取得された場合は true、その他の場合は false を返します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e409 "><p><samp class="codeph">void M::unlock()</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e413 "><p>ロックを解放します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e409 "><p><samp class="codeph">class lock_guard&lt;M&gt;</samp></p>
+</td>
+<td class="cellrowborder" rowspan="2" valign="top" headers="d71863e413 "><p>「C++11 の同期」セクションを参照してください。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e409 "><p><samp class="codeph">class unique_lock&lt;M&gt;</samp></p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>mutex クラスと再帰 mutex クラスには、次の表で説明されているように、基本的な OS ハンドルにアクセスするための C++11 の表現方法も用意されています。</p>
+<p>ネイティブ・ハンドル・インターフェイス (M は mutex または recursive_mutex)。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">ネイティブ・ハンドル・インターフェイス</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" id="d71863e467"><p><strong>擬似署名</strong></p>
+</th>
+<th class="cellrowborder" valign="top" id="d71863e471"><p><strong>意味</strong></p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" headers="d71863e467 "><p><samp class="codeph">M::native_handle_type</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e471 "><p>ネイティブハンドル型。</p>
+<p>Windows* オペレーティング・システムでは、LPCRITICAL_SECTION がネイティブハンドル型です。</p>
+<p>ほかのオペレーティング・システムでは、(pthread_mutex*) がネイティブハンドル型です。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d71863e467 "><p><samp class="codeph">native_handle_type M::native_handle()</samp></p>
+</td>
+<td class="cellrowborder" valign="top" headers="d71863e471 "><p>mutex M のネイティブハンドルを取得します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>C++11 用の拡張として、<samp class="codeph">spin_rw_mutex</samp> クラスには、リーダーロックを取得する操作に対応する <samp class="codeph">read_lock()</samp> および <samp class="codeph">try_read_lock()</samp> メソッドも用意されています。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/synchronization/mutexes.html">mutex</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../c_11_synchronization.html">C++11 の同期</a></div>
+<div><a href="../../../tbb_userguide/Mutual_Exclusion.html#tutorial_Mutual_Exclusion">排他制御</a></div></div></div>
+</body>
+</html>

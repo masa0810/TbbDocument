@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="parallel_sort テンプレート関数"/>
+<meta name="DC.subject" content="parallel_sort テンプレート関数"/>
+<meta name="keywords" content="parallel_sort テンプレート関数"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/algorithms.html"/>
+<meta name="DC.Relation" scheme="URI" content="../task_scheduler/task_scheduler_init_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="parallel_sort_func"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>parallel_sort テンプレート関数</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="parallel_sort_func">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">parallel_sort テンプレート関数</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2> シーケンスをソートします。</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/parallel_sort.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>
+template&lt;typename RandomAccessIterator&gt;
+void parallel_sort( RandomAccessIterator begin, RandomAccessIterator end );
+
+template&lt;typename RandomAccessIterator, typename Compare&gt;
+void parallel_sort( RandomAccessIterator begin, RandomAccessIterator end,
+                    const Compare&amp; comp );
+
+template&lt;typename Container&gt;
+void parallel_sort( Container c );
+
+template&lt;typename Container&gt;
+void parallel_sort( Container c, const Compare&amp; comp );
+</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p>シーケンスまたはコンテナーをソートします。ソートは不安定で再現性がありません。等しいキーの相対的な順序は保存されず、同じシーケンスを再度ソートした場合でも同じ結果になる保証はありません。イテレーターとシーケンスの要件は、<samp class="codeph">std::sort</samp> と同じです。具体的には、<samp class="codeph">RandomAccessIterator</samp> はランダムアクセス・イテレーターであり、その値の型 <em>T</em> は次の表の要件をモデル化します。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">parallel_sort のイテレーター型 It およびその値の型 T の要件</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" id="d5385e54"><p>擬似署名</p>
+</th>
+<th class="row-nocellborder" valign="top" id="d5385e57"><p>意味</p>
+</th>
+</tr>
+</thead>
+<tbody><tr valign="top"><td class="cellrowborder" valign="top" headers="d5385e54 "><p><samp class="codeph">void iter_swap( It a, It b )</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d5385e57 "><p>イテレーター <samp class="codeph">a</samp> および <samp class="codeph">b</samp> が指している要素の値をスワップします。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d5385e54 "><p><samp class="codeph">bool Compare::operator()(const T&amp; x, const T&amp; y)</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d5385e57 "><p><samp class="codeph">x</samp> が <samp class="codeph">y</samp> の前に現れる場合は <samp class="codeph">true</samp>。その他の場合は <samp class="codeph">false</samp>。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>呼び出し <samp class="codeph">parallel_sort( begin, end, comp )</samp> は、相対的な順序を決定するために引数 <samp class="codeph">comp</samp> を使用して、シーケンス <em>[begin, end)</em> をソートします。<samp class="codeph">comp( x, y )</samp> が <samp class="codeph">true</samp> を返す場合、<em>x</em> はソートされたシーケンスで <em>y</em> の前に現れます。</p>
+<p>呼び出し <samp class="codeph">parallel_sort( begin, end )</samp> は、<samp class="codeph">parallel_sort( begin, end, std::less&lt;T&gt; )</samp> と等価です。</p>
+<p>呼び出し <samp class="codeph">parallel_sort( c[, comp] )</samp> は、<samp class="codeph">parallel_sort( std::begin(c), std::end(c)[, comp] )</samp> と等価です。</p>
+<p><strong>計算量</strong></p>
+<p><samp class="codeph">parallel_sort</samp> は、平均時間計算量 <em>O(N×log(N))</em> の比較ソートです。ここで、<em>N</em> はシーケンスの要素の数です。ワーカースレッドが利用可能な場合、<samp class="codeph">parallel_sort</samp> は実行時間が改善されるように、同時に実行するサブタスクを作成します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>次の例は、さまざまな形式の <samp class="codeph">parallel_sort</samp> を示しています。配列 <samp class="codeph">a</samp> および <samp class="codeph">c</samp> は、デフォルト比較を使用して昇順にソートされます。配列 <samp class="codeph">b</samp> および <samp class="codeph">d</samp> は、比較に <samp class="codeph">std::greater&lt;float&gt;</samp> を使用して降順にソートされます。</p>
+<pre>
+#include "tbb/parallel_sort.h"
+#include &lt;math.h&gt;
+
+using namespace tbb;
+
+const int N = 100000;
+float a[N], b[N], c[N], d[N];
+
+int main() {
+    for( int i = 0; i &lt; N; i++ ) {
+        a[i] = sin((double)i);
+        b[i] = cos((double)i);
+        c[i] = 1/sin((double)i);
+        d[i] = 1/cos((double)i);
+    }
+    parallel_sort(a, a + N);
+    parallel_sort(b, b + N, std::greater&lt;float&gt;());
+    parallel_sort(c);
+    parallel_sort(d, std::greater&lt;float&gt;());
+    return 0;
+}
+</pre></div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/algorithms.html">アルゴリズム</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../task_scheduler/task_scheduler_init_cls.html">task_scheduler_init クラス</a></div></div></div>
+</body>
+</html>

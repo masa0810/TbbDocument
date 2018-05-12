@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="入れ子の並列処理のキャンセル"/>
+<meta name="DC.subject" content="フローグラフのヒント, 入れ子の並列処理のキャンセル"/>
+<meta name="keywords" content="フローグラフのヒント, 入れ子の並列処理のキャンセル"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Flow_Graph_exception_tips.html"/>
+<meta name="DC.Relation" scheme="URI" content="Flow_Graph_nested_parallelism_tips.html#flow_graph_nested_parallelism_tips"/>
+<meta name="DC.Relation" scheme="URI" content="catching_exceptions.html#catching_exceptions"/>
+<meta name="DC.Relation" scheme="URI" content="cancel_a_graph.html#cancel_a_graph"/>
+<meta name="DC.Relation" scheme="URI" content="use_graph_reset.html#use_graph_reset"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="cancelling_nested_parallelism"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>入れ子の並列処理のキャンセル</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="cancelling_nested_parallelism">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">入れ子の並列処理のキャンセル</h1>
+<div><p>内部コンテキストが外部コンテキストにバインドされると、入れ子の並列処理はキャンセルされます。バインドされない場合はキャンセルされません。</p>
+<p>フローグラフの実行がキャンセルされると、明示的に、あるいは例外により、キャンセルされたフローグラフのノード内にある入れ子の並列アルゴリズムまたはフローグラフによって開始されたタスクはキャンセルされたり、されなかったりします。</p>
+<p>すべてのライブラリーの入れ子の並列処理のように、<span class="keyword">explicit task_group_context</span> オブジェクトを使用してキャンセル関係を制御することができます。フローグラフに明示的な <span class="keyword">task_group_context</span> を提供しない場合、デフォルトで分離されたコンテキストで作成されます。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Flow_Graph_exception_tips.html">例外処理とキャンセルにおけるフローグラフのヒント</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Flow_Graph_nested_parallelism_tips.html#flow_graph_nested_parallelism_tips">入れ子の並列処理におけるフローグラフのヒント</a></div>
+<div><a href="catching_exceptions.html#catching_exceptions">例外をスローするノード内部の例外のキャッチ</a></div>
+<div><a href="cancel_a_graph.html#cancel_a_graph">グラフの明示的なキャンセル</a></div>
+<div><a href="use_graph_reset.html#use_graph_reset">graph::reset() によるキャンセル済みグラフのリセット</a></div></div></div>
+</body>
+</html>

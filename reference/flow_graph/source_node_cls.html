@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="source_node クラス"/>
+<meta name="DC.subject" content="source_node クラス"/>
+<meta name="keywords" content="source_node クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/flow_graph.html"/>
+<meta name="DC.Relation" scheme="URI" content="make_edge_func.html"/>
+<meta name="DC.Relation" scheme="URI" content="remove_edge_func.html"/>
+<meta name="DC.Relation" scheme="URI" content="copy_body_func.html"/>
+<meta name="DC.Relation" scheme="URI" content="message_passing_protocol.html"/>
+<meta name="DC.Relation" scheme="URI" content="sender_and_buffer_policy.html"/>
+<meta name="DC.Relation" scheme="URI" content="../task_scheduler/task_group_context.html"/>
+<meta name="DC.Relation" scheme="URI" content="../exceptions.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="source_node_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>source_node クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="source_node_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">source_node クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p><span class="keyword">graph_node</span> および <span class="keyword">sender&lt;Output&gt;</span> のテンプレート・クラス。このノードにはプレデセッサーはありません。ユーザー定義 <span class="option">body</span> 関数オブジェクトを実行して、すべてのサクセサーにブロードキャストされるメッセージを生成します。このノードはシリアルノードで、<span class="keyword">body</span> を同時に呼び出しません。1 つのアイテムをバッファーに格納できます。生成されたアイテムを受け付けるサクセサーがない場合、新しいアイテムが生成される前のサクセサーに提供されます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>template &lt; typename Output &gt; class source_node;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/flow_graph.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p>このノードは、ユーザー定義 <span class="keyword">body</span> を呼び出して <span class="keyword">Output</span> 型のメッセージを生成し、結果をすべてのサクセサーにブロードキャストします。</p>
+<p><span class="keyword">source_node</span> はシリアルノードです。<span class="keyword">body</span> の呼び出しは同時に行われません。</p>
+<p><span class="keyword">source_node</span> は、<span class="keyword">body</span> が <span class="keyword">false</span> を返すか有効なサクセサーがなくなるまで、<span class="keyword">body</span> の呼び出しとメッセージのブロードキャストを続行します。メッセージが生成された後、すべてのサクセサーで拒否される場合があります。この場合、メッセージはバッファーに格納され、サクセサーがノードに追加されるか <span class="keyword">try_get</span> が呼び出されると、次のメッセージが送られます。<span class="keyword">try_get</span> の呼び出しは、メッセージがバッファーに格納されている場合はそのメッセージを返します。格納されていない場合は <span class="keyword">body</span> を呼び出して新しいメッセージを生成しようとします。<span class="keyword">body</span> の呼び出しは内部バッファーが空の場合のみ行われます。</p>
+<p>サクセサーがメッセージを拒否した場合、「メッセージ・パッシング・プロトコル」で説明されているプロトコルを使用して処理されます。</p>
+<p><span class="keyword">Output</span> は、コピー構築可能および代入可能でなければなりません。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl25" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">source_node&lt;Output&gt; ボディーコンセプト</span></caption><thead align="left"><tr><th class="cellrowborder" align="center" valign="top" width="50%" id="d64171e98"><p>擬似署名</p>
+</th>
+<th class="cellrowborder" align="center" valign="top" width="50%" id="d64171e101"><p>意味</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="50%" headers="d64171e98 "><p><span class="keyword">B::B( const B&amp; )</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="50%" headers="d64171e101 "><p>コピー・コンストラクター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d64171e98 "><p><span class="keyword">B::~B()</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="50%" headers="d64171e101 "><p>デストラクター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d64171e98 "><p><span class="keyword">void operator=( const B&amp; )</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="50%" headers="d64171e101 "><p>代入。擬似署名の戻り型 <samp class="codeph">void</samp> は、<samp class="codeph">operator=</samp> は値を返す必要がないことを示します。<samp class="codeph">operator=</samp> は値を返すことができますが無視されます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d64171e98 "><p><span class="keyword">bool B::operator() (Output &amp;v)</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="50%" headers="d64171e101 "><p>新しい値を <span class="keyword">v</span> に代入した場合は <span class="keyword">true</span> を返します。新しい値を生成しない場合は <span class="keyword">false</span> を返します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p><span class="keyword">source_node</span> に渡されるボディー・オブジェクトはコピーされます。そのため、メンバー変数を更新してもノードの構築に使用されたオリジナルのオブジェクトには影響しません。ノードの外部からボディー・オブジェクト内に保持されている状態を確認する場合は、<span class="keyword">copy_body</span> 関数を使用して更新されたコピーを取得します。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>ボディー・オブジェクトは、そのエンクロージング・グラフをスローまたはキャンセルすることがあります。詳細は、「task_group_context」および「例外」を参照してください。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+namespace flow {
+ 
+template &lt; typename Output &gt;
+class source_node : public graph_node, public sender&lt; Output &gt; {
+public:
+    typedef Output output_type;
+    typedef receiver&lt; output_type &gt; successor_type;
+ 
+    template&lt; typename Body &gt;
+    source_node( graph &amp;g, Body body, bool is_active = true );
+    source_node( const source_node &amp;src );
+    ~source_node();
+ 
+    void activate();
+    bool register_successor( successor_type &amp;r );
+    bool remove_successor( successor_type &amp;r );
+    bool try_get( output_type &amp;v );
+    bool try_reserve( output_type &amp;v );
+    bool try_release( );
+    bool try_consume( );
+};
+ 
+}
+}</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このクラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d64171e179">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d64171e181">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d64171e179 "><span class="keyword">template&lt; typename Body &gt;source_node( graph &amp;g, Body body, bool is_active=true )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d64171e181 "><p><span class="keyword">body</span> を呼び出す <span class="keyword">source_node</span> を構築します。デフォルトでは、ノードはアクティブ状態で作成され、直ちにメッセージの生成を開始します。<span class="keyword">is_active</span> が <span class="keyword">false</span> の場合、<span class="keyword">activate</span> に対する呼び出しが行われるまでメッセージは生成されません。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d64171e179 "><span class="keyword">source_node( const source_node &amp;src )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d64171e181 "><p><span class="keyword">src</span> の構築時の状態と同じ初期状態で <span class="keyword">source_node</span> を構築します。構築される <span class="keyword">source_node</span> には、<span class="keyword">src</span> と同じ <span class="keyword">graph</span> オブジェクトへの参照、<span class="keyword">src</span> で使用される初期 body のコピー、<span class="keyword">src</span> と同じ初期アクティブ状態が含まれます。<span class="keyword">src</span> のプレデセッサーおよびサクセサーはコピーされません。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>新しいボディー・オブジェクトは、<span class="keyword">src</span> の構築時に提供されたオリジナルのボディーのコピーからコピー構築されます。このため、<span class="keyword">src</span> の構築後に <span class="keyword">src</span> のボディーのメンバー変数に対して行われた変更は、新しい <span class="keyword">source_node</span> のボディーに影響しません。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d64171e179 "><span class="keyword">void activate()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d64171e181 "><p><span class="keyword">source_node</span> をアクティブ状態に設定して、メッセージの生成を開始できるようにします。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d64171e179 "><span class="keyword">bool register_successor( successor_type &amp;r )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d64171e181 "><p>サクセサーのセットに <span class="keyword">r</span> を追加します。</p>
+<p><strong>戻り値</strong>: <span class="keyword">true</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d64171e179 "><span class="keyword">bool remove_successor( successor_type &amp;r )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d64171e181 "><p>サクセサーのセットから <span class="keyword">r</span> を削除します。</p>
+<p><strong>戻り値</strong>: <span class="keyword">true</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d64171e179 "><span class="keyword">bool try_get( output_type &amp;v )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d64171e181 "><p>メッセージがバッファーに格納されている場合はそのメッセージを <span class="keyword">v</span> にコピーします。格納されていない場合は <span class="keyword">body</span> を呼び出して <span class="keyword">v</span> にコピーされる新しいメッセージを生成しようとします。</p>
+<p><strong>戻り値</strong>:メッセージが v にコピーされた場合は <span class="keyword">true</span>。その他の場合は <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d64171e179 "><span class="keyword">bool try_reserve( output_type &amp;v )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d64171e181 "><p>可能な場合、<span class="keyword">source_node</span> を予約します。メッセージがバッファーに格納可能でノードが予約されていない場合、ノードが呼び出し元に対して予約され、値が <span class="keyword">v</span> にコピーされます。</p>
+<p><strong>戻り値</strong>: ノードが呼び出し元に対して予約された場合は <span class="keyword">true</span>。その他の場合は <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d64171e179 "><span class="keyword">bool try_release( )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d64171e181 "><p><span class="keyword">source_node</span> で保持されている予約を解除します。内部バッファーで保持されているメッセージは保持されたままです。</p>
+<p><strong>戻り値</strong>: <span class="keyword">true</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d64171e179 "><span class="keyword">bool try_consume( )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d64171e181 "><p><span class="keyword">source_node</span> で保持されている予約を解除して内部バッファーをクリアします。</p>
+<p><strong>戻り値</strong>: <span class="keyword">true</span>。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/flow_graph.html">フローグラフ</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="make_edge_func.html">make_edge テンプレート関数</a></div>
+<div><a href="remove_edge_func.html">remove_edge テンプレート関数</a></div>
+<div><a href="copy_body_func.html">copy_body テンプレート関数</a></div>
+<div><a href="message_passing_protocol.html">メッセージ・パッシング・プロトコル</a></div>
+<div><a href="sender_and_buffer_policy.html">転送、バッファー、受信ポリシー</a></div>
+<div><a href="../task_scheduler/task_group_context.html">task_group_context クラス</a></div>
+<div><a href="../exceptions.html">例外</a></div></div></div>
+</body>
+</html>

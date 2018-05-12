@@ -1,0 +1,223 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="concurrent_hash_map テンプレート・クラス"/>
+<meta name="DC.subject" content="concurrent_hash_map テンプレート・クラス"/>
+<meta name="keywords" content="concurrent_hash_map テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/containers_overview.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/containers_overview/concurrent_hash_map_cls/whole_table_operations.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/containers_overview/concurrent_hash_map_cls/concurrent_access.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/containers_overview/concurrent_hash_map_cls/concurrent_operations_hash.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/containers_overview/concurrent_hash_map_cls/parallel_iteration_container.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/containers_overview/concurrent_hash_map_cls/capacity_map_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/containers_overview/concurrent_hash_map_cls/iterators_hash_map_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/containers_overview/concurrent_hash_map_cls/global_funcs.html"/>
+<meta name="DC.Relation" scheme="URI" content="tbb_hash_compare_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="concurrent_unordered_map_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="concurrent_unordered_set_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="concurrent_hash_map_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>concurrent_hash_map テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="concurrent_hash_map_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">concurrent_hash_map テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>同時アクセスを含む結合コンテナー用のテンプレート・クラス。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>
+template &lt; typename Key, typename T,
+              typename HashCompare = tbb_hash_compare&lt;Key&gt;,
+              typename A=tbb_allocator&lt;std::pair&lt;Key, T&gt; &gt; &gt;
+class concurrent_hash_map;
+</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/concurrent_hash_map.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">concurrent_hash_map</samp> は、複数のスレッドが同時に値にアクセスすることを許可する方法で、キーを値にマップします。キーは順序付けされません。<samp class="codeph">concurrent_hash_map</samp> には、キーごとに最大 1 つの要素があります。並列操作で説明されているように、キーにはマップ以外で処理を行っているほかの要素がある可能性があります。インターフェイスは、典型的な STL の結合コンテナーに似ていますが、同時アクセスのサポートで重大ないくつかの相違点があります。ISO C++ 標準のコンテナー要件を満たしています。<samp class="codeph">Key</samp> 型および <samp class="codeph">T</samp> 型は、CopyConstructible コンセプトをモデル化しなければなりません。<samp class="codeph">HashCompare</samp> 型は、同等にするため、キーがどのようにハッシュされ比較されるかを指定します。次の表の HashCompare コンセプトをモデル化しなければなりません。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl1" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">HashCompare コンセプト</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="250" id="d23434e56"><p><strong>擬似署名</strong></p>
+</th>
+<th class="row-nocellborder" valign="top" width="100" id="d23434e60"><p><strong>意味</strong></p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="250" headers="d23434e56 "><p><samp class="codeph">HashCompare::HashCompare( const HashCompare&amp; )</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="100" headers="d23434e60 "><p>コピー・コンストラクター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="250" headers="d23434e56 "><p><samp class="codeph">HashCompare::~HashCompare()</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="100" headers="d23434e60 "><p>デストラクター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="250" headers="d23434e56 "><p><samp class="codeph">bool HashCompare::equal( const Key&amp; j, const Key&amp; k ) const </samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="100" headers="d23434e60 "><p>キーが等しい場合は true。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="250" headers="d23434e56 "><p><samp class="codeph">size_t HashCompare::hash( const Key&amp; k ) const</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="100" headers="d23434e60 "><p>キーのハッシュコード。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>ほとんどのハッシュテーブルでは、2 つのキーが等しい場合、同じハッシュコードにハッシュしなければなりません。つまり、指定された HashCompare インスタンス <samp class="codeph">h</samp> と任意の 2 つのキー <samp class="codeph">j</samp> および <samp class="codeph">k</samp> について、次のアサーションは <samp class="codeph">"!h.equal(j,k) || h.hash(j)==h.hash(k)"</samp> を保持しなければなりません。このプロパティーの重要性は、<samp class="codeph">concurrent_hash_map</samp> を別々のオブジェクトで維持する代わりに、単一オブジェクトにキーの等価性とハッシュを組み合わせる点にあります。キーのハッシュコードは、ハッシュテーブルが空でない間は変更してはなりません。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>パフォーマンスは、ハッシュコードの下位ビットの擬似ランダム性が優れているかどうかに依存します。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>キーがポインターの場合、ポインターをハッシュコードにキャストするだけでは、アライメントの規制がある型を指すポインターはハッシュコードの下位ビットが常にゼロになるため、良いパフォーマンスが得られません。この問題を回避するには、次に<samp class="codeph"><span class="color(blue)" style="color:blue"><strong><em>太字斜体</em></strong></span></samp>で示すように、キャストされたポインターを型のサイズで割ります。</p>
+<pre>
+size_t MyHashCompare::hash( Key* key ) const {
+    return reinterpret_cast&lt;size_t&gt;(key) <span class="color(blue)" style="color:blue"><strong><em>/ sizeof(Key)</em></strong></span>;
+}
+</pre></div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><p>次のコード例で、<samp class="codeph"><span class="color(blue)" style="color:blue"><strong>太字</strong></span></samp>のメソッドは同時に呼び出すことができます。</p>
+<pre>
+namespace tbb {
+    template&lt;typename Key, typename T, typename HashCompare,
+                typename Alloc = tbb_allocator&lt;std::pair&lt;Key, T&gt; &gt; &gt;
+    class concurrent_hash_map {
+        public:
+            // 型
+            typedef Key key_type;
+            typedef T mapped_type;
+            typedef std::pair&lt;const Key, T&gt; value_type;
+            typedef size_t size_type;
+            typedef ptrdiff_t difference_type;
+            typedef value_type* pointer;
+            typedef const value_type* const_pointer;
+            typedef value_type&amp; reference;
+            typedef Alloc allocator_type;
+
+            // テーブル全体の操作
+            explicit concurrent_hash_map( const allocator_type&amp; a=allocator_type() );
+            concurrent_hash_map( size_type n, const allocator_type &amp;a = allocator_type() );
+            concurrent_hash_map( const concurrent_hash_map&amp;,
+                                 const allocator_type&amp; a = allocator_type() );
+            template&lt;typename InputIterator&gt;
+            concurrent_hash_map( InputIterator first, InputIterator last,
+                                 const allocator_type&amp; a = allocator_type() );
+            // C++11 からサポート
+            concurrent_hash_map( concurrent_hash_map&amp;&amp; );
+            concurrent_hash_map( concurrent_hash_map&amp;&amp;, const allocator_type&amp; );
+            concurrent_hash_map( std::initializer_list&lt;value_type&gt; il,
+                                 const allocator_type&amp; a = allocator_type() );
+            ~concurrent_hash_map();
+            concurrent_hash_map operator=( const concurrent_hash_map&amp; );
+            // C++11 からサポート
+            concurrent_hash_map&amp; operator=( concurrent_hash_map&amp;&amp; );
+            concurrent_hash_map operator=( std::initializer_list&lt;value_type&gt; il );
+            void rehash( size_type n = 0 );
+            void clear();
+            allocator_type get_allocator() const;
+
+            // 同時アクセス
+            class const_accessor;
+            class accessor;
+
+            // テーブルの同時操作
+            bool <span class="color(blue)" style="color:blue"><strong>find</strong></span>( const_accessor&amp; result, const Key&amp; key ) const;
+            bool <span class="color(blue)" style="color:blue"><strong>find</strong></span>( accessor&amp; result, const Key&amp; key );
+            bool <span class="color(blue)" style="color:blue"><strong>insert</strong></span>( const_accessor&amp; result, const Key&amp; key );
+            bool <span class="color(blue)" style="color:blue"><strong>insert</strong></span>( accessor&amp; result, const Key&amp; key );
+            bool <span class="color(blue)" style="color:blue"><strong>insert</strong></span>( const_accessor&amp; result, const value_type&amp; value );
+            bool <span class="color(blue)" style="color:blue"><strong>insert</strong></span>( accessor&amp; result, const value_type&amp; value );
+            bool <span class="color(blue)" style="color:blue"><strong>insert</strong></span>( const value_type&amp; value );
+            template&lt;typename I&gt;
+            void <span class="color(blue)" style="color:blue"><strong>insert</strong></span>( I first, I last );
+            // C++11 からサポート
+            void <span class="color(blue)" style="color:blue"><strong>insert</strong></span>( std::initializer_list&lt;value_type&gt; il );
+            bool <span class="color(blue)" style="color:blue"><strong>erase</strong></span>( const Key&amp; key );
+            bool <span class="color(blue)" style="color:blue"><strong>erase</strong></span>( const_accessor&amp; item_accessor );
+            bool <span class="color(blue)" style="color:blue"><strong>erase</strong></span>( accessor&amp; item_accessor );
+
+            // 並列反復
+            typedef <em>implementation-defined</em> range_type;
+            typedef <em>implementation-defined</em> const_range_type;
+            range_type range( size_t grainsize = 1 );
+            const_range_type range( size_t grainsize = 1 ) const;
+
+            // キャパシティー
+            size_type size() const;
+            bool empty() const;
+            size_type max_size() const;
+            size_type bucket_count() const;
+
+            // イテレーター
+            typedef <em>implementation-defined</em> iterator;
+            typedef <em>implementation-defined</em> const_iterator;
+            iterator begin();
+            iterator end();
+            const_iterator begin() const;
+            const_iterator end() const;
+            std::pair&lt;iterator, iterator&gt; equal_range( const Key&amp; key );
+            std::pair&lt;const_iterator, const_iterator&gt; equal_range( const Key&amp; key ) const;
+        };
+
+        template&lt;typename Key, typename T, typename HashCompare, typename A1, typename A2&gt;
+        bool operator==( const concurrent_hash_map&lt;Key,T,HashCompare,A1&gt;&amp; a,
+                         const concurrent_hash_map&lt;Key,T,HashCompare,A2&gt;&amp; b);
+
+        template&lt;typename Key, typename T, typename HashCompare, typename A1, typename A2&gt;
+        bool operator!=( const concurrent_hash_map&lt;Key,T,HashCompare,A1&gt;&amp; a,
+                         const concurrent_hash_map&lt;Key,T,HashCompare,A2&gt;&amp; b );
+
+        template&lt;typename Key, typename T, typename HashCompare, typename A&gt;
+        void swap( concurrent_hash_map&lt;Key,T,HashCompare,A&gt;&amp; a,
+                   concurrent_hash_map&lt;Key,T,HashCompare,A&gt;&amp; b );
+    }
+</pre></div>
+<div class="section"><h2 class="sectiontitle">例外の安全性</h2><p>次の関数は、例外をスローしてはなりません。</p>
+<ul><li>ハッシュ関数</li>
+<li><samp class="codeph">Key</samp> 型および <samp class="codeph">T</samp> 型のデストラクター</li>
+</ul>
+<p>次のことが当てはまります。</p>
+<ul><li>挿入操作中に例外が発生した場合、操作に影響はありません。</li>
+<li>代入操作中に例外が発生した場合、コンテナーが一部のアイテムのみ代入済みの状態になったり、<samp class="codeph">size()</samp> メソッドと <samp class="codeph">empty()</samp> メソッドが無効な結果を返すことがあります。</li>
+</ul>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/containers_overview.html">コンテナーの概要</a></div>
+</div>
+<div class="See Also">
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../../reference/containers_overview/concurrent_hash_map_cls/whole_table_operations.html">テーブル全体の操作</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/containers_overview/concurrent_hash_map_cls/concurrent_access.html">同時アクセス</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/containers_overview/concurrent_hash_map_cls/concurrent_operations_hash.html">並列操作</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/containers_overview/concurrent_hash_map_cls/parallel_iteration_container.html">並列反復</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/containers_overview/concurrent_hash_map_cls/capacity_map_cls.html">キャパシティー</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/containers_overview/concurrent_hash_map_cls/iterators_hash_map_cls.html">イテレーター</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/containers_overview/concurrent_hash_map_cls/global_funcs.html">グローバル関数</a><br/>
+</li>
+</ul>
+<h2>関連情報</h2>
+<div class="linklist">
+<div><a href="tbb_hash_compare_cls.html">tbb_hash_compare</a></div>
+<div><a href="concurrent_unordered_map_cls.html">concurrent_unordered_map</a></div>
+<div><a href="concurrent_unordered_set_cls.html">concurrent_unordered_set</a></div></div></div>
+</body>
+</html>

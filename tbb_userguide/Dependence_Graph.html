@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="依存関係グラフ"/>
+<meta name="DC.subject" content="依存関係グラフ"/>
+<meta name="keywords" content="依存関係グラフ"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Graph_Main_Categories.html"/>
+<meta name="DC.Relation" scheme="URI" content="Parallelizing_Flow_Graph.html#Parallelizing_Flow_Graph"/>
+<meta name="DC.Relation" scheme="URI" content="Data_Flow_Graph.html#Data_Flow_Graph"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="Dependence_Graph"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>依存関係グラフ</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="Dependence_Graph">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">依存関係グラフ</h1>
+<div><p>依存関係グラフでは、ノードは計算を実行するボディー・オブジェクトを呼び出し、エッジはこれらの計算の半順序を作成します。ランタイムに、指定された半順序で有効な場合、ライブラリーはボディー・オブジェクトを実行するタスクをスポーンしてスケジュールします。次の図は、依存関係グラフを使用して表現できるアプリケーションの例です。</p>
+<div class="fignone" id="dependence_graph_make_sandwitch"><span class="figcap">サンドイッチを作るときの依存関係グラフ</span><br/><div class="imagecenter"><img src="Images/flow_graph_complex.jpg" width="440" height="337" align="center"/></div><br/></div>
+<p>依存関係グラフは特別なケースのデータフロー・グラフで、ノード間で渡されるデータが <span class="keyword">tbb::flow::continue_msg</span> 型になります。一般的なデータフロー・グラフとは異なり、依存関係グラフのノードは受け取るメッセージごとにタスクをスポーンしません。代わりに、プレデセッサーの数を認識し、受け取るメッセージ数をカウントして、カウントがプレデセッサーの総数と等しい場合にのみ、タスクをスポーンしてボディーを実行します。</p>
+<p>次の図は、依存関係グラフの別の例です。上の図とトポロジーは同じですが、サンドイッチを作る手順が単純な関数に置き換えられています。この半順序で、関数 <span class="keyword">A</span> はほかの計算が実行を開始する前に完了している必要があります。関数 <span class="keyword">B</span> は、<span class="keyword">C</span> と <span class="keyword">D</span> が実行を開始する前に完了している必要があります。また、<span class="keyword">E</span> は、<span class="keyword">D</span> と <span class="keyword">F</span> が実行を開始する前に完了している必要があります。<span class="keyword">B</span> と <span class="keyword">E</span>、そして <span class="keyword">C</span> と <span class="keyword">F</span> の間に明示的な実行順序がないため、これは半順序です。</p>
+<div class="fignone" id="simple_dependence_graph"><span class="figcap">単純な依存関係グラフ</span><br/><div class="imagecenter"><img src="Images/dependence_graph.jpg" align="center"/></div><br/></div>
+<p>この依存関係グラフをフローグラフとして実装するため、<span class="keyword">continue_node</span> オブジェクトをノードと <span class="keyword">continue_msg</span> オブジェクトに (メッセージとして) 使用します。<span class="keyword">continue_node</span> コンストラクターには、2 つの引数を指定します。</p>
+<pre>template&lt; typename Body &gt; continue_node( graph &amp;g, Body body)</pre><p>第 1 引数は属するグラフ、第 2 引数は関数オブジェクトまたはラムダ式です。<span class="keyword">function_node</span> とは異なり、<span class="keyword">continue_node</span> の同時実行数は常に unlimited であると仮定され、依存関係が満たされると直ちにタスクをスポーンします。 
+	 </p>
+<p>次のコードは、この図の例の実装です。</p>
+<pre>typedef continue_node&lt; continue_msg &gt; node_t;
+typedef const continue_msg &amp; msg_t;
+
+int main() {
+  tbb::flow::graph g;
+  node_t A(g, [](msg_t){ a(); } );
+  node_t B(g, [](msg_t){ b(); } );
+  node_t C(g, [](msg_t){ c(); } );
+  node_t D(g, [](msg_t){ d(); } );
+  node_t E(g, [](msg_t){ e(); } );
+  node_t F(g, [](msg_t){ f(); } );
+  make_edge(A, B);
+  make_edge(B, C);
+  make_edge(B, D);
+  make_edge(A, E);
+  make_edge(E, D);
+  make_edge(E, F);
+  A.try_put( continue_msg() );
+  g.wait_for_all();
+  return 0;
+}
+
+</pre><p>このグラフの実行例を次に示します。<span class="keyword">D</span> の実行は、<span class="keyword">B</span> と <span class="keyword">E</span> の両方が完了するまで開始されません。タスクが <span class="keyword">wait_for_all</span> で待機している間、そのスレッドはインテル&reg; TBB ワークプールのほかのタスクを実行することができます。 
+	 </p>
+<div class="fignone"><span class="figcap">依存関係グラフの実行タイムライン</span><br/><div class="imagecenter"><img src="Images/execution_timeline_dependence.jpg" align="center"/></div><br/></div>
+<p>フローグラフの実行がすべて非同期に行われることに注目することは重要です。<span class="keyword">A.try_put</span> を呼び出すと、カウンターをインクリメントして <span class="keyword">A</span> のボディーを実行するタスクをスポーンした後、呼び出しスレッドに制御を返します。同様に、ボディータスクはラムダ式を実行し、すべてのサクセサーノードへ <span class="keyword">continue_msg</span> を送ります (サクセサーノードがある場合)。<span class="keyword">wait_for_all</span> の呼び出しのみブロックします。このケースでも、待機している間、呼び出しスレッドはインテル&reg; TBB ワークプールのほかのタスクを実行することができます。</p>
+<p>上記のタイムラインは、並列に同時実行できるすべてのタスクを実行するのに十分なスレッドがある場合のシーケンスを示しています。スレッド数が少ない場合、スポーンされるいくつかのタスクで、スレッドが実行に利用できるようになるまで待つ必要があります。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Graph_Main_Categories.html">グラフ・アプリケーションのカテゴリー</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Parallelizing_Flow_Graph.html#Parallelizing_Flow_Graph">データフローと依存関係グラフの並列化</a></div>
+<div><a href="Data_Flow_Graph.html#Data_Flow_Graph">データフロー・グラフ</a></div></div></div>
+</body>
+</html>

@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="メッセージ・パッシング・プロトコル"/>
+<meta name="DC.subject" content="メッセージ・パッシング・プロトコル"/>
+<meta name="keywords" content="メッセージ・パッシング・プロトコル"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/flow_graph.html"/>
+<meta name="DC.Relation" scheme="URI" content="sender_and_buffer_policy.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="message_passing_protocol"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>メッセージ・パッシング・プロトコル</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="message_passing_protocol">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">メッセージ・パッシング・プロトコル</h1>
+<div><div class="section"><p>インテル&reg; TBB のフローグラフで、エッジは、メッセージを渡すために push プロトコルと pull プロトコルを動的に切り替えます。インテル&reg; TBB のフローグラフ G = ( V, S, L ) について考えてみます。ここで、V はノードのセット、S は現在 push プロトコルを使用しているエッジのセット、L は現在 pull プロトコルを使用しているエッジのセットです。各エッジ (Vi, Vj) の Vi はプレデセッサー/センダーで、Vj はサクセサー/レシーバーです。push セット S では、エッジ上のメッセージはセンダーによって開始され、レシーバーに <em>put</em> しようとします。pull セット L では、メッセージはレシーバーによって開始され、センダーから <em>get</em> しようとします。</p>
+<p>あるエッジでメッセージの処理に失敗した場合、そのエッジはほかのセットに移動されます。例えば、エッジ (Vi, Vj) で put に失敗すると、エッジは push セット S から削除され、pull セット L に移動されます。失敗した送信または受信を単に繰り返すことが効率的なオプションでない場合、この動的 push / pull プロトコルがインテル&reg; TBB のようなノンプリエンプティブなタスク・ライブラリーのパフォーマンスの鍵となります。次の図は、この動的プロトコルを要約したものです。</p>
+<div class="fignone" id="fig4_flow_graph"><span class="figcap">動的 push / pull プロトコル</span><br/><div class="imagecenter"><img src="../Resources/flow-graph.jpg" height="196" width="442" alt="動的 push / pull プロトコル" align="center"/></div><br/></div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>特定のグラフノードは、push を受け付けるサクセサーがない場合、メッセージを破棄します。push を拒否する可能性があるサクセサーにこれらのノードをアタッチすると、メッセージが失われることがあります。例えば、<samp class="codeph">function_node</samp><samp class="codeph">f1</samp> がシリアル <samp class="codeph">function_node</samp><samp class="codeph">f2</samp> にアタッチされ、<samp class="codeph">f2</samp> がアクティブな場合、<samp class="codeph">f1</samp> によって <samp class="codeph">f2</samp> に push されたメッセージは拒否されます。そして、<samp class="codeph">f1</samp> はバッファーしないため、そのメッセージは破棄されます。</p>
+<p>try_get() を受け付けるノードはメッセージを破棄しません。ノードの一覧は、「転送、バッファー、受信ポリシー」を参照してください。</p>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/flow_graph.html">フローグラフ</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="sender_and_buffer_policy.html">転送、バッファー、受信ポリシー</a></div></div></div>
+</body>
+</html>

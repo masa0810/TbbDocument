@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="自動チャンク"/>
+<meta name="DC.subject" content="自動チャンク"/>
+<meta name="keywords" content="自動チャンク"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/parallel_for.html"/>
+<meta name="DC.Relation" scheme="URI" content="Controlling_Chunking.html#tutorial_Controlling_Chunking"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Automatic_Chunking"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>自動チャンク</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Automatic_Chunking">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">自動チャンク</h1>
+<div><p>並列ループ構造では、スケジュールするワークのすべてのチャンクでオーバーヘッドが発生します。バージョン 2.2 から、インテル&reg; TBB は、ロード・バランシングの必要性に応じて、チャンクサイズを自動的に選択するようになりました。<a href="#ftn1"><sup><sup>[1]</sup></sup></a>ヒューリスティックは、ロード・バランシングのための十分な機会を提供しながら、オーバーヘッドを抑制します。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>一般に、<samp class="codeph">parallel_for</samp> を使用するメリットがあるのは、少なくとも 100 万クロックサイクルのループを処理する場合です。例えば、2GHz のプロセッサーで 500 ミリ秒のループを処理する場合、<samp class="codeph">parallel_for</samp> を使用するメリットがあるでしょう。</p>
+</div>
+<p>通常は、デフォルトの自動チャンクを推奨します。ただし、ほとんどのヒューリスティックでは、チャンクサイズをより正確に制御することでパフォーマンスが向上します。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/parallel_for.html">parallel_for</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Controlling_Chunking.html#tutorial_Controlling_Chunking">チャンクの制御</a></div></div></div><p class="tfootnote"><a id="ftn1"><sup>[1]</sup></a> インテル&reg; TBB 2.1 では、デフォルトは自動ではありませんでした。以前のデフォルトの動作にするには、<samp class="codeph">TBB_DEPRECATED=1</samp> を指定してコンパイルします。</p>
+</body>
+</html>

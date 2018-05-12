@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="task_group クラス"/>
+<meta name="DC.subject" content="task_group クラス"/>
+<meta name="keywords" content="task_group クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/task_groups.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/task_groups/task_group_cls/task_group_cls_members.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="task_group_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>task_group クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="task_group_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">task_group クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">task_group</samp> は、同時に実行するタスクのグループを表します。タスクは実行とともに動的にグループに追加されます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">ラムダ式のサンプル</h2><pre>#include "tbb/task_group.h"
+     
+    using namespace tbb;
+     
+    int Fib(int n) {
+        if( n&lt;2 ) {
+            return n;
+        } else {
+            int x, y;
+            task_group g;
+            g.run([&amp;]{x=Fib(n-1);}); // タスクを作成
+            g.run([&amp;]{y=Fib(n-2);}); // 別のタスクを作成
+            g.wait();                // 両方のタスクが完了するのを待つ
+            return x+y;
+        }
+    }</pre><div class="Note"><h3 class="NoteTipHead">注意</h3> <p>タスク作成はシリアルのボトルネックとなるため、1 つの task_group で大量のタスクを作成することはスケーラブルではありません。大量の並列タスクを作成する場合は、<samp class="codeph">parallel_for</samp> や <samp class="codeph">parallel_invoke</samp> を代わりに使用するか、タスクを再帰ツリーとして作成する構成を検討してください。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+        class task_group {
+        public:
+            task_group();
+            ~task_group();
+     
+            template&lt;typename Func&gt;
+            void run( const Func&amp; f );
+     
+            template&lt;typename Func&gt; 
+            void run( task_handle&lt;Func&gt;&amp; handle );
+     
+            template&lt;typename Func&gt;
+            void run_and_wait( const Func&amp; f );
+     
+            template&lt;typename Func&gt; 
+            void run_and_wait( task_handle&lt;Func&gt;&amp; handle );
+     
+            task_group_status wait(); 
+            bool is_canceling();
+            void cancel();
+        }
+    }</pre></div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/task_groups.html">タスクグループ</a></div>
+</div>
+<div>
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../../reference/task_groups/task_group_cls/task_group_cls_members.html">task_group クラスのメンバー</a><br/>
+</li>
+</ul>
+</div>
+</body>
+</html>

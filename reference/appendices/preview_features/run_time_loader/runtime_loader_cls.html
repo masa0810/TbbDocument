@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="runtime_loader クラス"/>
+<meta name="DC.subject" content="runtime_loader クラス"/>
+<meta name="keywords" content="runtime_loader クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../../reference/appendices/preview_features/run_time_loader.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../../../reference/appendices/preview_features/run_time_loader/runtime_loader_cls/error_code_load.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="runtime_loader_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../../intel_css_styles.css"/>
+<title>runtime_loader クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="runtime_loader_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(4);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">runtime_loader クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>インテル&reg; TBB ダイナミック・ライブラリーのロードに対するランタイム制御用のクラス。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>class runtime_loader;</pre></div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+ class runtime_loader {
+ // エラーコード
+ enum error_code {
+ ec_ok, // エラーなし
+ ec_bad_call, // 無効な関数呼び出し
+ ec_bad_arg, // 無効な引数が渡された
+ ec_bad_lib, // 無効なライブラリーが見つかった
+ ec_bad_ver, // 見つかったライブラリーは適切でない
+ ec_no_lib // ライブラリーが見つからない
+ };
+ // エラーモード定数
+ enum error_mode {
+ em_status, // 操作のステータスを保存して続行
+ em_throw, // error_code 型の例外をスロー
+ em_abort // メッセージを stderr に出力して abort()
+ };
+ runtime_loader( error_mode mode = em_abort );
+ runtime_loader(
+ char const *path[],
+ // 検索するディレクトリーのリスト
+ int min_ver = TBB_INTERFACE_VERSION,
+ // 最小の適切なバージョン
+ int max_ver = INT_MAX,
+ // 最大の適切なバージョン
+ error_mode mode = em_abort
+ // このインスタンスのエラーモード
+ );
+ ~runtime_loader();
+ error_code load(
+ char const * path[],
+ int min_ver = TBB_INTERFACE_VERSION,
+ int max_ver = INT_MAX
+ );
+ error_code status();
+ };
+ }</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このクラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d19830e113">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d19830e115">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d19830e113 "><span class="keyword">runtime_loader( error_mode mode = em_abort )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d19830e115 "><p><samp class="codeph">runtime_loader</samp> を初期化しますが、ライブラリーはロードしません。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d19830e113 "><span class="keyword">runtime_loader(char const * path[], int min_ver = TBB_INTERFACE_VERSION, int max_ver = INT_MAX, error_mode mode = em_abort )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d19830e115 "><p><strong>要件</strong>: <samp class="codeph">path[]</samp> の最後の要素は <samp class="codeph">NULL</samp> でなければなりません。</p>
+<p><strong>効果</strong>: <samp class="codeph">runtime_loader</samp> を初期化し、インテル&reg; TBB をロードします (詳細は、<samp class="codeph">load()</samp> を参照)。<samp class="codeph">error mode</samp> が em_status の場合、<samp class="codeph">status()</samp> メソッドを使用してライブラリーがロードされたかどうかを確認できます。<samp class="codeph">error mode</samp> が <samp class="codeph">em_throw</samp> の場合、失敗すると <samp class="codeph">error_code</samp> 型の例外がスローされます。<samp class="codeph">error mode</samp> が <samp class="codeph">em_abort</samp> の場合、失敗するとメッセージが stderr に出力され、実行はアボートします。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d19830e113 "><span class="keyword">error_code load(char const * path[],int min_ver = TBB_INTERFACE_VERSION, int max_ver = INT_MAX)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d19830e115 "><a href="runtime_loader_cls/error_code_load.html">詳細</a></td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d19830e113 "><span class="keyword">error_code status()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d19830e115 "><p><strong>戻り値</strong>: error mode is が <samp class="codeph">em_status</samp> の場合、関数は最後の操作のステータスを返します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../../reference/appendices/preview_features/run_time_loader.html">ランタイムローダー</a></div>
+</div>
+<div>
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../../../../reference/appendices/preview_features/run_time_loader/runtime_loader_cls/error_code_load.html">error_code load(char const * path[],int min_ver = TBB_INTERFACE_VERSION, int max_ver = INT_MAX)</a><br/>
+</li>
+</ul>
+</div>
+</body>
+</html>

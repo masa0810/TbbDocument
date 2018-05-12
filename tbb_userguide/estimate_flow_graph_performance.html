@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="フローグラフのパフォーマンスの推定"/>
+<meta name="DC.subject" content="フローグラフのパフォーマンス, パフォーマンス, フローグラフ"/>
+<meta name="keywords" content="フローグラフのパフォーマンス, パフォーマンス, フローグラフ"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Flow_Graph.html"/>
+<meta name="DC.Relation" scheme="URI" content="Data_Flow_Graph.html#Data_Flow_Graph"/>
+<meta name="DC.Relation" scheme="URI" content="Dependence_Graph.html#Dependence_Graph"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="estimating_flow_graph_performance"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>フローグラフのパフォーマンスの推定</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="estimating_flow_graph_performance">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">フローグラフのパフォーマンスの推定</h1>
+<div><p>フローグラフのパフォーマンスやスケーラビリティーを予測することは簡単ではありません。しかし、グラフのパフォーマンスやスピードアップに対する制限を推定するときに役立つ重要なポイントがいくつかあります。</p>
+<div class="section"><h2 class="sectiontitle">クリティカル・パスによる依存関係グラフのスケーラビリティーの制限</h2><p>クリティカル・パスは、プレデセッサーのないノードからサクセサーのないノードへの最も時間がかかるパスです。依存関係グラフでは、ノードの実行に厳密な順序があるため、パスに沿ったノードの実行をオーバーラップすることはできません。このため、依存関係グラフでは、クリティカル・パスによりスケーラビリティーが制限されます。</p>
+<p>具体的に説明します。まず、順番に実行されたときにグラフのすべてのノードで費やされる合計時間を <span class="keyword">T</span> とします。次に、最も時間のかかるパスに沿って費やされる時間を <span class="keyword">C</span> とします。このパスに沿ったノードは並列に実行した場合でもオーバーラップできません。したがって、ほかのすべてのパスが <span class="keyword">C</span> と並列に実行された場合でも、並列実行のウォールクロック時間は少なくとも <span class="keyword">C</span> になります。また、(マイクロアーキテクチャーやメモリーの影響を無視した) スピードアップの上限は <span class="keyword">T/C</span> になります。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">ノードのボディーをタスクとしてスポーンするときのオーバーヘッド</h2><p><span class="keyword">source_node</span>、<span class="keyword">function_node</span>、<span class="keyword">continue_node</span>、および <span class="keyword">multifunction_node</span> のボディーは、常にスポーンしたタスク内で実行します。つまり、ノードがボディーを実行するためにかかる時間を推定するとき、タスク・スケジューリングのオーバーヘッドを考慮する必要があります。タスクの適切な粒度を決定する経験則はすべて、ノードボディーにも当てはまります。フローグラフに多くの細粒度ノードがある場合、これらのオーバーヘッドがパフォーマンスに大きく影響します。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Flow_Graph.html">データフローと依存関係グラフの並列化</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Data_Flow_Graph.html#Data_Flow_Graph">データフロー・グラフ</a></div>
+<div><a href="Dependence_Graph.html#Dependence_Graph">依存関係グラフ</a></div></div></div>
+</body>
+</html>

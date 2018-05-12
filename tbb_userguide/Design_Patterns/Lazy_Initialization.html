@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="遅延初期化"/>
+<meta name="DC.subject" content="遅延初期化"/>
+<meta name="keywords" content="遅延初期化"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/Design_Patterns.html"/>
+<meta name="DC.Relation" scheme="URI" content="Fenced_Data_Transfer.html#Fenced_Data_Transfer"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="Lazy_Initialization"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>遅延初期化</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="Lazy_Initialization">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">遅延初期化</h1>
+<div><div class="section"><h2 class="sectiontitle">問題</h2><p>初期化が初めて必要になったときに初期化を行う。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">コンテキスト</h2><p>データ構造を遅れて初期化することは一般的なテクニックです。使用されていないデータ構造を初期化するコストを回避できるだけでなく、多くの場合、プログラムを構築するための便利な方法となります。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">影響</h2><ul><li><p>複数のスレッドがオブジェクトへのアクセスを共有します。</p>
+</li>
+<li><p>オブジェクトは最初にアクセスされるまで作成すべきではありません。</p>
+</li>
+</ul>
+<p>後者には次の理由が含まれます。</p>
+<ul><li><p>オブジェクトの作成にはコストがかかるため、早く作成するとプログラムのスタートアップが遅くなります。</p>
+</li>
+<li><p>作成したオブジェクトがプログラムのすべての実行で使用されるとは限りません。</p>
+</li>
+<li><p>早期の初期化は、読みやすさや構造上の理由から好ましくないコードを追加することになります。</p>
+</li>
+</ul>
+</div>
+<div class="section"><h2 class="sectiontitle">関連項目</h2><ul><li>フェンス付きデータ転送</li>
+</ul>
+</div>
+<div class="section"><h2 class="sectiontitle">ソリューション</h2><p>複数の一貫性問題に対処する必要があるため、並列のソリューションには注意が必要です。</p>
+<ul class="nobullet"><li><p><strong>競合:</strong> 2 つのスレッドが同時に初めてオブジェクトにアクセスし、オブジェクトの作成が行われる場合、両方のスレッドが <samp class="codeph">T</samp> 型の同じオブジェクトへの参照を行うように競合を解決する必要があります。</p>
+</li>
+<li><p><strong>メモリーリーク:</strong> 競合が発生した場合、一時的な <samp class="codeph">T</samp> オブジェクトがすべてクリーンアップされることを保証しなければなりません。</p>
+</li>
+<li><p><strong>メモリーの一貫性:</strong> スレッド X が <samp class="codeph">value=new T()</samp> を実行する場合、ほかのすべてのスレッドから見て、割り当て <samp class="codeph">value=</samp> の前に <samp class="codeph">new T()</samp> によるストアが行われていなければなりません。</p>
+</li>
+<li><p><strong>デッドロック:</strong> もし <samp class="codeph">T()</samp> のコンストラクターがロックを取得することを要求し、ロックの現在の保持者も初めてそのオブジェクトにアクセスしようとしている場合はどうすれば良いでしょうか。</p>
+</li>
+</ul>
+<p>2 つのソリューションがあります。ダブルチェック・ロッキング (double-check locking) に基づくソリューションと、コンペアー・アンド・スワップ (compare-and-swap) に依存するソリューションです。トレードオフと問題点については次のサンプルセクションで説明します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>インテル&reg; TBB での「ダブルチェック」パターンの実装は次のようになります。</p>
+<pre>template&lt;typename T, typename Mutex=tbb::mutex&gt;
+class lazy {
+   tbb::atomic&lt;T*&gt; value;
+   Mutex mut;
+public:
+   lazy() : value() {}                    // 値を NULL に初期化
+   ~lazy() {delete value;}
+   T&amp; get() {
+       if( !value ) {                     // 値の読み取りは acquire (取得) セマンティクス 
+           Mutex::scoped_lock lock(mut);
+           if( !value ) value = new T();.// 値の書き込みは release (解放) セマンティクス
+       }
+       return *value;
+   }
+};</pre><p>「ダブルチェック」とはパターンが競合を扱う方法に由来します。ロックなしとロックの後に行われるチェックがあります。最初のチェックは、ロックなしで初期化がすでに行われている一般的なケースを扱います。2 つ目のチェックは、2 つのスレッドがどちらも初期化されていない値を参照していて、両方ともロックを取得しようとしているケースを扱います。この場合、ロックを取得する 2 番目のスレッドは、初期化が行われたことを認識します。</p>
+<p><samp class="codeph">T()</samp> が例外をスローした場合、<samp class="codeph">value</samp> は NULL のままでオブジェクト <samp class="codeph">lock</samp> が破棄されるときに mutex がロック解除されるため、ソリューションは正しくなります。</p>
+<p>このソリューションはメモリーの一貫性問題を正しく扱っています。値 <samp class="codeph">tbb::atomic</samp> への書き込みには <em>release</em> (解放) セマンティクスが用いられ、書き込みを解放する前にその前の書き込みがすべて行われます。値 <samp class="codeph">tbb::atomic</samp> からの読み取りには <em>acquire</em> (取得) セマンティクスが用いられ、読み取りを取得した後にその後の読み取りがすべて行われます。これらの振る舞いはどちらもソリューションにとって重要です。書き込みの解放は、<samp class="codeph">T()</samp> の構築が値の割り当て前に行われることを保証します。読み取りの取得は、呼び出し元が <samp class="codeph">*value</samp> から読み取る場合、"<samp class="codeph">if(!value)</samp>" を確認した後に読み取りが行われることを保証します。解放/取得は本質的にフェンス付きデータ転送パターンです。「メッセージ」は完全に構築されたインスタンス <samp class="codeph">T()</samp> で、「準備」フラグはポインター <samp class="codeph">value</samp> です。</p>
+<p>このソリューションでは、初期化を行っている間スレッドをブロックする必要があります。このため、ブロックに関連する問題が発生することがあります。例えば、最初にロックを取得するスレッドが OS によって休止状態にある場合、ほかのすべてのスレッドはそのスレッドが再開するまで待つ必要があります。ロックフリー・バリエーションでは、競合するすべてのスレッドで初期化を試み、どのスレッドによる試みが成功するかアトミックに決定することで、この問題を回避しています。</p>
+<p>インテル&reg; TBB での非ブロック・バリエーションの実装は次のようになります。ロックなしでダブルチェックも行います。</p>
+<pre>template&lt;typename T&gt;
+class lazy {
+   tbb::atomic&lt;T*&gt; value;
+public:
+   lazy() : value() {}                    // 値を NULL に初期化
+   ~lazy() {delete value;}
+   T&amp; get() {
+       if( !value ) {
+           T* tmp = new T();
+           if( value.compare_and_swap(tmp,NULL)!=NULL )
+               // 別のスレッドにより値が設定されたため自分の値は破棄
+               delete tmp;
+       }
+       return *value;
+   }
+};</pre><p>2 つめの確認は式 <samp class="codeph">value.compare_and_swap(tmp,NULL)!=NULL</samp> によって行われます。この式は、<samp class="codeph">value==NULL</samp> の場合 <samp class="codeph">value=tmp</samp> を条件付きで割り当て、以前の <samp class="codeph">value</samp> が NULL だった場合 true を返します。このため、複数のスレッドが同時に初期化を試みた場合、<samp class="codeph">compare_and_swap</samp> を実行する最初のスレッドは value を T オブジェクトのポインターに設定します。<samp class="codeph">compare_and_swap</samp> を実行するほかのスレッドは、NULL 以外のポインターが返されることで、一時的な T オブジェクトを削除すべきことが分かります。 
+		</p>
+<p>ロックによるソリューションのように、メモリーの一貫性問題は <samp class="codeph">tbb::atomic</samp> のセマンティクスによって扱われます。最初の確認には <em>acquire</em> セマンティクスが、<samp class="codeph">compare_and_swap</samp> には <em>acquire</em> と <em>release</em> の両方のセマンティクスが用いられます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">参考資料</h2><p>Lawrence Crowl、"Dynamic Initialization and Destruction with Concurrency"、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2660.htm" target="_blank">http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2660.htm</a></p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../tbb_userguide/Design_Patterns/Design_Patterns.html">デザインパターン</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Fenced_Data_Transfer.html#Fenced_Data_Transfer">フェンス付きデータ転送</a></div></div></div>
+</body>
+</html>

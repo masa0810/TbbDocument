@@ -1,0 +1,196 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="task クラス"/>
+<meta name="DC.subject" content="task クラス"/>
+<meta name="keywords" content="task クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/task_scheduler.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/task_scheduler/task_cls/task_derivation.html"/>
+<meta name="DC.Relation" scheme="URI" content="task_allocation.html"/>
+<meta name="DC.Relation" scheme="URI" content="explicit_task_destruction.html"/>
+<meta name="DC.Relation" scheme="URI" content="recycling_tasks.html"/>
+<meta name="DC.Relation" scheme="URI" content="synchronization_task.html"/>
+<meta name="DC.Relation" scheme="URI" content="task_context.html"/>
+<meta name="DC.Relation" scheme="URI" content="cancellation.html"/>
+<meta name="DC.Relation" scheme="URI" content="priorities.html"/>
+<meta name="DC.Relation" scheme="URI" content="affinity.html"/>
+<meta name="DC.Relation" scheme="URI" content="task_debugging.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="task_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>task クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="task_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">task クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>タスクの基本クラス。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><p><pre>class task;</pre></p>
+</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><p><samp class="codeph">#include "tbb/task.h"</samp></p>
+</div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p>このクラスは、タスクの基本クラスです。プログラマーは、タスクからクラスを派生させて、仮想メソッド <samp class="codeph">task* task::execute()</samp> をオーバーライドすると予測されます。</p>
+<p><samp class="codeph">task</samp> の各インスタンスには、関連する属性があります。これらの属性を直接見ることはできませんが、タスク・オブジェクトがどのように使用されるかを把握するために理解する必要があります。属性の説明を下記の表に示します。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl33" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">タスクの属性</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="NaN%" id="d82460e51"><p>属性</p>
+</th>
+<th class="row-nocellborder" valign="top" width="NaN%" id="d82460e54"><p>説明</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="NaN%" headers="d82460e51 "><p><samp class="codeph">successor</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d82460e54 "><p>Null または現在のタスクが完了した後に refcount フィールドがデクリメントされる別のタスクのポインター。通常、successor は、現在のタスクを割り当てたタスク、またはタスクの継続として割り当てられたタスクです。</p>
+<p>this が共通に使用されたケースであるため、<samp class="codeph">task</samp> クラスのメソッドはサクセサータスクを "親"、プレデセッサー・タスクを "子" と呼びます。しかし、ライブラリーは、子-親の関係がプレデセッサー-サクセサーの間で必要ないように進化しました。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d82460e51 "><p><samp class="codeph">refcount</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d82460e54 "><p>this を親として持つタスクの数。refcount のインクリメントおよびデクリメントは常にアトミックです。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>常に特別にオーバーロードされる <samp class="codeph">new</samp> 演算子の 1 つを使用してタスク・オブジェクトにメモリーを割り当てます。その他の場合、結果は不定です。<samp class="codeph">task</samp> の破棄は通常は暗黙的です。task のコピー・コンストラクターと代入演算子はアクセスできません。これは、タスクが偶然コピーされて内部データ構造が不正確になったり壊れたりすることを防ぐための制限です。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">表記規則</h2><p>いくつかのメンバーの説明では、下記の図のようなダイアグラムで結果が示されます。</p>
+<div class="fignone" id="fig6"><span class="figcap">結果ダイアグラムのサンプル</span><br/><img src="../Resources/06000007.png"/><br/></div>
+<p>これらのダイアグラムの表記規則は次のとおりです。</p>
+<ul><li><p>大きな矢印は古い状態から新しい状態への遷移を示します。</p>
+</li>
+<li><p>各タスクの状態は、<em>parent</em> および <em>refcount</em> サブボックスに分割されたボックスとして示されます。</p>
+</li>
+<li><p>灰色は、無視された状態を示します。無視された状態は単に空白で示される場合もあります。</p>
+</li>
+<li><p>黒は、読み取られた状態を示します。</p>
+</li>
+<li><p>青は、書き込まれた状態を示します。</p>
+</li>
+</ul>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><p>次の説明で、<em>proxy1...proxy5</em> 型は内部の型です。これらの型を返すメソッドは、「タスクの割り当て」セクションで説明されているように、特別にオーバーロードされた new 演算子とともにのみ使用してください。</p>
+<pre>namespace tbb {
+        class task {
+        protected:
+            task();
+     
+        public:
+            virtual ~task() {}
+     
+            virtual task* execute() = 0;
+     
+            // 割り当て
+            static proxy1 allocate_root();
+            static proxy2 allocate_root( task_group_context&amp; );
+            proxy3 allocate_continuation();
+            proxy4 allocate_child();
+            static proxy5 allocate_additional_child_of( task&amp; );
+     
+            // 明示的な破棄
+            static void destroy( task&amp; victim );
+     
+            // 再利用
+            void recycle_as_continuation();
+            void recycle_as_safe_continuation();
+            void recycle_as_child_of( task&amp; new_parent );
+     
+            // 同期
+            void set_ref_count( int count );
+            void increment_ref_count();
+            int add_ref_count( int count );
+            int decrement_ref_count();
+            void wait_for_all();
+            static void spawn( task&amp; t );
+            static void spawn( task_list&amp; list );
+            void spawn_and_wait_for_all( task&amp; t );  
+            void spawn_and_wait_for_all( task_list&amp; list );  
+            static void spawn_root_and_wait( task&amp; root );
+            static void spawn_root_and_wait( task_list&amp; root );
+            static void enqueue( task&amp; );
+     
+            // タスクのコンテキスト
+            static task&amp; self();
+            task* parent() const;
+            void set_parent( task *p );
+            bool is_stolen_task() const;
+            task_group_context* group();
+            void change_group( task_group_context&amp; ctx );
+     
+            // キャンセル
+            bool cancel_group_execution();
+            bool is_cancelled() const;
+     
+            // 優先度
+            static void enqueue( task&amp;, priority_t );
+            void set_group_priority ( priority_t );
+            priority_t group_priority () const;
+     
+            // アフィニティー
+            typedef implementation-defined-unsigned-type affinity_id;
+            virtual void note_affinity( affinity_id id );
+            void set_affinity( affinity_id id );
+            affinity_id affinity() const;
+     
+            // デバッグ
+            enum state_type {
+                executing,
+                reexecute,
+                ready,
+                allocated,
+                freed
+            };
+            int ref_count() const;
+            state_type state() const;
+        };
+    } // tbb 名前空間
+     
+    void *operator new( size_t bytes, const proxy1&amp; p );
+    void operator delete( void* task, const proxy1&amp; p );
+    void *operator new( size_t bytes, const proxy2&amp; p );
+    void operator delete( void* task, const proxy2&amp; p );
+    void *operator new( size_t bytes, const proxy3&amp; p );
+    void operator delete( void* task, const proxy3&amp; p );
+    void *operator new( size_t bytes, proxy4&amp; p );
+    void operator delete( void* task, proxy4&amp; p );
+    void *operator new( size_t bytes, proxy5&amp; p );
+    void operator delete( void* task, proxy5&amp; p );</pre><div class="Note"><h3 class="NoteTipHead">注</h3> <p>インテル&reg; TBB 3.0 よりも前は、<samp class="codeph">allocate_additional_child_of</samp>、<samp class="codeph">destroy</samp>、<samp class="codeph">spawn</samp> メソッドは非スタティックでした。ライブラリーの進化により、これらの呼び出しに <samp class="codeph">this</samp> 引数は必要でなくなりました。メソッドのアドレスが使用される場合を除いて、ソースの互換性は保たれます。インテル&reg; TBB 3.0 ランタイム・ライブラリーとリンクした場合でも、非スタティック形式の古いヘッダーでコンパイルされた実行ファイルはそのまま動作します。</p>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/task_scheduler.html">タスク・スケジューラー</a></div>
+</div>
+<div class="See Also">
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../../reference/task_scheduler/task_cls/task_derivation.html">タスクの派生</a><br/>
+</li>
+</ul>
+<h2>関連情報</h2>
+<div class="linklist">
+<div><a href="task_allocation.html">タスク割り当て</a></div>
+<div><a href="explicit_task_destruction.html">明示的なタスクの破棄</a></div>
+<div><a href="recycling_tasks.html">タスクの再利用</a></div>
+<div><a href="synchronization_task.html">タスクの同期</a></div>
+<div><a href="task_context.html">タスクのコンテキスト</a></div>
+<div><a href="cancellation.html">タスクのキャンセル</a></div>
+<div><a href="priorities.html">タスクの優先度</a></div>
+<div><a href="affinity.html">タスクのアフィニティー</a></div>
+<div><a href="task_debugging.html">タスクのデバッグ</a></div></div></div>
+</body>
+</html>

@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="非線形パイプライン"/>
+<meta name="DC.subject" content="非線形パイプライン"/>
+<meta name="keywords" content="非線形パイプライン"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Working_on_the_Assembly_Line_pipeline.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Non-Linear_Pipelines"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>非線形パイプライン</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Non-Linear_Pipelines">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">非線形パイプライン</h1>
+<div><p>テンプレート関数 <samp class="codeph">parallel_pipeline</samp> は、線形パイプラインのみをサポートします。次の図のようなバロック式の配管工事 (柔軟性のない構成) を直接処理することはありません。</p>
+<div class="fignone" id="image011"><br/><img width="281" height="107" src="Images/image011.jpg"/><br/></div>
+<p>しかし、パイプラインを使用することはできます。次のように、フィルターを線形順に位相的にソートするだけです。</p>
+<p>薄い灰色の矢印は、ほかの矢印の遷移的プロセスを暗示するオリジナルの矢印です。並列処理がフィルターを線形順にすることで失われているように見えますが、実際には、唯一の損失は処理能力ではなくパイプラインの<strong>レイテンシー</strong>によるものです。レイテンシーは、トークンがパイプラインの最初から最後までを流れる時間です。十分な数のプロセッサーが提供されると、オリジナルの非線形パイプラインのレイテンシーは 3 フィルターになります。これは、フィルター A と B およびフィルター D と E が同時にトークンを処理できるためです。</p>
+<div class="fignone" id="image012"><br/><img width="281" height="107" src="Images/image012.jpg"/><br/></div>
+<p>この線形パイプラインでは、レイテンシーは 5 フィルターになります。上記のフィルター A、B、D および E の動作は、パイプラインの次のフィルターに渡すこと以外に、フィルターで動作する必要のないオブジェクトを適切に制御するように修正する必要があります。</p>
+<p>位相に関係なく、処理能力は最も遅いシリアルフィルターによってまだ制限されているため、処理能力は同じままです。<samp class="codeph">parallel_pipeline</samp> が非線形パイプラインをサポートした場合、プログラミングは複雑になりますが、処理能力はそれほど向上しません。<samp class="codeph">parallel_pipeline</samp> の線形制限は、パフォーマンスとプログラミングの労力のバランスをうまく取っています。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Working_on_the_Assembly_Line_pipeline.html">組み立てラインでの作業: パイプライン</a></div>
+</div>
+<div/>
+</body>
+</html>

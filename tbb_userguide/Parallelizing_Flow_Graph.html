@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="データフローと依存関係グラフの並列化"/>
+<meta name="DC.subject" content="データフローの並列化, 依存関係グラフの並列化"/>
+<meta name="keywords" content="データフローの並列化, 依存関係グラフの並列化"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Flow_Graph.html"/>
+<meta name="DC.Relation" scheme="URI" content="Task-Based_Programming.html#tutorial_Task-Based_Programming"/>
+<meta name="DC.Relation" scheme="URI" content="Basic_Flow_Graph_concepts.html#Basic_Flow_Graph_Concepts"/>
+<meta name="DC.Relation" scheme="URI" content="Graph_Main_Categories.html#graph_categories"/>
+<meta name="DC.Relation" scheme="URI" content="Flow_Graph_Tips.html#flow_graph_tips"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="Parallelizing_Flow_Graph"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>データフローと依存関係グラフの並列化</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="Parallelizing_Flow_Graph">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">データフローと依存関係グラフの並列化</h1>
+<div><p>インテル&reg; TBB ライブラリーはループの並列処理に加えて、グラフの並列処理もサポートしています。高度にスケーラブルなグラフを作成したり、完全にシーケンシャルなグラフを作成することもできます。</p>
+<p>グラフの並列処理では、計算はノードで表され、これらの計算の通信チャネルはエッジで表されます。グラフのノードがメッセージを受け取ると、着信メッセージでそのボディー・オブジェクトを実行するタスクがスポーンされます。メッセージはノードを接続しているエッジを介してグラフを流れます。次のセクションでは、グラフとして表現できるアプリケーションの例を 2 つ示します。タスクについての詳細は、後述の<strong>「関連情報」</strong>を参照してください。</p>
+<p>次の図は、グラフのノードを介して値のシーケンスを処理する「ストリーミング」 (データフロー) アプリケーションを示しています。この例で、シーケンスは関数 <span class="keyword">F</span> によって作成されます。シーケンスの各値について、<span class="keyword">G</span> は値の 2 乗を計算し、<span class="keyword">H</span> は値の 3 乗を計算します。次に、<span class="keyword">J</span> は 2 乗された値と 3 乗された値を <span class="keyword">sum</span> に追加します。シーケンスの値がすべて完全に処理されると、<span class="keyword">sum</span> は 1 から 10 までの 2 乗と 3 乗の合計になります。ストリーミング (データフロー) グラフでは、値はエッジを介して実際に流れます。ノードの出力はそのサクセサーの入力になります。</p>
+<div class="fignone" id="simple_data_flow_title"><span class="figcap">単純なデータフロー・グラフ</span><br/><div class="imagecenter"><img src="Images/flow_graph.jpg" alt="単純なデータフロー・グラフ" align="center"/></div><br/></div>
+<p>次の図は、グラフ・アプリケーションの別の形式を示しています。この例では、依存関係グラフを使用し、ピーナッツバターとジャムを塗ってサンドイッチを作るステップの半順序を確立しています。この半順序では、パンにピーナッツバターやジャムを塗る前に、まずパンを用意する必要があります。ピーナッツバターの瓶を片付ける前にピーナッツバターを塗る必要があり、同様にジャムの瓶を片付ける前にジャムを塗る必要があります。また、2 切れのパンを重ねる前にピーナッツバターとジャムを塗る必要があります。ピーナッツバターとジャムを塗るのはどちらが先でもかまわないため、これは半順序です。また、瓶を片付けるのとパンを重ねるのも、どちらが先でもかまいません。<div class="fignone" id="dependence_graph_make_sandwitch"><span class="figcap">サンドイッチを作るときの依存関係グラフ</span><br/><div class="imagecenter"><img src="Images/flow_graph_complex.jpg" width="440" height="337" align="center"/></div><br/></div>
+</p>
+<p>パンやジャムの瓶のようなリソースは、順序付けされたステップ間で共有されると推測できますが、グラフで明示されていません。代わりに、必要なステップの順序のみ依存関係グラフで明示されています。例えば、「ジャムの瓶を片付ける」<strong>前に</strong>「パンにジャムを塗る」必要があります。</p>
+<p>インテル&reg; TBB ライブラリーのフローグラフのインターフェイスを使用すると、データフローや依存関係グラフだけでなく、サイクル、条件、バッファーなどを含むより複雑なグラフも表現できます。フローグラフのインターフェイスを用いてアプリケーションを表現した場合、ランタイム・ライブラリーはグラフの並列処理を実行するタスクをスポーンします。例えば、上記の最初の例では、2 つの異なる値の 2 乗の計算が並列に行われるか、同じ値の 2 乗の計算と 3 乗の計算が並列に行われます。同様に、2 番目の例では、ピーナッツバターをパンに塗るステップとジャムを別のパンに塗るステップが並列に行われます。インターフェイスは何が並列実行できるかを示し、ランタイム・ライブラリーは何を並列実行するかランタイムに決定します。</p>
+<p>グラフの並列処理のサポートは <span class="keyword">tbb::flow</span> 名前空間に含まれており、<span class="filepath">flow_graph.h</span> ヘッダーファイルで定義されています。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Flow_Graph.html">データフローと依存関係グラフの並列化</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Task-Based_Programming.html#tutorial_Task-Based_Programming">タスクベースのプログラミング</a></div>
+<div><a href="Basic_Flow_Graph_concepts.html#Basic_Flow_Graph_Concepts">基本的なフローグラフの概念</a></div>
+<div><a href="Graph_Main_Categories.html#graph_categories">グラフ・アプリケーションのカテゴリー</a></div>
+<div><a href="Flow_Graph_Tips.html#flow_graph_tips">フローグラフのヒントとコツ</a></div></div></div>
+</body>
+</html>

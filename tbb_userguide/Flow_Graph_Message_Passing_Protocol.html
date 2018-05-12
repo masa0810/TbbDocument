@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="フローグラフの基本: メッセージ・パッシング・プロトコル"/>
+<meta name="DC.subject" content="フローグラフの基本, メッセージ・パッシング・プロトコル"/>
+<meta name="keywords" content="フローグラフの基本, メッセージ・パッシング・プロトコル"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Basic_Flow_Graph_concepts.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/flow_graph/message_passing_protocol.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="flow_graph_message_passing_protocol"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>フローグラフの基本: メッセージ・パッシング・プロトコル</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="flow_graph_message_passing_protocol">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">フローグラフの基本: メッセージ・パッシング・プロトコル</h1>
+<div><p>インテル&reg; TBB のフローグラフは、ノード間でメッセージの受け渡しを行うことで動作します。場合によっては、ノードはプレデセッサーからメッセージを受け取り、処理できないことがあります。その場合、グラフが効率良く動作するように、ノード間のエッジの状態は pull に変わります。そして、サクセサーはメッセージを処理できるようになると、プレデセッサーに利用可能なメッセージを照会します。エッジが push から pull に変わらない場合、プレデセッサーはサクセサーが受け付けるまで繰り返しメッセージを転送しなければなりません。これは、不必要にリソースを消費することになります。</p>
+<p>エッジが pull モードになった後、サクセサーはビジーでなくなると、プレデセッサーからメッセージを pull しようとします。<ol><li>プレデセッサーにメッセージがある場合、サクセサーはそれを処理し、エッジは pull モードのままになります。</li>
+<li>プレデセッサーにメッセージがない場合、ノード間のエッジは pull モードから push モードに変わります。</li>
+</ol>
+</p>
+<p>以下に、この push / pull プロトコルの状態図を示します。</p>
+<div class="fignone" id="basic_push_pull"><span class="figcap">動的 push / pull プロトコル</span><br/><div class="imagecenter"><img src="./Images/flow_graph_message_passing_protocol.jpg" height="196" width="442" alt="動的 push / pull プロトコル" align="center"/></div><br/></div>
+<p>詳細は、デベロッパー・リファレンスの「メッセージ・パッシング・プロトコル」を参照してください。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Basic_Flow_Graph_concepts.html">基本的なフローグラフの概念</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../reference/flow_graph/message_passing_protocol.html">メッセージ・パッシング・プロトコル (リファレンス・マニュアル)</a></div></div></div>
+</body>
+</html>

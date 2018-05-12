@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="フローグラフの基本: single-push と broadcast-push"/>
+<meta name="DC.subject" content="フローグラフの基本, single と broadcast ポリシー"/>
+<meta name="keywords" content="フローグラフの基本, single と broadcast ポリシー"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Basic_Flow_Graph_concepts.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/flow_graph/sender_and_buffer_policy.html"/>
+<meta name="DC.Relation" scheme="URI" content="broadcast_or_send.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="flow_graph_single_vs_broadcast"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>フローグラフの基本: single-push と broadcast-push</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="flow_graph_single_vs_broadcast">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">フローグラフの基本: single-push と broadcast-push</h1>
+<div><p>インテル&reg; TBB のフローグラフのノードは、メッセージを push/pull することで通信します。ノードの種類に応じて、メッセージの push には 2 つのポリシーが使用されます。<ul><li><strong>single-push</strong>: ノードのサクセサーの数やメッセージを受け付けることができるサクセサーの数に関係なく、各メッセージは 1 つのプロセッサーにのみ送られます。</li>
+<li><strong>broadcast-push</strong>: メッセージは、 push モードのエッジでノードに接続されているすべてのサクセサーに push され、受け付けられます。</li>
+</ul>
+</p>
+<p>次のコードは、2 つのポリシーの違いを示します。</p>
+<pre>
+using namespace tbb::flow;
+
+tbb::atomic&lt;size_t&gt; g_cnt;
+
+struct fn_body1 {
+    tbb::atomic&lt;size_t&gt; &amp;body_cnt;
+    fn_body1(tbb::atomic&lt;size_t&gt; &amp;b_cnt) : body_cnt(b_cnt) {}
+    continue_msg operator()( continue_msg /*dont_care*/) {
+        ++g_cnt;
+        ++body_cnt;
+        return continue_msg();
+    }
+};
+
+void run_example1() {  // Flow_Graph_Single_Vs_Broadcast.xml の例
+    graph g;
+    tbb::atomic&lt;size_t&gt; b1;  // 各 function_node ボディーの
+    tbb::atomic&lt;size_t&gt; b2;  // ローカルカウント
+    tbb::atomic&lt;size_t&gt; b3;  //
+    function_node&lt;continue_msg&gt; f1(g,serial,fn_body1(b1));
+    function_node&lt;continue_msg&gt; f2(g,serial,fn_body1(b2));
+    function_node&lt;continue_msg&gt; f3(g,serial,fn_body1(b3));
+    buffer_node&lt;continue_msg&gt; buf1(g);
+    //
+    // single-push ポリシー
+    //
+    g_cnt = b1 = b2 = b3 = 0;
+    make_edge(buf1,f1);
+    make_edge(buf1,f2);
+    make_edge(buf1,f3);
+    buf1.try_put(continue_msg());
+    buf1.try_put(continue_msg());
+    buf1.try_put(continue_msg());
+    g.wait_for_all();
+    printf( "after single-push test, g_cnt == %d, b1==%d, b2==%d, b3==%d\n", (int)g_cnt, (int)b1, (int)b2, (int)b3);
+    remove_edge(buf1,f1);
+    remove_edge(buf1,f2);
+    remove_edge(buf1,f3);
+    //
+    // broadcast-push ポリシー
+    //
+    broadcast_node&lt;continue_msg&gt; bn(g);
+    g_cnt = b1 = b2 = b3 = 0;
+    make_edge(bn,f1);
+    make_edge(bn,f2);
+    make_edge(bn,f3);
+    bn.try_put(continue_msg());
+    bn.try_put(continue_msg());
+    bn.try_put(continue_msg());
+    g.wait_for_all();
+    printf( "after broadcast-push test, g_cnt == %d, b1==%d, b2==%d, b3==%d\n", (int)g_cnt, (int)b1, (int)b2, (int)b3);
+}
+</pre><p>
+             以下は、このサンプルコードの出力です。
+	 </p>
+<pre>
+after single-push test, g_cnt == 3, b1==3, b2==0, b3==0
+after broadcast-push test, g_cnt == 9, b1==3, b2==3, b3==3
+</pre><p>
+             single-push テストは、"single-push" ポリシーに従ってメッセージを転送する <samp class="codeph">buffer_node</samp> を使用します。  <samp class="codeph">buffer_node</samp> に 3 つのメッセージを送ると、3 つのメッセージが push されます。  また、最初の <samp class="codeph">function_node</samp> にのみ送られることが分かります。一般に、メッセージを受け付けることができるサクセサーが複数ある場合に特定のノードに push するポリシーはありません。
+         </p>
+<p>broadcast-push テストは、受け取ったメッセージを受け付けることができるすべてのサクセサーに push する <samp class="codeph">broadcast_node</samp> を使用します。<samp class="codeph">broadcast_node</samp> に 3 つのメッセージを送ると、<samp class="codeph">function_nodes</samp> に合計 9 つのメッセージが push されます。</p>
+<p>バッファーをサポートする (メッセージを保持し転送する) ノードのみ "single-push" ポリシーにできます。それ以外のノードはすべて "broadcast-push" になります。詳細は、<strong>「フローグラフのヒントとコツ」</strong>セクションの<strong>「1 つまたは複数のサクセサーへの送信」</strong>と「インテル&reg; TBB リファレンス・マニュアル」の「フローグラフ」セクションにある<strong>「転送、バッファー、受信ポリシー」</strong>を参照してください。</p>
+<p/>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Basic_Flow_Graph_concepts.html">基本的なフローグラフの概念</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../reference/flow_graph/sender_and_buffer_policy.html">転送、バッファー、受信ポリシー (リファレンス・マニュアル)</a></div>
+<div><a href="broadcast_or_send.html">1 つまたは複数のサクセサーへの送信</a></div></div></div>
+</body>
+</html>

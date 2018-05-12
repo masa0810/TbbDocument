@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="ラムダ式"/>
+<meta name="DC.subject" content="ラムダ式"/>
+<meta name="keywords" content="ラムダ式"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/parallel_for.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Lambda_Expressions"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>ラムダ式</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Lambda_Expressions">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">ラムダ式</h1>
+<div><p>C++11 のラムダ式は、インテル&reg; TBB の <samp class="codeph">parallel_for</samp> をより簡単に使用できるようにします。ラムダ式を使用すると、コンパイラーが関数オブジェクトを作成します。</p>
+<p>次のコードは、前のセクションのサンプルをラムダ式を使用して記述したものです。ラムダ式 (<strong><samp class="codeph"><span class="color(blue)" style="color:blue"><strong>太字</strong></span></samp></strong>で表示) は、前のセクションのサンプルの関数オブジェクト <samp class="codeph">ApplyFoo</samp> の関数と構築を置換します。</p>
+<pre>#include "tbb/tbb.h"
+ 
+using namespace tbb;
+ 
+void ParallelApplyFoo( float* a, size_t n ) {
+   parallel_for( blocked_range&lt;size_t&gt;(0,n), 
+      <strong>[=](const blocked_range&lt;size_t&gt;&amp; r) {</strong>
+                     <span class="color(blue)" style="color:blue"> <strong>for(size_t i=r.begin(); i!=r.end(); ++i)</strong> </span>
+                         <span class="color(blue)" style="color:blue"> <strong>Foo(a[i]);</strong> </span>
+                  <span class="color(blue)" style="color:blue"><strong>}</strong></span>
+    );
+}</pre><p>ここで、[=] はラムダ式を表します。式は、<samp class="codeph">ApplyFoo</samp> に非常によく似た関数オブジェクトを作成します。<samp class="codeph">a</samp> や <samp class="codeph">n</samp> のようなローカル変数がラムダ式の外で宣言され、ラムダ式の内部で使用される場合、これらの変数は関数オブジェクトの内部のフィールドとして取得されます。[=] の場合、変数は値渡しで取得されます。代わりに [&amp;] を記述すると、変数は参照渡しで取得されます。[=] の後は、生成する関数オブジェクトの <samp class="codeph">operator()</samp> の引数リストと定義です。ラムダ式およびその他に実装されている C++11 機能についての詳細は、コンパイラーのドキュメントを参照してください。ラムダ式はテンプレート・ライブラリーを使用する強力な機能であるため、ラムダ式のより詳細な説明を参照することを推奨します。</p>
+<p>コンパイラーの C++11 のサポートは、デフォルトではオフです。次の表は、サポートをオンにするオプションを示しています。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl9" width="100%" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">ラムダ式を使用する場合のコンパイルコマンドのサンプル</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="30.959752321981426%" id="d100442e79"><p>環境</p>
+</th>
+<th class="cellrowborder" valign="top" width="69.04024767801857%" id="d100442e82"><p>インテル&reg; C++ コンパイラー</p>
+<p>コンパイルコマンドとオプション</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="30.959752321981426%" headers="d100442e79 "><p>Windows* システム</p>
+</td>
+<td class="cellrowborder" valign="top" width="69.04024767801857%" headers="d100442e82 "><p><samp class="codeph">icl /Qstd=c++11 foo.cpp</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="30.959752321981426%" headers="d100442e79 "><p>Linux* システム</p>
+<p>macOS* システム</p>
+</td>
+<td class="cellrowborder" valign="top" width="69.04024767801857%" headers="d100442e82 "><p><samp class="codeph">icc -std=c++11 foo.cpp</samp></p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>よりコンパクトに記述できるように、インテル&reg; TBB には、連続する整数の範囲のループを並列化する <samp class="codeph">parallel_for</samp> 形式も用意されています。式 <samp class="codeph">parallel_for(<var>first</var>,<var>last</var>,<var>step</var>,<var>f</var>)</samp> は <samp class="codeph">for(auto i=<var>first</var>; i&lt;<var>last</var>; i+=<var>step</var>)<var>f</var>(i)</samp> と記述するのと同じです (リソースさえ許せば f(i) が並列に評価されることを除く)。<var>step</var> 引数はオプションです。次のコードは、前のサンプルをコンパクトに記述したものです。</p>
+<pre>#include "tbb/tbb.h"
+ 
+using namespace tbb;
+ 
+#pragma warning(disable: 588)
+ 
+void ParallelApplyFoo(float a[], size_t n) {
+    parallel_for(size_t(0), n, [=](size_t i) {Foo(a[i]);});
+}</pre><p>この形式は、整数の 1 次元の反復空間および次のセクションで説明されている自動チャンク機能のみサポートしています。 
+	 </p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/parallel_for.html">parallel_for</a></div>
+</div>
+<div/>
+</body>
+</html>

@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="再利用"/>
+<meta name="DC.subject" content="再利用"/>
+<meta name="keywords" content="再利用"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Useful_Task_Techniques.html"/>
+<meta name="DC.Relation" scheme="URI" content="Scheduler_Bypass.html#tutorial_Scheduler_Bypass"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Recycling"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>再利用</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Recycling">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">再利用</h1>
+<div><p>スケジューラーだけでなく、タスクの割り当てと解除もバイパスすることができます。このような機会は、スケジューラーのバイパスを行う再帰タスクで頻繁に発生します。<strong>「スケジューラーのバイパス」</strong>セクションの例について考えてみます。継続タスク "<samp class="codeph">c</samp>" を作成した後、次のステップを行います。</p>
+<ol><li><p>子タスク "<samp class="codeph">a</samp>" を作成します。</p>
+</li>
+<li><p>子タスク "<samp class="codeph">b</samp>" を作成します。</p>
+</li>
+<li><p><samp class="codeph">execute()</samp> メソッドからタスク "<samp class="codeph">a</samp>" にポインターを返します。</p>
+</li>
+<li><p>親タスクを破棄します。</p>
+</li>
+</ol>
+<p>親をタスク "<samp class="codeph">a</samp>" として再利用することで、ステップ 1 と 4 で行われるタスクの作成と破棄を回避できます。さらに、多くの場合、ステップ 1 で親から状態をコピーします。親をタスク "<samp class="codeph">a</samp>" として再利用することで、コピーのオーバーヘッドもなくすことができます。</p>
+<p>次のコードは、スケジューラーのバイパスの例で、再利用を実装するために必要な変更を示しています。</p>
+<pre>struct FibTask: public task {
+    long n;
+    long* sum;
+    ...
+    task* execute() {
+        if( n&lt;CutOff ) {
+            *sum = SerialFib(n);
+            return NULL;
+        } else {
+            FibContinuation&amp; c = 
+                *new( allocate_continuation() ) FibContinuation(sum);
+            // 変更前: FibTask&amp; a = *new( c.allocate_child() ) FibTask(n-2,&amp;c.x);
+            FibTask&amp; b = *new( c.allocate_child() ) FibTask(n-1,&amp;c.y);
+            recycle_as_child_of(c);
+            n -= 2;
+            sum = &amp;c.x;
+            // ref_count を "子タスクの数 2" に設定
+            c.set_ref_count(2);
+            spawn( b );
+            // 変更前: return &amp;a;
+            return this;
+        }
+    }
+};</pre><p>変更前に <samp class="codeph">a</samp> として定義されていた子は、現在は再利用された <samp class="codeph">this</samp> です。<samp class="codeph">recycle_as_child_of(c)</samp> を呼び出すと、次のような処理が行われます。 
+	 </p>
+<ul><li><p><samp class="codeph">execute()</samp> がリターンしたときに自動的に破棄<strong>されない</strong>ように <samp class="codeph">this</samp> をマークします。</p>
+</li>
+<li><p><samp class="codeph">this</samp> の深さが <samp class="codeph">c</samp> よりも一段深くなるように設定します。</p>
+</li>
+</ul>
+<p>参照カウントにおける問題を防ぐため、<samp class="codeph">recycle_as_child_of</samp> には <samp class="codeph">this</samp> が NULL サクセサーを含むという前提条件があります。これは、<samp class="codeph">allocate_continuation</samp> が発生した後の場合です。次の図は、<samp class="codeph">allocate_continuation</samp> と <samp class="codeph">recycle_as_child_of</samp> がタスクグラフをどのように変換するかを示しています。</p>
+<div class="fignone" id="fig10"><span class="figcap"><samp class="codeph">allocate_continuation</samp> と <samp class="codeph">recycle_as_child_of</samp> の動作</span><br/><img src="Images/image017.jpg" width="529" height="212"/><br/></div>
+<p>再利用時には、オリジナルのタスクフィールドがタスクの実行を開始した後に使用されないようにする必要があります。この例では、スケジューラーのバイパスを使用してこの処理を行っています。生成した後、どのフィールドも使用されない場合に限り、再利用されたタスクを代わりに生成できます。タスクが生成された後、タスクは親の処理が進む前に実行され、破棄される可能性があるため、この制限は、<samp class="codeph">const</samp> フィールドにも適用されます。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>同様のメソッド、<samp class="codeph">task::recycle_as_continuation()</samp> は、タスクを子としてではなく継続として再利用します。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Useful_Task_Techniques.html">役立つタスク手法</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Scheduler_Bypass.html#tutorial_Scheduler_Bypass">スケジューラーのバイパス</a></div></div></div>
+</body>
+</html>

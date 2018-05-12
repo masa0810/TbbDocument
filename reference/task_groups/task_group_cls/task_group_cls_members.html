@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="task_group クラスのメンバー"/>
+<meta name="DC.subject" content="task_group クラスのメンバー"/>
+<meta name="keywords" content="task_group クラスのメンバー"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/task_groups/task_group_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="task_group_cls_members"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>task_group クラスのメンバー</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="task_group_cls_members">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">task_group クラスのメンバー</h1>
+<div>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d77205e22">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d77205e24">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d77205e22 "><span class="keyword">task_group()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d77205e24 "><p>空の <samp class="codeph">task_group</samp> を構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d77205e22 "><span class="keyword">~task_group()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d77205e24 "><p><strong>要件</strong>: <samp class="codeph">wait</samp> メソッドは <samp class="codeph">task_group</samp> を破棄する前に呼び出さなければなりません。そうしないと、デストラクターが例外をスローします。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d77205e22 "><span class="keyword">template&lt;typename Func&gt; void run( const Func&amp; f )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d77205e24 "><p><samp class="codeph"><em>f()</em></samp> を計算するタスクを作成して直ちにリターンします。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d77205e22 "><span class="keyword">template&lt;typename Func&gt; void run ( task_handle&lt;Func&gt;&amp; handle );</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d77205e24 "><p><samp class="codeph"><em>handle()</em></samp> を計算するタスクを作成して直ちにリターンします。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d77205e22 "><span class="keyword">template&lt;typename Func&gt; void run_and_wait( const Func&amp; f )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d77205e24 "><p><samp class="codeph">{run(<em>f</em>); wait();}</samp> と等価ですが、<samp class="codeph"><em>f</em></samp> が現在のスレッドで実行されることを保証します。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p><samp class="codeph">run_and_wait</samp> テンプレート・メソッドは、<samp class="codeph">run</samp> と <samp class="codeph">wait</samp> を個別に呼び出すよりも効率的になるように設計されています。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d77205e22 "><span class="keyword">template&lt;typename Func&gt; void run_and_wait( task_handle&lt;Func&gt;&amp; handle );</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d77205e24 "><p><samp class="codeph">{run(<em>handle</em>); wait();}</samp> と等価ですが、<samp class="codeph"><em>handle()</em></samp> が現在のスレッドで実行されることを保証します。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p><samp class="codeph">run_and_wait</samp> テンプレート・メソッドは、<samp class="codeph">run</samp> と <samp class="codeph">wait</samp> を個別に呼び出すよりも効率的になるように設計されています。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d77205e22 "><span class="keyword">task_group_status wait()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d77205e24 "><p>グループのすべてのタスクが完了する、またはキャンセルされるのを待ちます。</p>
+<p><strong>戻り値</strong>: このタスクグループがタスクをキャンセルしている場合は true。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d77205e22 "><span class="keyword">bool is_canceling()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d77205e24 "><p><strong>戻り値</strong>: このタスクグループがタスクをキャンセルしている場合は true。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d77205e22 "><span class="keyword">void cancel()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d77205e24 "><p>このタスクグループのすべてのタスクをキャンセルします。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/task_groups/task_group_cls.html">task_group クラス</a></div>
+</div>
+<div/>
+</body>
+</html>

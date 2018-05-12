@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="parallel_deterministic_reduce テンプレート関数"/>
+<meta name="DC.subject" content="parallel_deterministic_reduce テンプレート関数"/>
+<meta name="keywords" content="parallel_deterministic_reduce テンプレート関数"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/algorithms.html"/>
+<meta name="DC.Relation" scheme="URI" content="partitioners/simple_partitioner_cls.html#simple_partitioner_cls"/>
+<meta name="DC.Relation" scheme="URI" content="partitioners.html#partitioners"/>
+<meta name="DC.Relation" scheme="URI" content="parallel_reduce_func.html#parallel_reduce_func"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="parallel_deterministic_reduce_func"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>parallel_deterministic_reduce テンプレート関数</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="parallel_deterministic_reduce_func">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">parallel_deterministic_reduce テンプレート関数</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>決定性のある分割/結合動作を使用して、範囲のリダクションを計算します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/parallel_reduce.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>template&lt;typename Range, typename Value,
+           typename Func, typename Reduction&gt;
+           Value parallel_deterministic_reduce( const Range&amp; range,
+           const Value&amp; identity, const Func&amp; func,
+           const Reduction&amp; reduction,
+           <var>[,</var> task_group_context&amp; group<var>]</var> );
+ 
+template&lt;typename Range, typename Body&gt;
+           void parallel_deterministic_reduce( const Range&amp; range,
+           const Body&amp; body
+           <var>[,</var> task_group_context&amp; group<var>]</var> );</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">parallel_deterministic_reduce</samp> テンプレートは、<samp class="codeph">parallel_reduce</samp> テンプレートによく似ています。関数形式と命令形式があり、Func と Reduction の要件も似ています。</p>
+<p><samp class="codeph">parallel_reduce</samp> とは異なり、<samp class="codeph">parallel_deterministic_reduce</samp> は、Body と Range の分割動作およびボディーの結合動作に関して決定性があります。関数形式では、Func は決定性のある Range のセットに適用され、Reduction は決定性のある順序で部分的な結果のマージを行います。<samp class="codeph">parallel_deterministic_reduce</samp> は、常に <samp class="codeph">simple_partitioner</samp> を使用します。ほかのパーティショナーはランダムなワークスチール動作に反応するためです。したがって、テンプレート宣言にはパーティショナー引数がありません。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p><samp class="codeph">simple_partitioner</samp> は自動的に範囲を粗くしないため、適切な粒度を指定していることを確認してください。詳細は、「パーティショナー」セクションを参照してください。</p>
+</div>
+<p><samp class="codeph">parallel_deterministic_reduce</samp> は常に、各範囲分割に対して Body 分割コンストラクターを呼び出します。</p>
+<p><div class="fignone" id="fig18"><span class="figcap">blocked_range&lt;int&gt;(0,20,5) での parallel_deterministic_reduce の実行</span><br/><div class="imageleft"><img src="../Resources/reference-latest-19.jpg" height="135" width="403" align="left"/></div><br/></div>
+</p>
+<p>その結果、<samp class="codeph">parallel_deterministic_reduce</samp> は、範囲が分割できなくなるまで再帰的に範囲を分割し、各サブ範囲に対して (Body 分割コンストラクターを呼び出して) 新しいボディーを作成します。<samp class="codeph">parallel_reduce</samp> と同様に、各ボディー分割に対してボディーから結果をマージするために <samp class="codeph">join</samp> メソッドが呼び出されます。上記の図は、サンプル範囲での <samp class="codeph">parallel_deterministic_reduce</samp> の実行を示しています。斜線 (/) は、どこでボディーの新しいインスタンスが作成されたかを示します。</p>
+<p>指定された引数に対して、<samp class="codeph">parallel_deterministic_reduce</samp> は、実行スレッド数やスレッドへのタスクの割り当て方法に関係なく、同じ分割および結合操作のセットを実行します。ユーザー定義関数に決定性がある場合 (つまり、同じ入力データで実行したときに毎回同じ結果が出力される場合)、<samp class="codeph">parallel_deterministic_reduce</samp> の複数の呼び出しは同じ結果になります。ただし、等価なシーケンシャル・アルゴリズムの結果 k とは異なる場合があります。</p>
+<p><strong>計算量</strong></p>
+<p>範囲とボディーが O(1) 空間を使用して範囲をほぼ等しい断片に分割する場合、空間計算量は O(P log(N)) です。ここで、N は範囲のサイズ、P はスレッド数です。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p><samp class="codeph">parallel_reduce</samp> セクションのサンプルは、<samp class="codeph">parallel_deterministic_reduce</samp> を使用するように簡単に修正できます。<samp class="codeph">parallel_reduce</samp> を <samp class="codeph">parallel_deterministic_reduce</samp> に変更するだけです。パーティショナーがある場合は、コンパイルエラーにならないように削除します。パフォーマンスが低下する場合は、blocked_range の粒度を指定する必要があります。</p>
+<pre>#include &lt;numeric&gt;
+#include &lt;functional&gt;
+#include "tbb/parallel_reduce.h"
+#include "tbb/blocked_range.h"
+using namespace tbb;
+
+float ParallelSum( float array[], size_t n ) {
+    size_t grain_size = 1000;
+    return parallel_deterministic_reduce( 
+        blocked_range&lt;float*&gt;( array, array+n, grain_size[ ),
+        0.f,
+        [](const blocked_range&lt;float*&gt;&amp; r, float value)-&gt;float {
+            return std::accumulate(r.begin(),r.end(),value);
+        },
+        std::plus&lt;float&gt;());
+}</pre></div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/algorithms.html">アルゴリズム</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="partitioners/simple_partitioner_cls.html#simple_partitioner_cls">simple_partitioner クラス</a></div>
+<div><a href="partitioners.html#partitioners">パーティショナー</a></div>
+<div><a href="parallel_reduce_func.html#parallel_reduce_func">parallel_reduce テンプレート関数</a></div></div></div>
+</body>
+</html>

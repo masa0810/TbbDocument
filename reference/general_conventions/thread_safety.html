@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="スレッドセーフ"/>
+<meta name="DC.subject" content="スレッドセーフ"/>
+<meta name="keywords" content="スレッドセーフ"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/general_conventions.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="thread_safety"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>スレッドセーフ</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="thread_safety">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">スレッドセーフ</h1>
+<div><div class="section"><p>特に明記されている場合を除いて、ライブラリーのスレッドセーフ規則は次のとおりです。</p>
+<ul><li><p>2 つのスレッドは、異なるオブジェクトのメソッドまたは関数を同時に呼び出すことができます。</p>
+</li>
+<li><p>同じオブジェクトのメソッドまたは関数を同時に呼び出す 2 つのスレッドはスレッドセーフではありません。</p>
+</li>
+</ul>
+<p>クラスの記述では、この規則に沿っていない点を明記しています。例えば、コンカレント・コンテナーはより自由度が高く、その性質により、同じコンテナー・オブジェクト上で並列操作を許可します。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/general_conventions.html">一般的な規則</a></div>
+</div>
+<div/>
+</body>
+</html>

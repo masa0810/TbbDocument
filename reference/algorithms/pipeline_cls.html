@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="pipeline クラス"/>
+<meta name="DC.subject" content="pipeline クラス"/>
+<meta name="keywords" content="pipeline クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/algorithms.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/algorithms/pipeline_cls/filter_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/algorithms/pipeline_cls/thread_bound_filter_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../task_scheduler/task_scheduler_init_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="pipeline_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>pipeline クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="pipeline_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">pipeline クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2> パイプライン実行を行うクラス。</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/pipeline.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>class pipeline; </pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">pipeline</samp> は、アイテムのストリームへのフィルターを含む、パイプライン化された一連のアプリケーションを表します。各フィルターは特定のモードで実行します: parallel、serial_in_order、または serial_out_of_order (MacDonald 2004)。</p>
+<p><samp class="codeph">pipeline</samp> は、ここで <em>f<sub>i</sub></em> として示された 1 つ以上のフィルターを含みます。<em>i</em> は、パイプラインにおけるフィルターの位置を示します。パイプラインは、<em>f</em><sub>0</sub> フィルターで開始し、<em>f</em><sub>1</sub>、<em>f</em><sub>2</sub>、... と続きます。次のステップで、クラス・パイプラインの使用方法を説明します。</p>
+<ol><li><span class="keyword">filter</span> から各クラス <em>f<sub>i</sub></em> をから派生します。<em>f<sub>i</sub></em> のコンストラクターは、基本クラス <span class="keyword">filter</span> のコンストラクターへの引数としてモードを指定します。</li>
+<li>アイテムでフィルターのアクションを行い、次のフィルターによって処理されるアイテムへのポインターを返すように仮想メソッド <span class="keyword">filter::operator()</span> をオーバーライドします。最初のフィルター <em>f</em><sub>0</sub> はストリームを生成します。ストリームにアイテムがそれ以上ない場合、NULL を返します。最後のフィルターの戻り値は無視されます。</li>
+<li><span class="keyword">pipeline</span> クラスのインスタンスを作成します。</li>
+<li><em>f<sub>i</sub></em> フィルターのインスタンスを作成して、最初から最後の順にパイプラインに追加します。フィルターのインスタンスは、パイプラインに一度だけ追加することができます。フィルターは、同時に 2 つ以上のパイプラインのメンバーであってはなりません。</li>
+<li><span class="keyword">pipeline::run</span> メソッドを呼び出します。<samp class="codeph">max_number_of_live_tokens</samp> 引数は、同時に実行するステージ数の上限を設定します。高い値を設定すると、同時に実行できる数は増加しますが、処理するアイテムが多くなるためメモリー消費量が増加します。<samp class="codeph">max_number_of_live_tokens</samp> の効果的な使用方法については、チュートリアルの <span class="keyword">pipeline</span> クラスのセクションを参照してください。</li>
+</ol>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>十分なプロセッサーとトークンが提供された場合、パイプラインの処理能力は、最も遅いシリアルフィルターの処理能力に制限されます。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p><samp class="codeph">parallel_pipeline</samp> 関数は、パイプラインの構築および実行用の厳密な型のラムダ・フレンドリーなインターフェイスを提供します。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+    class pipeline {
+     public:
+        pipeline();
+        ~pipeline();
+        void add_filter( filter&amp; f );
+        void run( size_t max_number_of_live_tokens <em>[,</em> task_group_context&amp; group<em> ]</em> );
+        void clear();
+    };
+}</pre><div class="Note"><h3 class="NoteTipHead">注</h3> <p>現在の実装では、デストラクターを仮想として宣言していますが、これに依存しないでください。仮想は推奨されていません。インテル&reg; TBB の将来のバージョンでは、廃止される可能性があります。</p>
+</div>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d6990e148">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d6990e150">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d6990e148 "><span class="keyword">pipeline() </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d6990e150 "><p>フィルターなしのパイプラインを構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d6990e148 "><span class="keyword">~pipeline()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d6990e150 "><p>パイプラインからすべてのフィルターを削除してパイプラインを破棄します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d6990e148 "><span class="keyword">void add_filter( filter&amp; f )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d6990e150 "><p>パイプラインのフィルターのシーケンスにフィルター <samp class="codeph"><em>f</em></samp> を追加します。フィルター <samp class="codeph"><em>f</em></samp> は、すでにパイプライン中にあってはなりません。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d6990e148 "><span class="keyword">void run( size_t max_number_of_live_tokens[, task_group_context&amp; group] ) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d6990e150 "><p>最初のフィルターが NULL を返し、後のフィルターがそれぞれ、その前からのアイテムをすべて処理するまで、パイプラインを実行します。並列に処理されるアイテムの数は、パイプラインの構造と利用可能なスレッド数に依存します。同時に最大 <samp class="codeph">max_number_of_live_tokens</samp> を実行できます。</p>
+<p>パイプラインは複数回実行することができます。各実行の間にステージを追加できます。パイプラインの同じインスタンス上で同時に実行を複数呼び出すことは禁止されています。</p>
+<p><samp class="codeph">group</samp> 引数が指定されている場合、パイプラインのタスクはこのグループで実行されます。デフォルトでは、アルゴリズムは自身がバインドされているグループで実行されます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d6990e148 "><span class="keyword">void clear()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d6990e150 "><p>パイプラインからすべてのフィルターを削除します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/algorithms.html">アルゴリズム</a></div>
+</div>
+<div class="See Also">
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../../reference/algorithms/pipeline_cls/filter_cls.html">filter クラス</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/algorithms/pipeline_cls/thread_bound_filter_cls.html">thread_bound_filter クラス</a><br/>
+</li>
+</ul>
+<h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../task_scheduler/task_scheduler_init_cls.html">task_scheduler_init クラス</a></div></div></div>
+</body>
+</html>

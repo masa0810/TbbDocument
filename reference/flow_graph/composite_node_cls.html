@@ -1,0 +1,199 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="composite_node テンプレート・クラス"/>
+<meta name="DC.subject" content="composite_node テンプレート・クラス"/>
+<meta name="keywords" content="composite_node テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/flow_graph.html"/>
+<meta name="DC.Relation" scheme="URI" content="input_port_func.html"/>
+<meta name="DC.Relation" scheme="URI" content="output_port_func.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="composite_node_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>composite_node テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="composite_node_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">composite_node テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>最初のグラフ・ノード・クラスとしてほかのノードのコレクションをカプセル化するノード。<samp class="codeph">composite_node</samp> を利用するには C++11 のサポートが必要です。Microsoft* Windows* では、Visual Studio* 2013 以降が必要です。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>
+template&lt;typename InputTuple, typename OutputTuple&gt;
+class composite_node;
+      </pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>
+#include "tbb/flow_graph.h"
+      </pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">composite_node</samp> は、任意の数のほかのノードをパッケージできます。パッケージ内の <samp class="codeph">composite_node</samp> に接するノードへの入力ポートと出力ポートの参照を保持します。これらの参照を使用して、<samp class="codeph">composite_node</samp> 外のほかのノードにエッジを作成できます。<samp class="codeph">InputTuple</samp> は入力タイプのタプルです。<samp class="codeph">composite_node</samp> には、<samp class="codeph">InputTuple</samp> の各タイプに 1 つの入力ポートがあります。同様に、<samp class="codeph">OutputTuple</samp> は出力タイプのタプルです。<samp class="codeph">composite_node</samp> には、<samp class="codeph">OutputTuple</samp> の各タイプに 1 つの出力ポートがあります。</p>
+<p>composite_node は、次の 3 つの特殊化を備えた複数ポートのノードです。<ul><li><strong>複数入力ポートと複数出力ポートを含む複数ポートのノード:</strong> この特殊化は、<samp class="codeph">InputTuple</samp> のタイプの <samp class="codeph">receiver</samp> である入力ポートのタプルを含みます。各入力ポートは、<samp class="codeph">composite_node</samp> がカプセル化するノードのポートへの参照です。この特殊化は、<samp class="codeph">OutputTuple</samp> のタイプの <samp class="codeph">sender</samp> である出力ポートのタプルも含みます。各出力ポートは、<samp class="codeph">composite_node</samp> がカプセル化するノードのポートへの参照です。</li>
+<li><strong>入力ポートのみ含み出力ポートを含まない複数ポートのノード:</strong> この特殊化は入力ポートのタプルのみ含みます。</li>
+<li><strong>出力ポートのみ含み入力ポートを含まない複数ポートのノード:</strong> この特殊化は出力ポートのタプルのみ含みます。</li>
+</ul>
+</p>
+<p><samp class="codeph">input_port</samp> テンプレート関数は特定の入力ポートへの参照を取得するために使用できます。また、<samp class="codeph">output_port</samp> テンプレート関数は特定の出力ポートへの参照を取得するために使用できます。</p>
+<p><samp class="codeph">composite_node</samp> の構築は 2 段階で行われます。<ul><li><samp class="codeph">InputTuple</samp> および <samp class="codeph">OutputTuple</samp> の仕様を備えた <samp class="codeph">composite_node</samp> を定義します。</li>
+<li><samp class="codeph">composite_node</samp> に接するカプセル化されたノードから <samp class="codeph">composite_node</samp> の入力ポートおよび出力ポートへのエイリアスを作成します。この処理を行わないと <samp class="codeph">composite_node</samp> の入力ポートおよび出力ポートは実際のノードにバインドされないため、この段階は必須です。エイリアスの作成は、<samp class="codeph">set_external_ports</samp> メソッドを呼び出して行います。</li>
+</ul>
+</p>
+<p>composite_node はコピー構築できません。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><pre>
+#include "tbb/flow_graph.h"
+#include &lt;iostream&gt;
+#include &lt;tuple&gt;
+using namespace tbb::flow;
+
+class adder : public composite_node&lt;  tuple&lt;int, int&gt;,  tuple&lt;int&gt; &gt; {
+    join_node&lt; tuple&lt;int,int&gt;, queueing &gt; j;
+    function_node&lt; tuple&lt;int,int&gt;, int &gt; f;
+    typedef composite_node&lt; tuple&lt;int,int&gt;, tuple&lt;int&gt; &gt; base_type;
+
+    struct f_body {
+        int operator()(const tuple&lt;int,int&gt; &amp;t) {
+            int n = (get&lt;1&gt;(t)+1)/2;
+            int sum = get&lt;0&gt;(t) + get&lt;1&gt;(t);
+            std::cout &lt;&lt; "Sum of the first " &lt;&lt; n &lt;&lt;" positive odd numbers is  " &lt;&lt; n &lt;&lt;" squared: "  &lt;&lt; sum &lt;&lt; std::endl;
+            return  sum;
+        }
+    };
+
+public:
+    adder(graph &amp;g) : base_type(g), j(g), f(g, unlimited, f_body()) {
+        make_edge(j, f);
+        base_type::input_ports_type input_tuple(input_port&lt;0&gt;(j), input_port&lt;1&gt;(j));
+        base_type::output_ports_type output_tuple(f);
+        base_type::set_external_ports(input_tuple, output_tuple);
+    }
+};
+
+int main() {
+    graph g;
+    split_node&lt; tuple&lt;int, int, int, int&gt; &gt; s(g);
+    adder a0(g);
+    adder a1(g);
+    adder a2(g);
+
+    make_edge(output_port&lt;0&gt;(s), input_port&lt;0&gt;(a0));
+    make_edge(output_port&lt;1&gt;(s), input_port&lt;1&gt;(a0));
+
+    make_edge(output_port&lt;0&gt;(a0),input_port&lt;0&gt;(a1));
+    make_edge(output_port&lt;2&gt;(s), input_port&lt;1&gt;(a1));
+
+    make_edge(output_port&lt;0&gt;(a1), input_port&lt;0&gt;(a2));
+    make_edge(output_port&lt;3&gt;(s), input_port&lt;1&gt;(a2));
+
+    s.try_put(std::make_tuple(1,3,5,7));
+
+    g.wait_for_all();
+
+    return 0;
+}
+      </pre><p>この例は、<samp class="codeph">composite_node</samp> を使用して 2 つのフローグラフのノード (<samp class="codeph">join_node</samp> および <samp class="codeph">function_node</samp>) をカプセル化します。例では、最初の <samp class="codeph">n</samp> 個の正の奇数の合計は <samp class="codeph">n</samp> の 2 乗と同じであるという概念が示されています。</p>
+<p>クラス <samp class="codeph">adder</samp> が定義されます。このクラスには <samp class="codeph">join_node j</samp> と 2 つの入力ポイントおよび <samp class="codeph">function_node f</samp> が含まれます。<samp class="codeph">j</samp> は各入力ポートで数を受け取り、数を加算する <samp class="codeph">f</samp> にこれらの数のタプルを送ります。これらの 2 つのノードをカプセル化するため、<samp class="codeph">adder</samp> は <samp class="codeph">composite_node</samp> 型と 2 つの入力ポートおよび 1 つの出力ポートを継承して、<samp class="codeph">j</samp> の 2 つの入力ポートと <samp class="codeph">f</samp> の 1 つの出力ポートを紐付けます。</p>
+<p><samp class="codeph">split_node s</samp> を正の奇数のソースとして利用します。最初に、4 つの正の奇数 1、3、5 および 7 が使用されます。3 つの <samp class="codeph">adders a0</samp>、<samp class="codeph">a1</samp> および <samp class="codeph">a2</samp> が作成されます。最初の <samp class="codeph">adder a0</samp> は、<samp class="codeph">split_node</samp> から 1 と 3 を受け取ります。これらの値が加算され、合計が <samp class="codeph">a1</samp> に転送されます。2 番目の <samp class="codeph">adder a1</samp> は、<samp class="codeph">split_node</samp> から 1 つの入力ポートで 1 および 3 の合計を受け取り、別の入力ポートで 5 を受け取ります。これらの値も加算され、合計が <samp class="codeph">a2</samp> に転送されます。同様に、3 番目の <samp class="codeph">adder a2</samp> は、<samp class="codeph">split_node</samp> から 1 つの入力ポートで 1、3 および 5 の合計を受け取り、別の入力ポートで 7 を受け取ります。各 <samp class="codeph">adder</samp> は合計をレポートし、累積された数の 2 乗を計算します。</p>
+例を実行すると、次の出力が生成されます。<pre>
+Sum of the first 2 positive odd numbers is  2^2: 4
+Sum of the first 3 positive odd numbers is  3^2: 9
+Sum of the first 4 positive odd numbers is  4^2: 16
+      </pre></div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>
+namespace tbb {
+namespace flow {
+
+    template&lt; typename InputTuple, typename OutputTuple &gt; class composite_node;
+
+    // 入力ポートと出力ポートの両方を含む composite_node
+    template&lt; typename... InputTypes, typename... OutputTypes&gt;
+    class composite_node &lt;tbb::flow::tuple&lt;InputTypes...&gt;, tbb::flow::tuple&lt;OutputTypes...&gt; &gt; : public graph_node {
+    public:
+        typedef tbb::flow::tuple&lt; receiver&lt;InputTypes&gt;&amp;... &gt; input_ports_type;
+        typedef tbb::flow::tuple&lt; sender&lt;OutputTypes&gt;&amp;... &gt; output_ports_type;
+
+        composite_node( graph &amp;g );
+        virtual ~composite_node();
+
+        void set_external_ports(input_ports_type&amp;&amp; input_ports_tuple, output_ports_type&amp;&amp; output_ports_tuple);
+        input_ports_type&amp; input_ports();
+        output_ports_type&amp; output_ports();
+    };
+
+    // 入力ポートのみを含む composite_node
+    template&lt; typename... InputTypes&gt;
+    class composite_node &lt;tbb::flow::tuple&lt;InputTypes...&gt;, tbb::flow::tuple&lt;&gt; &gt; : public graph_node{
+    public:
+        typedef tbb::flow::tuple&lt; receiver&lt;InputTypes&gt;&amp;... &gt; input_ports_type;
+
+        composite_node( graph &amp;g );
+        virtual ~composite_node();
+
+        void set_external_ports(input_ports_type&amp;&amp; input_ports_tuple);
+        input_ports_type&amp; input_ports();
+    };
+
+    // 出力ポートのみを含む composite_node
+    template&lt;typename... OutputTypes&gt;
+    class composite_node &lt;tbb::flow::tuple&lt;&gt;, tbb::flow::tuple&lt;OutputTypes...&gt; &gt; : public graph_node{
+    public:
+        typedef tbb::flow::tuple&lt; sender&lt;OutputTypes&gt;&amp;... &gt; output_ports_type;
+
+        composite_node( graph &amp;g );
+        virtual ~composite_node();
+
+        void set_external_ports(output_ports_type&amp;&amp; output_ports_tuple);
+        output_ports_type&amp; output_ports();
+    };
+}
+}
+      </pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d48854e249">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d48854e251">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d48854e249 "><span class="keyword">composite_node( graph &amp;g )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d48854e251 "><p><samp class="codeph">graph g</samp> に属する <samp class="codeph">composite_node</samp> を構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d48854e249 "><span class="keyword">void set_external_ports(input_ports_type&amp;&amp; input_ports_tuple, output_ports_type&amp;&amp; output_ports_tuple); </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d48854e251 "><p><samp class="codeph">composite_node</samp> の入力ポートと出力ポートを <samp class="codeph">input_ports_tuple</samp> および <samp class="codeph">output_ports_tuple</samp> で参照されるポートへのエイリアスとして作成します。つまり、<samp class="codeph">input_ports_tuple</samp> の位置 <samp class="codeph">N</samp> で参照されるポートが <samp class="codeph">composite_node</samp> の <samp class="codeph">N</samp> 番目の入力ポートとしてマップされます。出力ポートも同様です。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d48854e249 "><span class="keyword">input_ports_type&amp; input_ports()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d48854e251 "><p><strong>戻り値</strong>: <samp class="codeph">receiver</samp> の <samp class="codeph">flow::tuple</samp>。各要素は、<samp class="codeph">set_external_ports()</samp> の該当する位置にエイリアスされた実際のノードまたは入力ポートへの参照です。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>set_external_ports() への事前の呼び出しを行わないで input_ports() を呼び出した場合の動作は不定です。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d48854e249 "><span class="keyword">output_ports_type&amp; output_ports()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d48854e251 "><p><strong>戻り値</strong>: <samp class="codeph">sender</samp> の <samp class="codeph">flow::tuple</samp>。各要素は、<samp class="codeph">set_external_ports()</samp> の該当する位置にエイリアスされた実際のノードまたは出力ポートへの参照です。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>set_external_ports() への事前の呼び出しを行わないで output_ports() を呼び出した場合の動作は不定です。</p>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/flow_graph.html">フローグラフ</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="input_port_func.html">input_port テンプレート・クラス</a></div>
+<div><a href="output_port_func.html">output_port テンプレート・クラス</a></div></div></div>
+</body>
+</html>

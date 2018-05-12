@@ -1,0 +1,136 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="task_group_context クラス"/>
+<meta name="DC.subject" content="task_group_context クラス"/>
+<meta name="keywords" content="task_group_context クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/task_scheduler.html"/>
+<meta name="DC.Relation" scheme="URI" content="fpu_settings.html"/>
+<meta name="DC.Relation" scheme="URI" content="priorities.html"/>
+<meta name="DC.Relation" scheme="URI" content="task_scheduler_init_cls/task_scheduler_init_1.html"/>
+<meta name="DC.Relation" scheme="URI" content="task_context.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="task_group_context"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>task_group_context クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="task_group_context">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">task_group_context クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>キャンセル可能なタスクのグループ。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>class task_group_context;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/task.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">task_group_context</samp> は、キャンセル可能な、または優先度レベルが設定された、タスクのグループを表します。すべてのタスクはグループに属します。タスクは 1 つのグループのメンバーになることができます。</p>
+<p>ルートタスクは、<samp class="codeph">task::allocate_root()</samp> 呼び出しの <samp class="codeph">task_group_context</samp> オブジェクトで渡されるグループと関連しています。子タスクは、親タスクのグループに自動的に属します。タスクは、<samp class="codeph">task::change_group()</samp> メソッドを使用してほかのグループに移動できます。</p>
+<p><samp class="codeph">task_group_context</samp> オブジェクトはツリー形式です。各ツリーのルートは、<samp class="codeph">task_group_context</samp> で <samp class="codeph">isolated</samp> として構築されます。</p>
+<p><samp class="codeph">task_group_context</samp> は、リクエストにより明示的に、または例外がタスクからスローされたときに暗黙的にキャンセルされます。<samp class="codeph">task_group_context</samp> をキャンセルすると、そのルート以下のツリー全体がキャンセルされます。</p>
+<p>グループのすべてのタスクの優先度は、関連付けられている <samp class="codeph">task_group_context</samp> オブジェクトから、またはグループに属するすべてのタスクから、いつでも変更できます。キャンセルと同様に、優先度を変更すると、グループの子タスクの優先度も変更されます。タスク実行に対する優先度の影響は、「優先度」セクションで説明されています。</p>
+<p><samp class="codeph">task_scheduler_init</samp> を暗黙的に作成する各ユーザースレッドには、初期ツリーのルートの役割をする <samp class="codeph">isolated task_group_context</samp> が含まれます。ユーザースレッドがタスクを実行していない場合、このコンテキストは <samp class="codeph">task::self()</samp> によって返されるダミータスクと関連しています。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+    class task_group_context {
+    public:
+        enum kind_t {
+            isolated = implementation-defined,
+            bound = implementation-defined
+        };
+
+        enum traits_type {
+            exact_exception = implementation-defined,
+            fp_settings     = implementation-defined,
+            concurrent_wait = implementation-defined,
+#if TBB_USE_CAPTURED_EXCEPTION
+            default_traits = 0
+#else
+            default_traits = exact_exception
+#endif /* !TBB_USE_CAPTURED_EXCEPTION */
+        };
+        task_group_context( kind_t relation_with_parent = bound, 
+                            uintptr_t traits = default_traits );
+        ~task_group_context();
+        void reset();
+        bool cancel_group_execution();
+        bool is_group_execution_cancelled() const;
+        void capture_fp_settings();
+        void set_priority( priority_t );
+        priority_t priority() const;
+        uintptr_t traits() const;
+    }; 
+}</pre></div>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d83624e92">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d83624e94">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d83624e92 "><span class="keyword">task_group_context( kind_t relation_to_parent=bound, uintptr_t traits=default_traits )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d83624e94 "><p>空の <samp class="codeph">task_group_context</samp> を構築します。<em>relation_to_parent</em> が bound の場合、<samp class="codeph">task::allocate_root(task_group_context&amp;)</samp> の呼び出しで最初に渡されるとき、<samp class="codeph">task_group_context</samp> は最も内側で実行するタスクのグループの子になります。この呼び出しがユーザースレッドから直接行われた場合、<samp class="codeph"><em>relation_to_parent</em></samp> が isolated だった場合と同様の結果になります。<samp class="codeph"><em>relation_to_parent</em></samp> が <em>isolated</em> の場合、親 <samp class="codeph">task_group_context</samp> はありません。</p>
+<p><em>traits</em> 引数は、<em>traits_type</em> 値のビット単位の OR です。<samp class="codeph">exact_exception</samp> フラグは、例外がスレッド間でどの程度正確に転送されるかを制御します。詳細は、「例外」セクションを参照してください。<samp class="codeph">concurrent_wait</samp> フラグは、<samp class="codeph">task::wait_for_all</samp> および <samp class="codeph">task::spawn_and_wait_for_all</samp> メソッドの参照-カウント動作を制御します。<samp class="codeph">fp_settings</samp> フラグを指定すると、コンテキストは現在のスレッドから浮動小数点設定を取得します。詳細は、「浮動小数点設定」セクションを参照してください。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d83624e92 "><span class="keyword">~task_group_context()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d83624e94 "><p>空の task_group_context を破棄します。グループにタスクが残っている場合は、プログラマーのミスです。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d83624e92 "><span class="keyword"> bool cancel_group_execution()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d83624e94 "><p>キャンセルするグループのタスクをリクエストします。</p>
+<p><strong>戻り値</strong>: グループがすでにキャンセルされている場合は false。その他の場合は true。複数のスレッドから同時に呼び出された場合、1 つの呼び出しは true が返され、残りの呼び出しは false が返されます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d83624e92 "><span class="keyword">bool is_group_execution_cancelled() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d83624e94 "><p><strong>戻り値</strong>: グループがキャンセルのリクエストを受け取った場合は true。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d83624e92 "><span class="keyword">void reset()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d83624e94 "><p>グループの状態をキャンセルされていない状態に初期化しなおします。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>このメソッドは、グループの下位グループと関連するすべてのタスクが完了した後に呼び出した場合のみ安全です。このメソッドは、複数のスレッドで同時に呼び出してはなりません。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d83624e92 "><span class="keyword">void set_priority( priority_t )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d83624e94 "><p>タスクグループの優先度を変更します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d83624e92 "><span class="keyword">priority_t priority() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d83624e94 "><p><strong>戻り値</strong>: タスクグループの優先度。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d83624e92 "><span class="keyword">void capture_fp_settings()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d83624e94 "><p>現在のスレッドから浮動小数点設定を取得します。詳細は、「浮動小数点設定」セクションを参照してください。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>このメソッドは、グループの下位グループと関連するすべてのタスクが完了した後に呼び出した場合のみ安全です。このメソッドは、複数のスレッドで同時に呼び出してはなりません。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d83624e92 "><span class="keyword">uintptr_t traits() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d83624e94 "><p><strong>戻り値</strong>: タスクグループの特徴。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/task_scheduler.html">タスク・スケジューラー</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="fpu_settings.html">浮動小数点設定</a></div>
+<div><a href="priorities.html">優先度</a></div>
+<div><a href="task_scheduler_init_cls/task_scheduler_init_1.html">task_scheduler_init</a></div>
+<div><a href="task_context.html">タスクのコンテキスト、static task&amp; self()</a></div></div></div>
+</body>
+</html>

@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="コピー可能な mutex"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/appendices/compatibility_features.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../synchronization/mutexes/mutex_concept.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="copyable_mutexes"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>コピー可能な mutex</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="copyable_mutexes">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">コピー可能な mutex</h1>
+<div><p>デフォルトでは、mutex の実装はコピーおよび移動できません (インテル&reg; TBB 4.3 より前のバージョンでは、一部の mutex クラスはコピー可能でした)。マクロ <samp class="codeph">TBB_DEPRECATED_MUTEX_COPYING</samp> が非ゼロの場合、代入演算子を呼び出して mutex のコンストラクターをコピーすることができます。</p>
+<p>C++11 では、mutex 型がコピーまたは移動可能であることを禁止しているため、以前の動作は C++ 標準規格と互換性がありません。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>ロックしている mutex をコピーしたり、同じ mutex でほかの操作と同時にコピーした場合の動作は不定です。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/appendices/compatibility_features.html">互換性機能</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../../synchronization/mutexes/mutex_concept.html">Mutex コンセプト</a></div></div></div>
+</body>
+</html>

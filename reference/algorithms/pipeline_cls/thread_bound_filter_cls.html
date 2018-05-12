@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="thread_bound_filter クラス"/>
+<meta name="DC.subject" content="thread_bound_filter クラス"/>
+<meta name="keywords" content="thread_bound_filter クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/algorithms/pipeline_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="thread_bound_filter_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>thread_bound_filter クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="thread_bound_filter_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">thread_bound_filter クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2> スレッドが明示的に実行しなければならないパイプライン中のフィルターを表す抽象的な基本クラス。</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/pipeline.h" </pre></div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre> class thread_bound_filter;</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">thread_bound_filter</samp> は、特定のスレッドによって明示的に実行される特殊な <samp class="codeph">filter</samp> です。特定のスレッドでフィルターを実行しなければならない場合に役立ちます。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p><samp class="codeph">thread_bound_filter</samp> は、特定のスレッドでフィルターを実行する必要がある場合のみ使用してください。<samp class="codeph">thread_bound_filter</samp> は複数のスレッドで安全に使用できません。<samp class="codeph">thread_bound_filter</samp> を実行するスレッドは、<samp class="codeph">pipeline::run()</samp> を呼び出すスレッドであってはなりません。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+    class thread_bound_filter: public filter {
+    protected:
+        explicit thread_bound_filter(mode filter_mode);
+    public:
+        enum result_type {
+            success,
+            item_not_available,
+            end_of_stream
+        };
+        result_type try_process_item();
+        result_type process_item();
+    };
+} 
+
+</pre></div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>次のサンプルは、2 つのフィルターを持つパイプラインで、2 つ目のフィルターはメインスレッドによって実行される <samp class="codeph">thread_bound_filter</samp> です。</p>
+<pre>#include &lt;iostream&gt;
+#include "tbb/pipeline.h"
+#include "tbb/compat/thread"
+#include "tbb/task_scheduler_init.h"
+
+using namespace tbb;
+
+char InputString[] = "abcdefg\n";
+
+class InputFilter: public filter {
+    char* my_ptr;
+public:
+    void* operator()(void*) {
+        if (*my_ptr)
+            return my_ptr++;
+        else
+            return NULL;
+    }
+    InputFilter() : 
+        filter( serial_in_order ), my_ptr(InputString) 
+    {}
+};
+
+class OutputFilter: public thread_bound_filter {
+public:
+    void* operator()(void* item) {
+        std::cout &lt;&lt; *(char*)item;
+        return NULL;
+    }
+    OutputFilter() : thread_bound_filter(serial_in_order) {}
+};
+
+void RunPipeline(pipeline* p) {
+    p-&gt;run(8);
+}
+
+int main() {
+    // パイプラインを構築
+    InputFilter f;
+    OutputFilter g;
+    pipeline p;
+    p.add_filter(f);
+    p.add_filter(g);
+
+    // 別のスレッドでパイプラインの実行を開始
+    std::thread t(RunPipeline,&amp;p);
+
+    // 現在のスレッドで thread_bound_filter を処理
+    while (g.process_item()!=thread_bound_filter::end_of_stream)
+        continue;
+
+    // ほかのスレッドでパイプラインが終了するのを待つ
+    t.join();    
+    return 0;
+}
+</pre><p>メインスレッドは、パイプラインを構築した後に次のことを行います。 
+		</p>
+<ul><li>別のスレッドでパイプラインを開始します。</li>
+<li><samp class="codeph">thread_bound_filter</samp> が <samp class="codeph">end_of_stream</samp> に達するまで実行します。</li>
+<li>もう 1 つのスレッドが終了するまで待機します。</li>
+</ul>
+<p>メインスレッドは <samp class="codeph">thread_bound_filter</samp><samp class="codeph">g</samp> を実行しなければならないため、パイプラインは別のスレッドによって実行されます。この 2 つのスレッドの役割を逆にすることはできますが、1 つのスレッドで両方の役割を果たすことはできません。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="29.940119760479046%" id="d7919e100">メンバー</th>
+<th class="cellrowborder" valign="top" width="70.05988023952095%" id="d7919e102">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="29.940119760479046%" headers="d7919e100 "><span class="keyword">explicit thread_bound_filter(mode filter_mode)()</span></td>
+<td class="cellrowborder" valign="top" width="70.05988023952095%" headers="d7919e102 "><p>指定されたモードのフィルターを構築します。モードについては「<samp class="codeph">pipeline</samp> クラス」セクションを参照してください。<samp class="codeph">filter_mode</samp> 引数は、<samp class="codeph">serial_in_order</samp> または <samp class="codeph">serial_out_of_order</samp> でなければなりません。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p><samp class="codeph">parallel</samp> として作成された <samp class="codeph">thread_bound_filter</samp> を使用する場合、プログラムの動作は定義されません。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="29.940119760479046%" headers="d7919e100 "><span class="keyword">result_type try_process_item()</span></td>
+<td class="cellrowborder" valign="top" width="70.05988023952095%" headers="d7919e102 "><p>処理可能なアイテムがあり、トークンの制限を越えることなく処理できる場合は、<samp class="codeph">filter::operator()</samp> を使用してそのアイテムを処理します。次の表は、戻り値の詳細を示します。</p>
+<p>
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="hsides" border="1" rules="all"><thead align="left"><tr><th class="cellrowborder" valign="top" id="d7919e149"><p>戻り値</p>
+</th>
+<th class="row-nocellborder" valign="top" id="d7919e152"><p>説明</p>
+</th>
+</tr>
+</thead>
+<tbody><tr valign="top"><td class="cellrowborder" valign="top" headers="d7919e149 ">success</td>
+<td class="row-nocellborder" valign="top" headers="d7919e152 "><p><samp class="codeph">filter::operator()</samp> が 1 つのアイテムに適用されました。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d7919e149 "><p>item_not_available</p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d7919e152 "><p>処理可能なアイテムがないか、トークンの制限を越えてしまいます。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d7919e149 "><p>end_of_stream</p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d7919e152 "><p>このフィルターに達するアイテムはほかにありません。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="29.940119760479046%" headers="d7919e100 "><span class="keyword">result_type process_item()</span></td>
+<td class="cellrowborder" valign="top" width="70.05988023952095%" headers="d7919e102 "><p><samp class="codeph">try_process_item</samp> に似ていますが、アイテムが処理可能になるか、ストリームの最後に達するまで待機します。</p>
+<p><strong>戻り値</strong>: <samp class="codeph">success</samp> または <samp class="codeph">end_of_stream</samp>。詳細は、上記の表を参照してください。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>現在の実装では、アイテムが処理可能になるか、ストリームの最後に達するまでセマフォーでブロックします。</p>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/algorithms/pipeline_cls.html">pipeline クラス</a></div>
+</div>
+<div/>
+</body>
+</html>

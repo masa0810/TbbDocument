@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="パイプラインの処理能力"/>
+<meta name="DC.subject" content="パイプラインの処理能力"/>
+<meta name="keywords" content="パイプラインの処理能力"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Working_on_the_Assembly_Line_pipeline.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Throughput_of_pipeline"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>パイプラインの処理能力</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Throughput_of_pipeline">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">パイプラインの処理能力</h1>
+<div><p>パイプラインの処理能力は、トークンが流れる比率に関係する 2 つの条件によって制限されます。最初に、パイプラインが <var>N</var> 個のトークンで実行される場合、<var>N</var> よりも多くの操作を並列に実行できないことは明白です。<var>N</var> の正しい値を選択するには試行が必要です。値が低すぎると並列処理が制限され、逆に高すぎると、より多くのリソース (例えば、より多くのバッファー) が必要になります。次に、パイプラインの処理能力は最も遅いシーケンシャル・フィルターの処理能力に制限されます。この制約は並列フィルターのないパイプラインにも当てはまります。ほかのフィルターがどれだけ速くても、最も遅いシーケンシャル・フィルターがボトルネックになります。したがって、一般に、シーケンシャル・フィルターを速い状態で保つ必要があります。可能であれば、ワークを並列フィルターに移すようにしてください。</p>
+<p>シーケンシャル・フィルターがシステムの I/O 速度によって制限されるため、テキスト処理のサンプルはあまり速くなりません。ファイルがローカルディスク上にある場合でも、2 倍以上のスピードアップは見込めません。実際にパイプラインの恩恵を得るには、並列フィルターがシーケンシャル・フィルターよりも重い処理を行う必要があります。</p>
+<p>各トークンのウィンドウサイズ、またはサブ問題サイズも処理能力を制限します。ウィンドウサイズを小さくしすぎると、オーバーヘッドが大きくなります。ウィンドウサイズを大きくしすぎると、キャッシュに収まらなくなります。キャッシュに収まる、できるだけ大きなウィンドウサイズが理想的です。最適なウィンドウサイズを見つけるには、多少の試行が必要です。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Working_on_the_Assembly_Line_pipeline.html">組み立てラインでの作業: パイプライン</a></div>
+</div>
+<div/>
+</body>
+</html>

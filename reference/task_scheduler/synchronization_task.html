@@ -1,0 +1,143 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="同期"/>
+<meta name="DC.subject" content="同期"/>
+<meta name="keywords" content="同期"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/task_scheduler.html"/>
+<meta name="DC.Relation" scheme="URI" content="scheduling_algorithm.html"/>
+<meta name="DC.Relation" scheme="URI" content="task_group_context.html"/>
+<meta name="DC.Relation" scheme="URI" content="task_cls/task_derivation.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="synchronization_task"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>同期</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="synchronization_task">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">同期</h1>
+<div><div class="section"><p>タスク <em>t</em> を作成すると、<em>t</em>.<samp class="codeph">execute()</samp> を呼び出すスレッドが呼び出されるか、<samp class="codeph"><em>t</em></samp> がレディプールに格納されます。その後、タスク・スケジュールに関与しているスレッドがタスクを取得して、<em>t</em>.<samp class="codeph">execute()</samp> を呼び出します。「スケジュール・アルゴリズム」セクションで、レディプールの構造を説明しています。</p>
+<p>タスクを生成する呼び出しには 2 つの形式があります。</p>
+<ul><li><p>単一のタスクを生成する呼び出し。</p>
+</li>
+<li><p><samp class="codeph">task_list</samp> で指定された複数のタスク・オブジェクトを生成して <samp class="codeph">task_list</samp> を消去する呼び出し。</p>
+</li>
+</ul>
+<p>一部の呼び出しは、生成されるルートタスクとルート以外のタスクを識別します。ルートタスクは、<samp class="codeph">allocate_root</samp> メソッドを使用して作成されます。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p><samp class="codeph">set_ref_count</samp> メソッドを呼び出して、プレデセッサーの数と "wait_for_all" メソッドの使用が明らかになるまで、タスクはプレデセッサー・タスクを生成しません。</p>
+</div>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d80055e69">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d80055e71">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d80055e69 "><span class="keyword">void set_ref_count( int count )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d80055e71 "><p><strong>要件</strong>: <em>count&gt;=0</em>。連続で <em>n</em> のプレデセッサーを生成して待つ場合、<em>count</em> が <em>n+1</em> であること。その他の場合、count が <em>n</em> であること。</p>
+<p><strong>効果</strong>: <em>refcount</em> 属性を <samp class="codeph"><em>count</em></samp> に設定します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d80055e69 "><span class="keyword">int add_ref_count( int count )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d80055e71 "><p><em>refcount</em> 属性に <samp class="codeph"><em>count</em></samp> をアトミックに追加します。</p>
+<p><strong>戻り値</strong>: <em>refcount</em> 属性の新しい値。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d80055e69 "><span class="keyword">void increment_ref_count();</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d80055e71 "><p><em>refcount</em> 属性をアトミックにインクリメントします。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d80055e69 "><span class="keyword">int decrement_ref_count();</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d80055e71 "><p><em>refcount</em> 属性をアトミックにデクリメントします。</p>
+<p><strong>戻り値</strong>: <em>refcount</em> 属性の新しい値。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p><samp class="codeph">add_ref_count</samp>、<samp class="codeph">increment_ref_count</samp>、および <samp class="codeph">decrement_ref_count</samp> の明示的な使用は通常、タスクに 2 つ以上のサクセサータスクがある場合にのみ必要です。詳細は、チュートリアルの「タスクの一般的な非循環グラフ」セクションで説明しています。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d80055e69 "><span class="keyword">void wait_for_all()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d80055e71 "><p><strong>要件</strong>: <samp class="codeph"><em>refcount=n+1</em></samp>。ここで、<em>n</em> はまだ実行しているプレデセッサーの数。</p>
+<p><strong>効果</strong>: <em>refcount</em> が 1 になるまでレディプールのタスクを実行します。その後、タスクの <samp class="codeph">task_group_context</samp> が <samp class="codeph">concurrent_wait</samp> を指定する場合は <em>refcount=1</em> のまま変更しません。その他の場合、<em>refcount</em> を 0 に設定します。下記の図は、状態遷移を要約したものです。</p>
+<p><samp class="codeph">wait_for_all()</samp> は、次の条件がすべて満たされる場合、タスクと暗黙的に関連する <samp class="codeph">task_group_context</samp> のキャンセル状態を自動的にリセットします。</p>
+<ul><li><p>コンテキストを指定しないでタスクが割り当てられた。</p>
+</li>
+<li><p>呼び出しスレッドが、インテル&reg; TBB のワーカースレッドではなく、ユーザーが作成したスレッドである。</p>
+</li>
+<li><p>スレッドによる <samp class="codeph">wait_for_all()</samp> の最も外側の呼び出しである。</p>
+</li>
+</ul>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>上記の条件下では、<samp class="codeph">task_group_context</samp> がキャンセルされた場合に、後から状態を知る方法はありません。状態を知る必要がある場合は、明示的に <samp class="codeph">task_group_context</samp> を使用してください。</p>
+</div>
+<div class="fignone"><span class="figcap">wait_for_all の効果</span><br/><img src="../Resources/0600000D.png"/><br/></div>
+<p>k=0 (デフォルト)</p>
+<p>k=1 (対応する <samp class="codeph">task_group_context</samp> が <samp class="codeph">concurrent_wait</samp> を指定する場合)</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d80055e69 "><span class="keyword">static void spawn( task&amp; t )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d80055e71 "><p>タスク <em>t</em> をレディプールに格納して直ちにリターンします。</p>
+<p><samp class="codeph">t</samp> の <em>successor</em> が NULL でない場合、子タスクが完了すると <em>successor</em>.<em>refcount</em> が非同期にデクリメントされるため、<em>successor</em> は子タスクが作成される前に <samp class="codeph">set_ref_count</samp> を呼び出す必要があります。ライブラリーのデバッグバージョンは、<samp class="codeph">set_ref_count</samp> への必要な呼び出しが行われなかったり、または遅すぎる場合を検出します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d80055e69 "><span class="keyword">static void spawn ( task_list&amp; list )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d80055e71 "><p><em>list</em> の各タスクで spawn を実行して <em>list</em> をクリアするのと等価ですが、より効率的です。<em>list</em> が空の場合、何も起こりません。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>タスクは個々にスチールされるため、list が長い場合、ボトルネックが発生する可能性があります。ボトルネックが発生する場合は、代わりに再帰パターンや並列ループ・テンプレートを使用して、多くの個々のワークに分割することを検討してください。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d80055e69 "><span class="keyword">void spawn_and_wait_for_all( task&amp; t )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d80055e71 "><p><strong>要件</strong>: <samp class="codeph">this</samp> のほかのプレデセッサーがすでに作成されていること。タスク <em>t</em> が NULL 以外の <em>successor</em> 属性を含むこと。<em>t</em> から呼び出しタスクまで <em>successor</em> リンクのチェーンがあること。通常、このチェーンは単一のリンクを含みます。つまり、<em>t</em> は <samp class="codeph">this</samp> のプレデセッサーです。</p>
+<p><strong>効果</strong>: <samp class="codeph">{spawn(<em>t</em>); wait_for_all();}</samp> に似ていますが、多くの場合より効率的です。さらに、<em>task</em> が現在のスレッドによって実行されることを保証します。この制約は、同期を単純化する場合があります。下記の図は、状態遷移を要約したものです。上記の図に似ていますが、タスク <em>t</em> は <em>n</em> 番目のタスクです。</p>
+<div class="fignone" id="fig13"><span class="figcap">spawn_and_wait_for_all の効果</span><br/><img src="../Resources/0600000E.png"/><br/></div>
+<p>k=0 (デフォルト)</p>
+<p>k=1 (対応する <samp class="codeph">task_group_context</samp> が <samp class="codeph">concurrent_wait</samp> を指定する場合)</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d80055e69 "><span class="keyword">void spawn_and_wait_for_all( task_list&amp; list )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d80055e71 "><p><samp class="codeph">{spawn(<em>list</em>); wait_for_all();}</samp> に似ていますが、多くの場合より効率的です。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d80055e69 "><span class="keyword">static void spawn_root_and_wait( task&amp; root )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d80055e71 "><p><strong>要件</strong>: タスク <em>root</em> のメモリーが <samp class="codeph">task::allocate_root()</samp> で割り当てられていること。</p>
+<p><strong>効果</strong>: <em>root</em> の <em>parent</em> 属性に未定義の値を設定して、「execute() の処理」セクションで説明されているように root を実行します。<em>root</em> が再利用されていなければ、後で <em>root</em> を破棄します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d80055e69 "><span class="keyword">static void spawn_root_and_wait( task_list&amp; root_list )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d80055e71 "><p><strong>要件</strong>: <em>root_list</em> の各タスク・オブジェクト <em>t</em> が <samp class="codeph">static void spawn_root_and_wait( task&amp; root )</samp> の要件を満たしていること。</p>
+<p><strong>効果</strong>: <samp class="codeph">root_list</samp> の各タスク・オブジェクト <em>t</em> で、<samp class="codeph">spawn_root_and_wait(<em>t</em>)</samp> を並列に実行します。「static void spawn_root_and_wait( task&amp; root )」セクションで、<samp class="codeph">spawn_root_and_wait(<em>t</em>)</samp> の動作を説明しています。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d80055e69 "><span class="keyword">static void enqueue ( task&amp; )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d80055e71 "><p>タスクの完了を明示的に待っているスレッドがない場合でも、タスクはワーカースレッドにより最終的に実行されるようにスケジュールされます。ワーカースレッドの合計が 0 の場合、キューに入れられたタスクを実行する追加の特別なワーカースレッドが作成されます。</p>
+<p>キューに入れられたタスクは、先着順に処理されます。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>再帰並列処理でキューに入れられたタスクを使用すると、再帰が幅優先で行われるため、メモリーの使用量が非常に多くなります。再帰並列処理には、通常の spawn メソッドを使用してください。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>プログラムの無関係な部分からほかのキューに入れられたタスクを先に処理しなければならない可能性があるため、キューに入れられたタスクを明示的に待つことは避けてください。キューに入れられたタスクの使用を推奨するパターンは、例えば、タスクをキューに入れたスレッドにメッセージを送ることにより、タスクの完了を非同期に知る方法です。例については、インテル&reg; TBB の「デザインパターン」を参照してください。</p>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/task_scheduler.html">タスク・スケジューラー</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="scheduling_algorithm.html">スケジュール・アルゴリズム</a></div>
+<div><a href="task_group_context.html">task_group_context クラス</a></div>
+<div><a href="task_cls/task_derivation.html">タスクの派生、execute() の処理</a></div></div></div>
+</body>
+</html>

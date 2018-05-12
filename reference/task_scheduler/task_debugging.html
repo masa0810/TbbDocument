@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="タスクのデバッグ"/>
+<meta name="DC.subject" content="タスクのデバッグ"/>
+<meta name="keywords" content="タスクのデバッグ"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/task_scheduler.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="task_debugging"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>タスクのデバッグ</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="task_debugging">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">タスクのデバッグ</h1>
+<div><div class="section"><p>このセクションで紹介するメソッドは、デバッグに役立ちます。将来の実装で変更される場合があります。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">state_type state() const</h2><div class="Note"><h3 class="NoteTipHead">注意</h3> <p>このメソッドはデバッグ用です。動作やパフォーマンスは、将来の実装で変わる可能性があります。<samp class="codeph">task::state_type</samp> の定義も、将来の実装で変わる可能性があります。ここで紹介する情報は、デバッグ中の問題の診断に役立つように提供されています。</p>
+</div>
+<p><strong>戻り値</strong></p>
+<p>タスクの現在の状態。下記の表に、有効な状態を示します。その他の値は、メモリー割り当てを解除したタスクを使用するなど、メモリーが破損していることを意味します。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl34" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">task::state() が返す値</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="NaN%" id="d83312e39"><p>値</p>
+</th>
+<th class="row-nocellborder" valign="top" width="NaN%" id="d83312e42"><p>説明</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="NaN%" headers="d83312e39 "><p>allocated</p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d83312e42 "><p>タスクは新たに割り当てられたか、または再利用されました。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d83312e39 "><p>ready</p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d83312e42 "><p>タスクはレディプールにあるか、プールとの間で転送中です。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d83312e39 "><p>executing</p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d83312e42 "><p>タスクは実行中で、execute() メソッドがリターンした後に破棄されます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d83312e39 "><p>freed</p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d83312e42 "><p>タスクは内部フリーリストにあるか、リストとの間で転送中です。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d83312e39 "><p>reexecute</p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d83312e42 "><p>タスクは実行中で、execute() メソッドがリターンした後に再生成されます。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>下記の図は、タスクの状態遷移を要約したものです。</p>
+<div class="fignone" id="fig14"><span class="figcap">典型的な task::state() の遷移</span><br/><img src="../Resources/0600000F.png"/><br/></div>
+</div>
+<div class="section"><h2 class="sectiontitle">int ref_count() const</h2><div class="Note"><h3 class="NoteTipHead">注意</h3> <p>このメソッドはデバッグ用です。動作やパフォーマンスは、将来の実装で変わる可能性があります。</p>
+</div>
+<p><strong>戻り値</strong></p>
+<p><em>refcount</em> 属性の値。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/task_scheduler.html">タスク・スケジューラー</a></div>
+</div>
+<div/>
+</body>
+</html>

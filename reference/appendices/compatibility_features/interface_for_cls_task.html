@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="task クラスのインターフェイス"/>
+<meta name="DC.subject" content="task クラスのインターフェイス"/>
+<meta name="keywords" content="task クラスのインターフェイス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/appendices/compatibility_features.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="interface_for_cls_task"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>task クラスのインターフェイス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="interface_for_cls_task">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">task クラスのインターフェイス</h1>
+<div><p><samp class="codeph">task</samp> クラスの一部のメソッドは、古いか、冗長な機能であるため推奨されていません。</p>
+<div class="section"><h2 class="sectiontitle">task クラスの推奨されないメンバー</h2><pre>namespace tbb {
+ class task {
+ public:
+ ...
+ void recycle_to_reexecute();
+ ...
+ };
+ }</pre></div>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d11688e49">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d11688e51">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d11688e49 "><span class="keyword">void recycle _to_reexecute()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d11688e51 "><p><samp class="codeph">recycle_to_reexecute</samp> メソッドは冗長なため、インテル&reg; TBB 3.0 で廃止されました。<samp class="codeph"><var>t</var>-&gt;recycle_to_reexecute()</samp> 呼び出しを次のシーケンスに置換してください。</p>
+<pre><var>t</var>-&gt;set_refcount(1);
+<var>t</var>-&gt;recycle_as_safe_continuation();</pre></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/appendices/compatibility_features.html">互換性機能</a></div>
+</div>
+<div/>
+</body>
+</html>

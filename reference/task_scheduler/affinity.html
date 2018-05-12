@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="アフィニティー"/>
+<meta name="DC.subject" content="アフィニティー"/>
+<meta name="keywords" content="アフィニティー"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/task_scheduler.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="affinity"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>アフィニティー</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="affinity">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">アフィニティー</h1>
+<div><div class="section"><p>これらのメソッドは、キャッシュ・アフィニティーを最適化します。前に実行された別のタスクと同じスレッドで後のタスクを実行するヒントを提供します。次の操作を行います。</p>
+<ol class="ol_3"><li>前のタスクで、<samp class="codeph"><em>id</em></samp> を記録する定義で <samp class="codeph">note_affinity(<em>id</em>)</samp> をオーバーライドします。</li>
+<li>後のタスクを作成する前に、ステップ 1 で記録した <em>id</em> を使用して <samp class="codeph">set_affinity(<em>id</em>)</samp> を実行します。</li>
+</ol>
+<p><em>id</em> はヒントで、スケジューラーによって無視されます。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d78018e53">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d78018e55">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d78018e53 "><span class="keyword">affinity_id</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d78018e55 "><p><samp class="codeph">task::affinity_id</samp> 型は、処理系定義の符号なし整数型です。値 0 は、アフィニティーがないことを示します。ほかの値は、特定のスレッドに対するアフィニティーを表します。ゼロ以外の値に関して何も仮定しないでください。ゼロ以外の値のスレッドへのマッピングは、インテル&reg; TBB ライブラリーに内部的に実装されます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d78018e53 "><span class="keyword">virtual void note_affinity ( affinity_id id )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d78018e55 "><p>次の場合、タスク・スケジューラーは <samp class="codeph">execute()</samp> を呼び出す前に <samp class="codeph">note_affinity</samp> を呼び出します。</p>
+<ul class="ul_1"><li class="li_1">タスクにアフィニティーがないが、アフィニティーを作成したスレッドとは異なるスレッドで実行する場合。</li>
+</ul>
+<ul class="ul_1"><li class="li_1">タスクにアフィニティーがあるが、アフィニティーで指定されたスレッドとは異なるスレッドで実行する場合。</li>
+</ul>
+<p>id を記録するこのメソッドをオーバーライドし、後のタスクで <samp class="codeph">set_affinity(id)</samp> の引数として使用できます。</p>
+<p><strong>効果</strong>: デフォルトの定義は効果がありません。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d78018e53 "><span class="keyword">set_affinity ( affinity_id id ) </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d78018e55 "><p>このタスクのアフィニティーを <em>id</em> に設定します。<em>id</em> は、0 または <samp class="codeph">note_affinity</samp> から取得した値のいずれかです。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d78018e53 "><span class="keyword">affinity_id affinity() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d78018e55 "><p><strong>戻り値</strong>: set_affinity によって設定される、このタスクのアフィニティー。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/task_scheduler.html">タスク・スケジューラー</a></div>
+</div>
+<div/>
+</body>
+</html>

@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="concurrent_lru_cache テンプレート・クラス"/>
+<meta name="DC.subject" content="concurrent_lru_cache テンプレート・クラス"/>
+<meta name="keywords" content="concurrent_lru_cache テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/appendices/preview_features.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/appendices/preview_features/concurrent_lru_cache_cls/handle_object_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="concurrent_lru_cache_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>concurrent_lru_cache テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="concurrent_lru_cache_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">concurrent_lru_cache テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>並列操作で使用するキャッシュの中で最も古いもの (LRU キャッシュ) 用のテンプレート・クラス。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>template &lt;typename key_type, typename value_type, typename value_functor_type = value_type (*)(key_type) &gt; class concurrent_lru_cache;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#define TBB_PREVIEW_CONCURRENT_LRU_CACHE 1
+ #include "tbb/concurrent_lru_cache.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><span class="keyword">concurrent_lru_cache</span> コンテナーは、格納されている未使用のオブジェクト数を制限できるようにするキーを値に割り当てます。コンテナーには、キーごとに最大 1 つの要素があります。</p>
+<p>複数のスレッドが同時にコンテナーからアイテムを取得することができます。</p>
+<p>コンテナーは、実際の値の代わりにプロキシー・オブジェクトを返すことで、取得されたアイテムの存続期間を追跡します。</p>
+<p>コンテナーは、現在使用中のすべてのアイテムと限られた数の未使用のアイテムを格納します。余分なアイテムは、最も古いものから削除されます。</p>
+<p>キーに対応するアイテムが見つからない場合、コンテナーはユーザー定義の関数オブジェクトを呼び出し、必要な値を取得して挿入します。関数オブジェクトはスレッドセーフでなければなりません。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+ template &lt;typename key_type,
+ typename value_type,
+ typename value_functor_type = value_type (*)(key_type) &gt;
+ class concurrent_lru_cache{
+ private:
+ class handle_object;
+ public:
+ typedef handle_object handle;
+ public:
+ concurrent_lru_cache(value_functor_type f,<u>std::size_t</u> number_of_lru_history_items);
+ handle_object operator()(key_type k);
+ private:
+ struct handle_move_t;
+ class handle_object {
+ public:
+ handle_object(handle_move_t m);
+ operator handle_move_t();
+ value_type&amp; value();
+ ~handle_object();
+ friend handle_move_t move(handle_object&amp; h);
+ private:
+ void operator=(handle_object&amp;);
+ handle_object(handle_object &amp;);
+ };
+<u>};</u>
+ }</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d14730e124">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d14730e126">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d14730e124 "><span class="keyword"/>concurrent_lru_cache(value_function_type f,<u>std::size_t</u> number_of_lru_history_items);</td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d14730e126 "><p>格納される未使用オブジェクトの最大数である <samp class="codeph">number_of_lru_history_items</samp> と、新しい値を返す <samp class="codeph">f</samp> 関数オブジェクトを指定して空のキャッシュを構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d14730e124 "><span class="keyword">handle_object operator[](key_type k)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d14730e126 "><p>指定されたキーのペアでコンテナーを検索します。ペアが見つからない場合、値を取得しコンテナーに挿入するため、ユーザー定義の関数オブジェクトが呼び出されます。</p>
+<p><strong>戻り値</strong>: 一致する値を指す <samp class="codeph">handle_object</samp>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d14730e124 "><span class="keyword">~ concurrent_lru_cache ()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d14730e126 "><p>コンテナーが使用されないように、コンテナー内のすべてのアイテムとコンテナーを破棄します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d14730e124 "><span class="keyword">handle_object クラス</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d14730e126 "><a href="concurrent_lru_cache_cls/handle_object_cls.html">詳細</a></td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d14730e124 "><span class="keyword">handle_move_t class</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d14730e126 "><p><samp class="codeph">handle_object</samp> オブジェクトのインスタンス間で所有権の譲渡を許可する、特定の変換を可能にするための補助クラスです。<samp class="codeph">handle_object</samp> オブジェクトを関数に渡したり、関数から返すこともできるようにします。このクラスにはメンバーはありません。LRU キャッシュコンテナーの値オブジェクトへの参照とコンテナー自体へのポインターのみ保持します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/appendices/preview_features.html">プレビュー機能</a></div>
+</div>
+<div>
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../../../reference/appendices/preview_features/concurrent_lru_cache_cls/handle_object_cls.html">handle_object クラス</a><br/>
+</li>
+</ul>
+</div>
+</body>
+</html>

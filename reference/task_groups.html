@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="タスクグループ"/>
+<meta name="DC.subject" content="タスクグループ"/>
+<meta name="keywords" content="タスクグループ"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/reference.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_groups/task_group_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_groups/task_group_status_enum.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_groups/task_handle_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_groups/make_task_func.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_groups/structured_task_group_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_groups/is_current_task_group_canceling_func.html"/>
+<meta name="DC.Relation" scheme="URI" content="task_scheduler.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="taskgroups"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>タスクグループ</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="taskgroups">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">タスクグループ</h1>
+<div><div class="section"><p> </p>
+<p>このセクションでは、タスク・スケジューラーに対する高水準インターフェイスを説明します。低水準インターフェイスの情報は、「タスク・スケジューラー」セクションを参照してください。高水準インターフェイスを使用すると、関数やラムダ式から潜在的に並列なタスクのグループを容易に作成できます。低水準インターフェイスでは、例外やアフィニティーの制御のように、より詳細な制御を行うことができます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">概要</h2><p>関数を並列に実行する高水準インターフェイス。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>    template&lt;typename Func&gt; task_handle;
+    template&lt;typename Func&gt; task_handle&lt;Func&gt; make_task( const Func&amp; f );
+    enum task_group_status;
+    class task_group;
+    class structured_task_group;
+    bool is_current_task_group_canceling();</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>        #include "tbb/task_group.h"</pre><p><strong>要件</strong></p>
+<p>このセクションのさまざまなメソッドのファンクターの引数は、下記の表の要件を満たしていなければなりません。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl31" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">ファンクターの引数の要件</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="NaN%" id="d76585e47"><p>擬似署名</p>
+</th>
+<th class="row-nocellborder" valign="top" width="NaN%" id="d76585e50"><p>意味</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="NaN%" headers="d76585e47 "><p><samp class="codeph">Func::Func (const Func&amp;)</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d76585e50 "><p>コピー・コンストラクター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d76585e47 "><p><samp class="codeph">Func::~Func ()</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d76585e50 "><p>デストラクター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d76585e47 "><p><samp class="codeph">void Func::operator()() const;</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d76585e50 "><p>評価ファンクター。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../reference/reference.html">インテル&reg; TBB デベロッパー・リファレンス</a></div>
+</div>
+<div class="See Also">
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../reference/task_groups/task_group_cls.html">task_group クラス</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/task_groups/task_group_status_enum.html">task_group_status 列挙値</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/task_groups/task_handle_cls.html">task_handle テンプレート・クラス</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/task_groups/make_task_func.html">make_task テンプレート関数</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/task_groups/structured_task_group_cls.html">structured_task_group クラス</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/task_groups/is_current_task_group_canceling_func.html">is_current_task_group_canceling 関数</a><br/>
+</li>
+</ul>
+<h2>関連情報</h2>
+<div class="linklist">
+<div><a href="task_scheduler.html">タスク・スケジューラー</a></div></div></div>
+</body>
+</html>

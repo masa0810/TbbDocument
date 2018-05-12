@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="affinity_partitioner クラス"/>
+<meta name="DC.subject" content="affinity_partitioner クラス"/>
+<meta name="keywords" content="affinity_partitioner クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/algorithms/partitioners.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../task_scheduler/affinity.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="affinity_partitioner"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>affinity_partitioner クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="affinity_partitioner">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">affinity_partitioner クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>ループの反復は、キャッシュの有効利用のために最適化するようスレッドに割り当てるべきであることを示すヒント。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/partitioner.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>class affinity_partitioner;</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">affinity_partitioner</samp> は、ループ・テンプレートを実行する際に、同じ <samp class="codeph">affinity_partitioner</samp> オブジェクトを使用するそのループ (または別のループ) の以前の実行で使用したワークの分割に同じタスク・アフィニティー・パターンを使用すべきであることを示します。</p>
+<p>ほかのパーティショナーとは異なり、アフィニティーを最適化するループ・テンプレートに同じ <samp class="codeph">affinity_partitioner</samp> オブジェクトを渡すことが重要です。アフィニティーの影響の詳細は、チュートリアルの「帯域幅とキャッシュの有効利用」セクションを参照してください。</p>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>affinity_partitioner は、一般に次の場合にパフォーマンスを向上させます。</p>
+<ul><li>計算でデータアクセスごとにいくつかの操作を行う場合。</li>
+<li>ループによって処理されたデータがキャッシュに配置される場合。</li>
+<li>ループまたは同様のループが同じデータに対して再実行される場合。</li>
+<li>3 つ以上のハードウェア・スレッドを利用可能な場合。</li>
+</ul>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>
+namespace tbb {
+    class affinity_partitioner {
+    public:
+        affinity_partitioner();
+        ~affinity_partitioner();
+    };
+}
+      </pre></div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>次のサンプルは、キャッシュの有効利用により恩恵が得られます。このサンプルは、加法的な 1 次元オートマトンをシミュレートします。</p>
+<p><pre>
+#include "tbb/blocked_range.h"
+#include "tbb/parallel_for.h"
+#include "tbb/partitioner.h"
+
+using namespace tbb;
+
+const int N = 1000000;
+typedef unsigned char Cell;
+Cell Array[2][N];
+int FlipFlop;
+
+struct TimeStepOverSubrange {
+    void operator()( const blocked_range&lt;int&gt;&amp; r ) const {
+        int j = r.end();
+        const Cell* x = Array[FlipFlop];
+        Cell* y = Array[!FlipFlop];
+        for( int i=r.begin(); i!=j; ++i )
+            y[i] = x[i]^x[i+1];
+    }
+};
+
+void DoAllTimeSteps( int m ) {
+    affinity_partitioner ap;
+    for( int k=0; k&lt;m; ++k ) {
+        parallel_for( blocked_range&lt;int&gt;(0,N-1),
+                      TimeStepOverSubrange(),
+                      ap );
+        FlipFlop ^= 1;
+    }
+}
+        </pre></p>
+<p>
+        各時間ステップでは、オートマトンの古い状態が <samp class="codeph">Array[FlipFlop]</samp> から読み取られ、新しい状態が <samp class="codeph">Array[!FlipFlop]</samp> に書き込まれます。そして、<samp class="codeph">FlipFlop</samp> は新しい状態を古い状態にします。両方の状態を合わせたサイズは約 2MB で、これはほとんどの近年のプロセッサーのキャッシュに収まります。このサンプルは、<samp class="codeph">auto_partitioner</samp> を使用する場合と比較して、8 コアのマシンで 50% ～ 200% の向上が計測されています。
+      </p>
+<p><samp class="codeph">affinity_partitioner</samp> は、ループの反復間を通して有効でなければなりません。そのため、このサンプルでは、すべての反復を実行するループの外側で宣言しています。別の方法として、<samp class="codeph">affinity partitioner</samp> をファイルスコープで宣言することもできます。その場合、<samp class="codeph">DoAllTimeSteps</samp> が同時に呼び出されない限り、動作します。<samp class="codeph">affinity_partitioner</samp> の同じインスタンスを、同時に呼び出される並列アルゴリズム・テンプレートに渡すべきではありません。代わりに、別々のインスタンスを使用します。</p>
+</div>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d5980e108">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d5980e110">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d5980e108 "><span class="keyword">affinity_partitioner()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d5980e110 "><p><samp class="codeph">affinity_partitioner</samp> を構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d5980e108 "><span class="keyword">~affinity_partitioner()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d5980e110 "><p>この <samp class="codeph">affinity_partitioner</samp> を破棄します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/algorithms/partitioners.html">パーティショナー</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../../task_scheduler/affinity.html">タスクのアフィニティー</a></div></div></div>
+</body>
+</html>

@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="macOS* システム"/>
+<meta name="DC.subject" content="macOS* システム"/>
+<meta name="keywords" content="macOS* システム"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Package_Contents.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_OS_X_Systems"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>macOS* システム</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_OS_X_Systems">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">macOS* システム</h1>
+<div><p>このセクションでは、インストール・ディレクトリーの表記に &lt;<em>install_dir</em>&gt; を使用します。次の表は、macOS* システムの &lt;<em>install_dir</em>&gt; 以下のサブディレクトリー構造を示したものです。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl6" width="100%" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">インテル&reg; TBB のサブディレクトリー (macOS*)</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="16.94915254237288%" id="d105346e35"><p>項目</p>
+</th>
+<th class="cellrowborder" valign="top" width="59.32203389830508%" id="d105346e38"><p>場所</p>
+</th>
+<th class="cellrowborder" valign="top" width="23.728813559322035%" id="d105346e41"><p>環境変数</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="16.94915254237288%" headers="d105346e35 "><p>インクルード・ファイル</p>
+</td>
+<td class="cellrowborder" valign="top" width="59.32203389830508%" headers="d105346e38 "><p><samp class="codeph">include/tbb/*.h</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="23.728813559322035%" headers="d105346e41 "><p><samp class="codeph">CPATH</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="16.94915254237288%" headers="d105346e35 "><p>共有ライブラリー</p>
+</td>
+<td class="cellrowborder" valign="top" width="59.32203389830508%" headers="d105346e38 "><p><samp class="codeph">lib/&lt;<var>lib</var>&gt;&lt;<var>variant</var>&gt;.dylib</samp></p>
+<p>libc++ 標準ライブラリーに依存するライブラリー</p>
+<p>説明:</p>
+<p>
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="border" border="1" cellspacing="0" rules="all"><thead align="left"><tr><th class="cellrowborder" valign="top" width="35.2760736196319%" id="d105346e82"><p>&lt;<var>lib</var>&gt;</p>
+</th>
+<th class="cellrowborder" valign="top" width="64.7239263803681%" id="d105346e88"><p><var>バージョン</var></p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="35.2760736196319%" headers="d105346e82 "><p><samp class="codeph">libtbb</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="64.7239263803681%" headers="d105346e88 "><p>一般ライブラリー</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="35.2760736196319%" headers="d105346e82 "><p><samp class="codeph">libtbbmalloc</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="64.7239263803681%" headers="d105346e88 "><p>メモリー・アロケーター</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="35.2760736196319%" headers="d105346e82 "><p><samp class="codeph">libtbb_preview</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="64.7239263803681%" headers="d105346e88 "><p>プレビュー機能ライブラリー</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</p>
+<p>
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="border" border="1" cellspacing="0" rules="all"><thead align="left"><tr><th class="cellrowborder" valign="top" width="35.2760736196319%" id="d105346e124"><p>&lt;<var>variant</var>&gt;</p>
+</th>
+<th class="cellrowborder" valign="top" width="64.7239263803681%" id="d105346e130"><p><var>バージョン</var></p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="35.2760736196319%" headers="d105346e124 "><p>(なし)</p>
+</td>
+<td class="cellrowborder" valign="top" width="64.7239263803681%" headers="d105346e130 "><p>リリースバージョン</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="35.2760736196319%" headers="d105346e124 "><p><samp class="codeph">_debug</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="64.7239263803681%" headers="d105346e130 "><p>デバッグバージョン</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</p>
+</td>
+<td class="cellrowborder" valign="top" width="23.728813559322035%" headers="d105346e41 "><p><samp class="codeph">LIBRARY_PATH</samp></p>
+<p><samp class="codeph">DYLD_LIBRARY_PATH</samp></p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>インテル&reg; TBB 2017 から、macOS* 向けのインテル&reg; TBB サンプルは、ライブラリーとは別に、スタンドアロン・パッケージ (<a href="https://software.intel.com/en-us/product-code-samples" target="_blank">https://software.intel.com/en-us/product-code-samples</a>) またはインテル&reg; Parallel Studio XE のオンライン・サンプル・パッケージの一部として配布されるようになりました。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Package_Contents.html">パッケージの内容</a></div>
+</div>
+<div/>
+</body>
+</html>

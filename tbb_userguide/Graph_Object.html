@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="フローグラフの基本: グラフ・オブジェクト"/>
+<meta name="DC.subject" content="フローグラフの概念, グラフ・オブジェクト"/>
+<meta name="keywords" content="フローグラフの概念, グラフ・オブジェクト"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Basic_Flow_Graph_concepts.html"/>
+<meta name="DC.Relation" scheme="URI" content="Edges.html#Edges"/>
+<meta name="DC.Relation" scheme="URI" content="Nodes.html#Nodes"/>
+<meta name="DC.Relation" scheme="URI" content="Mapping_Nodes2Tasks.html#Mapping_Nodes2Tasks"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="Graph_Object"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>フローグラフの基本: グラフ・オブジェクト</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="Graph_Object">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">フローグラフの基本: グラフ・オブジェクト</h1>
+<div><p>概念的には、フローグラフはノードとエッジの集合です。各ノードは 1 つのグラフに属し、エッジは同じグラフのノード間でのみ作成されます。フローグラフのインターフェイスで、グラフ・オブジェクトはノードとエッジのこの集合を表し、完了するまでグラフに関連するすべてのタスクを待機したり、グラフの全ノードの状態をリセットしたり、グラフのすべてのノードの実行をキャンセルするなど、グラフ全体の操作を呼び出します。</p>
+<p>下記のコードは、グラフ・オブジェクトを作成した後、グラフによってスポーンされたすべてのタスクが完了するまで待機します。この例のグラフはノードとエッジがないため、<span class="keyword">wait_for_all</span> の呼び出しは直ちにリターンします。タスクはスポーンされません。<pre>graph g;
+g.wait_for_all();
+</pre></p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Basic_Flow_Graph_concepts.html">基本的なフローグラフの概念</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Edges.html#Edges">エッジ</a></div>
+<div><a href="Nodes.html#Nodes">ノード</a></div>
+<div><a href="Mapping_Nodes2Tasks.html#Mapping_Nodes2Tasks">タスクへのノードのマッピング</a></div></div></div>
+</body>
+</html>

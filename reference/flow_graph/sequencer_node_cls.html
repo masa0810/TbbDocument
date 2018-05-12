@@ -1,0 +1,180 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="sequencer_node テンプレート・クラス"/>
+<meta name="DC.subject" content="sequencer_node テンプレート・クラス"/>
+<meta name="keywords" content="sequencer_node テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/flow_graph.html"/>
+<meta name="DC.Relation" scheme="URI" content="message_passing_protocol.html"/>
+<meta name="DC.Relation" scheme="URI" content="sender_and_buffer_policy.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="sequencer_node_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>sequencer_node テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="sequencer_node_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">sequencer_node テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p><span class="keyword">T</span> 型のメッセージの無制限バッファー。メッセージはシーケンス順に転送されます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>template&lt; typename T, typename A = cache_aligned_allocator&lt;T&gt; &gt;
+class sequencer_node;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/flow_graph.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><span class="keyword">sequencer_node</span> は、サクセサーセットの 1 つのサクセサーへシーケンス順にメッセージを転送する <span class="keyword">graph_node</span>、<span class="keyword">receiver&lt;T&gt;</span>、<span class="keyword">sender&lt;T&gt;</span> です。ノードに登録された順番で、サクセサーにメッセージが転送されます。サクセサーがメッセージを拒否すると、そのサクセサーはメッセージ・パッシング・プロトコルのポリシーに従ってサクセサーリストから削除され、セットの次のサクセサーが処理されます。これはサクセサーがメッセージを受け付けるまで、またはすべてのサクセサーが処理されるまで続行されます。サクセサーに転送されたアイテムはバッファーから削除されます。</p>
+<p><span class="keyword">sequencer_node</span> から渡される各アイテムは、シーケンサーのオーダー番号によって順序が決められます。これらのシーケンスオーダー番号の範囲は 0 から N (N は <span class="keyword">size_t</span> 型で表現可能な最も大きな整数) です。アイテムのシーケンサー・オーダー番号は、下記のように、シーケンサー・コンセプトをモデル化するユーザー定義関数オブジェクトにアイテムを渡すことにより決定されます。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p><samp class="codeph">sequencer_node</samp> は、重複するシーケンサー番号を拒否します。</p>
+</div>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl26" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">sequencer_node&lt;T&gt; シーケンサー・コンセプト</span></caption><thead align="left"><tr><th class="cellrowborder" align="center" valign="top" width="50%" id="d63182e67"><p>擬似署名</p>
+</th>
+<th class="cellrowborder" align="center" valign="top" width="50%" id="d63182e70"><p>意味</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="50%" headers="d63182e67 "><p><span class="keyword">S::S( const S&amp; )</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="50%" headers="d63182e70 "><p>コピー・コンストラクター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d63182e67 "><p><span class="keyword">S::~S()</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="50%" headers="d63182e70 "><p>デストラクター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d63182e67 "><p><span class="keyword">void operator=( const S&amp; )</span></p>
+</td>
+<td class="cellrowborder" valign="top" width="50%" headers="d63182e70 "><p>代入。擬似署名の戻り型 <samp class="codeph">void</samp> は、<samp class="codeph">operator=</samp> は値を返す必要がないことを示します。<samp class="codeph">operator=</samp> は値を返すことができますが無視されます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d63182e67 "><p><span class="keyword">size_t S::operator()( const T &amp;v )</span>&gt;</p>
+</td>
+<td class="cellrowborder" valign="top" width="50%" headers="d63182e70 "><p>提供されたメッセージ <span class="keyword">v</span> のシーケンス番号を返します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><span class="keyword">sequencer_node</span> は予約可能で、一度に 1 つの予約をサポートします。<span class="keyword">sequencer_node</span> が予約されている間、ほかのアイテムはサクセサーに転送されず、<span class="keyword">try_get</span> の呼び出しは <span class="keyword">false</span> を返します。予約されている間も、<span class="keyword">try_put</span> は <span class="keyword">true</span> を返し、<span class="keyword">sequencer_node</span> にアイテムを追加します。</p>
+<p><span class="keyword">A</span> 型のアロケーターが、<span class="keyword">sequencer_node</span> に内部メモリーを割り当てるために使用されます。</p>
+<p><span class="keyword">T</span> は、コピー構築可能および代入可能でなければなりません。</p>
+<p>サクセサーがメッセージを拒否した場合、「メッセージ・パッシング・プロトコル」で説明されているプロトコルを使用して処理されます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+namespace flow {
+
+template&lt; typename T, typename A = cache_aligned_allocator&lt;T&gt; &gt;
+class sequencer_node :
+  public queue_node&lt;T&gt; {
+public:
+    template&lt; typename Sequencer &gt;
+    sequencer_node( graph &amp;g, const Sequencer &amp;s );
+    sequencer_node( const sequencer_node &amp;src );
+
+    // receiver&lt;T&gt;
+    typedef T input_type;
+    typedef sender&lt;input_type&gt; predecessor_type;
+    bool try_put( const input_type &amp;v );
+    bool register_predecessor( predecessor_type &amp;p );
+    bool remove_predecessor( predecessor_type &amp;p );
+
+    // sender&lt;T&gt;
+    typedef T output_type;
+    typedef receiver&lt;output_type&gt; successor_type;
+    bool register_successor( successor_type &amp;r );
+    bool remove_successor( successor_type &amp;r );
+    bool try_get( output_type &amp;v );
+    bool try_reserve( output_type &amp;v );
+    bool try_release( );
+    bool try_consume( );
+};
+
+}
+}</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d63182e168">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d63182e170">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d63182e168 "><span class="keyword">template&lt;typename Sequencer&gt; sequencer_node( graph&amp; g, const Sequencer &amp;s )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d63182e170 "><p><span class="keyword">graph g</span> に属し、アイテムのシーケンス番号の計算に <span class="keyword">s</span> を使用する空の <span class="keyword">sequencer_node</span> を構築します。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p><samp class="codeph">Sequencer</samp> 関数オブジェクトは例外をスローしてはなりません。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d63182e168 "><span class="keyword">sequencer_node( const sequencer_node &amp;src )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d63182e170 "><p><span class="keyword">src</span> と同じ <span class="keyword">graph g</span> に属し、<span class="keyword">src</span> の構築に使用された <span class="keyword">Sequencer s</span> のコピーを使用する空の <span class="keyword">sequencer_node</span> を構築します。プレデセッサーのリスト、サクセサーのリスト、バッファーのメッセージはコピーされません。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>新しいシーケンサー・オブジェクトは、<span class="keyword">src</span> の構築時に提供されたオリジナルのシーケンサーのコピーからコピー構築されます。このため、<span class="keyword">src</span> のオブジェクトのメンバー変数に対して行われた変更は、新しい <span class="keyword">sequencer_node</span> のシーケンサーに影響しません。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d63182e168 "><span class="keyword">bool try_put( const input_type &amp;v )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d63182e170 "><p><span class="keyword">sequencer_node</span> に <span class="keyword">v</span> を追加します。<span class="keyword">v</span> のシーケンス番号がシーケンスの次のアイテムの場合、アイテムをサクセサーに転送するタスクがスポーンされます。</p>
+<p><strong>戻り値</strong>: <span class="keyword">true</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d63182e168 "><span class="keyword">bool register_predecessor( predecessor_type &amp;p )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d63182e170 "><p><samp class="codeph">sequencer_node</samp> は処理を拒否することがありますが、<samp class="codeph">sequencer_node</samp> へのフローが逆になることはないため、プレデセッサーのリストを維持する必要はありません。</p>
+<p><strong>戻り値</strong>: <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d63182e168 "><span class="keyword">bool remove_predecessor( predecessor_type &amp;p )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d63182e170 "><p><samp class="codeph">sequencer_node</samp> は処理を拒否することがありますが、<samp class="codeph">sequencer_node</samp> へのフローが逆になることはないため、プレデセッサーのリストを維持する必要はありません。</p>
+<p><strong>戻り値</strong>: <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d63182e168 "><span class="keyword">bool register_successor( successor_type &amp;r )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d63182e170 "><p>サクセサーのセットに <span class="keyword">r</span> を追加します。</p>
+<p><strong>戻り値</strong>: <span class="keyword">true</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d63182e168 "><span class="keyword">bool remove_successor( successor_type &amp;r )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d63182e170 "><p>サクセサーのセットから <span class="keyword">r</span> を削除します。</p>
+<p><strong>戻り値</strong>: <span class="keyword">true</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d63182e168 "><span class="keyword">bool try_get( output_type &amp;v )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d63182e170 "><p><strong>戻り値</strong>: シーケンスの次のアイテムが <span class="keyword">sequencer_node</span> で利用可能な場合は <span class="keyword">true</span>。その場合、そのアイテムはノードから削除され、<span class="keyword">v</span> に代入されます。シーケンサー・オーダーの次のアイテムが利用できない場合、またはノードが予約されている場合は <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d63182e168 "><span class="keyword">bool try_reserve( output_type &amp;v )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d63182e170 "><p>呼び出しで <span class="keyword">true</span> が返された場合、ノードは予約され、予約が解除または消費されるまでメッセージは転送されません。</p>
+<p><strong>戻り値</strong>: シーケンサー・オーダーの次のアイテムが <span class="keyword">sequencer_node</span> で利用可能な場合は <span class="keyword">true</span>。その場合、そのアイテムは <span class="keyword">v</span> に代入されますが、<span class="keyword">sequencer_node</span> から削除されません。シーケンサー・オーダーの次のアイテムが利用できない場合、またはノードが予約されている場合は <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d63182e168 "><span class="keyword">bool try_release( )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d63182e170 "><p>ノードの予約を解除します。最後に成功した <span class="keyword">try_reserve</span> の呼び出しで返されたアイテムが <span class="keyword">sequencer_node</span> に残されます。</p>
+<p><strong>戻り値</strong>: バッファーが現在予約されている場合は <span class="keyword">true</span>。その他の場合は <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d63182e168 "><span class="keyword">bool try_consume( )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d63182e170 "><p>ノードの予約を解除します。最後に成功した <span class="keyword">try_reserve</span> の呼び出しで返されたアイテムがキューの先頭からポップされます。</p>
+<p><strong>戻り値</strong>: バッファーが現在予約されている場合は <span class="keyword">true</span>。その他の場合は <span class="keyword">false</span>。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/flow_graph.html">フローグラフ</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="message_passing_protocol.html">メッセージ・パッシング・プロトコル</a></div>
+<div><a href="sender_and_buffer_policy.html">転送、バッファー、受信ポリシー</a></div></div></div>
+</body>
+</html>

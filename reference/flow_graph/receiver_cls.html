@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="receiver テンプレート・クラス"/>
+<meta name="DC.subject" content="receiver テンプレート・クラス"/>
+<meta name="keywords" content="receiver テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/flow_graph.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="receiver_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>receiver テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="receiver_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">receiver テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>メッセージのレシーバーとして動作するノードの抽象的な基本クラス。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>template&lt; typename T &gt; class receiver;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/flow_graph.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><span class="keyword">receiver</span> テンプレート・クラスは、レシーバーとして動作するノードのインターフェイスを定義する抽象的な基本クラスです。いくつかの関数にはデフォルトの実装が提供されます。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p><samp class="codeph">flow::graph</samp> では、グラフの構築に <samp class="codeph">register_predecessor</samp> を使用する方法は、古いオプション (非推奨) です。<samp class="codeph">make_edge</samp> と <samp class="codeph">remove_edge</samp> を用いてグラフを構築してください。<samp class="codeph">n1.register_predecessor(n2)</samp> が使用されている場合は、代わりに <samp class="codeph">make_edge(n2,n1)</samp> を使用してください。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><p><pre>namespace tbb {
+namespace flow {
+ 
+template&lt; typename T &gt;
+class receiver {
+public:
+    typedef T input_type;
+    typedef sender&lt;input_type&gt; predecessor_type;
+    virtual ~receiver();
+    virtual bool try_put( const input_type &amp;v ) = 0;
+    virtual bool register_predecessor( predecessor_type &amp;p ) {
+        return false; }
+    virtual bool remove_predecessor( predecessor_type &amp;p ) {
+        return false; }
+};
+ 
+}
+}</pre></p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d59943e70">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d59943e72">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d59943e70 "><span class="keyword">~receiver()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d59943e72 "><p>デストラクター。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d59943e70 "><span class="keyword">bool try_put( const input_type &amp;v )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d59943e72 "><p>レシーバーにアイテムを格納するインターフェイスを表すメソッド。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d59943e70 "><span class="keyword">bool register_predecessor( predecessor_type &amp;p )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d59943e72 "><p>ノードのプレデセッサー・セットにプレデセッサー・ノードを追加します。</p>
+<p><strong>戻り値</strong>: プレデセッサー・ノードが追加された場合は <span class="keyword">true</span>。その他の場合は <span class="keyword">false</span>。デフォルトの実装は <span class="keyword">false</span> を返します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d59943e70 "><span class="keyword">bool remove_predecessor( predecessor_type &amp;p )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d59943e72 "><p>ノードのプレデセッサー・セットからプレデセッサー・ノードを削除します。</p>
+<p><strong>戻り値</strong>: プレデセッサー・ノードが削除された場合は <span class="keyword">true</span>。その他の場合は <span class="keyword">false</span>。デフォルトの実装は <span class="keyword">false</span> を返します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/flow_graph.html">フローグラフ</a></div>
+</div>
+<div/>
+</body>
+</html>

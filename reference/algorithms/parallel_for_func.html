@@ -1,0 +1,186 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="parallel_for テンプレート関数"/>
+<meta name="DC.subject" content="parallel_for テンプレート関数"/>
+<meta name="keywords" content="parallel_for テンプレート関数"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/algorithms.html"/>
+<meta name="DC.Relation" scheme="URI" content="range_concept.html#range_concept"/>
+<meta name="DC.Relation" scheme="URI" content="../task_scheduler/task_scheduler_init_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../task_scheduler/task_group_context.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="parallel_for_func"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>parallel_for テンプレート関数</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="parallel_for_func">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">parallel_for テンプレート関数</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>値の範囲で並列反復を行うテンプレート関数。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre> #include "tbb/parallel_for.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>template&lt;typename Index, typename Func&gt;
+Func parallel_for( Index first, Index_type last, const Func&amp; f
+                   [, partitioner[, task_group_context&amp; group]] );
+
+template&lt;typename Index, typename Func&gt;
+Func parallel_for( Index first, Index_type last, 
+                   Index step, const Func&amp; f
+                   [, partitioner[, task_group_context&amp; group]] );
+
+template&lt;typename Range, typename Body&gt; 
+void parallel_for( const Range&amp; range, const Body&amp; body, 
+                   [, partitioner[, task_group_context&amp; group]] );
+</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">parallel_for(first,last,step,f)</samp> は、ループの並列実行を表します。</p>
+<pre>for( auto i=first; i&lt;last; i+=step ) f(i);</pre><p>インデックスは整数型でなければなりません。ループはラップアラウンドしてはなりません。step 値は正数でなければなりません。省略された場合は、暗黙的に 1 になります。反復が並列に実行される保証はありません。より小さな反復がより大きな反復を待機する場合、デッドロックが発生することがあります。引数が指定されない場合、パーティショニング手法は <samp class="codeph">auto_partitioner</samp> になります。</p>
+<p><samp class="codeph">parallel_for(range,body,partitioner)</samp> は、並列反復のより一般的な形式を提供します。range の各値について <samp class="codeph">body</samp> の並列実行を表します。オプションの <samp class="codeph">partitioner</samp> は、パーティショニング手法を指定します。<samp class="codeph">Range</samp> 型は、Range コンセプトをモデル化しなければなりません。ボディーは、以下の表の要件をモデル化しなければなりません。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">parallel_for の Body の要件</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" id="d2438e68"><p>擬似署名</p>
+</th>
+<th class="row-nocellborder" valign="top" id="d2438e71"><p>意味</p>
+</th>
+</tr>
+</thead>
+<tbody><tr valign="top"><td class="cellrowborder" valign="top" headers="d2438e68 "><p><samp class="codeph"> Body::Body( const Body&amp; )</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d2438e71 "><p>コピー・コンストラクター。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d2438e68 "><p><samp class="codeph"> Body::~Body()</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d2438e71 "><p>デストラクター。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d2438e68 "><p><samp class="codeph"> void Body::operator()( Range&amp; range ) const</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d2438e71 "><p>range にボディーを適用します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><samp class="codeph">parallel_for</samp> は、<samp class="codeph">is_divisible()</samp> が各サブ範囲で false になるポイントまで、範囲をサブ範囲に再帰的に分割して、これらの各サブ範囲についてボディーのコピーを作成します。各ボディー/サブ範囲ペアについて、<samp class="codeph">Body::operator()</samp> を呼び出します。空間のオーバーヘッドを最小化してキャッシュを効率的に使用するために、呼び出しは再帰的な分割を使用して交互に配置されます。</p>
+<p>範囲とボディーのコピーの一部は、<samp class="codeph">parallel_for</samp> のリターンの後に破棄されます。この後からの破棄は典型的な使用方法では問題ありませんが、複雑な副作用がある実行トレースの検索、範囲やボディー・オブジェクトの記述を行う際には注意する必要があります。</p>
+<p>ワーカースレッドが利用可能な場合、<samp class="codeph">parallel_for</samp> は非決定性順に反復を実行します。演算精度のために特殊な実行順に依存しないでください。しかし、効率のためには、<samp class="codeph">parallel_for</samp> が値の連続する順に実行することを想定してください。</p>
+<p>ワーカースレッドが利用できない場合、<samp class="codeph">parallel_for</samp> は、次のように左から右に反復を実行します。再帰分割を表すバイナリーツリーを描くことを想像してください。各ノンリーフノードは、<samp class="codeph">Range</samp> の分割コンストラクターの 1 つを呼び出してサブ範囲 <samp class="codeph">r</samp> を分割することを表します。左の子は、<samp class="codeph">r</samp> の更新された値を表します。右の子は新しく構築されたオブジェクトを表します。ツリーの各リーフは分割できないサブ範囲を表します。<samp class="codeph">Body::operator()</samp> メソッドが各リーフのサブ範囲上で、左から右に呼び出されます。</p>
+<p>すべてのオーバーロードを <samp class="codeph">task_group_context</samp> オブジェクトを渡して、アルゴリズムのタスクがこのグループで実行されるようにすることができます。デフォルトでは、アルゴリズムは自身がバインドされているグループで実行されます。</p>
+<p><strong>計算量</strong></p>
+<p>範囲とボディーが O(1) 空間を使用して範囲をほぼ等しい断片に分割する場合、空間計算量は O(P log(N)) です。ここで、N は範囲のサイズ、P はスレッド数です。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>このサンプルは、<samp class="codeph">input[i-1]</samp>、<samp class="codeph">input[i]</samp>、および <samp class="codeph">input[i+1]</samp> (1 &lt;= i&lt; n の場合) の平均を <samp class="codeph">output[i]</samp> に設定する <samp class="codeph">ParallelAverage</samp> ルーチンを定義します。</p>
+<p><pre>#include "tbb/parallel_for.h"
+#include "tbb/blocked_range.h"
+
+using namespace tbb;
+
+struct Average {
+    const float* input;
+    float* output;
+    void operator()( const blocked_range&lt;int&gt;&amp; range ) const {
+        for( int i=range.begin(); i!=range.end(); ++i )
+            output[i] = (input[i-1]+input[i]+input[i+1])*(1/3.f);
+    }
+};
+
+// 注: input[0..n] を読み取り output[1..n-1] を書き込む 
+void ParallelAverage( float* output, const float* input, size_t n ) {
+    Average avg;
+    avg.input = input;
+    avg.output = output;
+    parallel_for( blocked_range&lt;int&gt;( 1, n ), avg );
+    }</pre></p>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>このサンプルはより複雑で、STL に精通している必要があります。このサンプルでは、フラットな反復空間が及ばない <samp class="codeph">parallel_for</samp> の能力を示します。コードは、2 つのソートされたシーケンスの並列マージを行います。このコードはランダムアクセス・イテレーターを使用して任意のシーケンスで動作します。アルゴリズム (Akl 1987) は、次のように再帰的に動作します。</p>
+<ol><li>シーケンスが並列処理を使用するには短すぎる場合は、シーケンシャル・マージを行います。その他の場合は、ステップ 2-6 を行います。</li>
+<li>必要な場合、シーケンスを交換します。その結果、最初のシーケンス [begin1,end1) は少なくとも 2 番目のシーケンス (begin2,end2) と同じくらいの長さになります。</li>
+<li>m1 を [begin1,end1) の中央の位置に設定します。その位置 key のアイテムを呼び出します。</li>
+<li>m2 を <em>key</em> が (begin2,end2) になる位置に設定します。</li>
+<li>[begin1,m1) と [begin2,m2) をマージしてマージドシーケンスの最初の部分を作成します。</li>
+<li>[m1,end1) と [m2,end2) をマージしてマージドシーケンスの 2 番目の部分を作成します。</li>
+</ol>
+<p>このアルゴリズムによるインテル&reg; TBB の実装は、範囲オブジェクトを使用してほとんどのステップを行います。<samp class="codeph">is_divisible</samp> はステップ 1 とステップ 2 のテストを行います。分割コンストラクターはステップ 3-6 を行います。ボディー・オブジェクトはシーケンシャル・マージを行います。</p>
+<p><pre>#include "tbb/parallel_for.h"
+#include &lt;algorithm&gt;
+
+using namespace tbb;
+
+template&lt;typename Iterator&gt;
+struct ParallelMergeRange {
+    static size_t grainsize;
+    Iterator begin1, end1; // [begin1,end1) はマージする最初のシーケンス
+    Iterator begin2, end2; // [begin2,end2) はマージする 2 つ目のシーケンス
+    Iterator out;               // マージしたシーケンスを格納
+    bool empty()   const {return (end1-begin1)+(end2-begin2)==0;}
+    bool is_divisible() const {
+        return std::min( end1-begin1, end2-begin2 ) &gt; grainsize;
+    }
+    ParallelMergeRange( ParallelMergeRange&amp; r, split ) {
+        if( r.end1-r.begin1 &lt; r.end2-r.begin2 ) {
+            std::swap(r.begin1,r.begin2);
+            std::swap(r.end1,r.end2);
+        }
+        Iterator m1 = r.begin1 + (r.end1-r.begin1)/2;
+        Iterator m2 = std::lower_bound( r.begin2, r.end2, *m1 );
+        begin1 = m1;
+        begin2 = m2;
+        end1 = r.end1;
+        end2 = r.end2;
+        out = r.out + (m1-r.begin1) + (m2-r.begin2);
+        r.end1 = m1;
+        r.end2 = m2;
+    }
+    ParallelMergeRange( Iterator begin1_, Iterator end1_, 
+                        Iterator begin2_, Iterator end2_, 
+                        Iterator out_ ) :
+        begin1(begin1_), end1(end1_), 
+        begin2(begin2_), end2(end2_), out(out_)
+    {}
+};
+
+template&lt;typename Iterator&gt;
+size_t ParallelMergeRange&lt;Iterator&gt;::grainsize = 1000;
+
+template&lt;typename Iterator&gt;
+struct ParallelMergeBody {
+    void operator()( ParallelMergeRange&lt;Iterator&gt;&amp; r ) const {
+        std::merge( r.begin1, r.end1, r.begin2, r.end2, r.out );
+    }
+};
+
+template&lt;typename Iterator&gt;
+void ParallelMerge( Iterator begin1, Iterator end1, Iterator begin2, Iterator end2, Iterator out ) {
+    parallel_for(     
+       ParallelMergeRange&lt;Iterator&gt;(begin1,end1,begin2,end2,out),
+       ParallelMergeBody&lt;Iterator&gt;(),
+       simple_partitioner() 
+    );
+}
+</pre></p>
+<p>アルゴリズムは多くの位置を移動するため、帯域幅が制限されることがあります。速度向上の割合は、システムによって異なります。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/algorithms.html">アルゴリズム</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="range_concept.html#range_concept">Range コンセプト</a></div>
+<div><a href="../task_scheduler/task_scheduler_init_cls.html">task_scheduler_init クラス</a></div>
+<div><a href="../task_scheduler/task_group_context.html">バインドされているグループ (task_group_context クラス)</a></div></div></div>
+</body>
+</html>

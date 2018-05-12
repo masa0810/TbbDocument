@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="タスクベースのプログラミング"/>
+<meta name="DC.subject" content="タスクベースのプログラミング"/>
+<meta name="keywords" content="タスクベースのプログラミング"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/The_Task_Scheduler.html"/>
+<meta name="DC.Relation" scheme="URI" content="How_Task_Scheduling_Works.html#tutorial_How_Task_Scheduling_Works"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Task-Based_Programming"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>タスクベースのプログラミング</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Task-Based_Programming">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">タスクベースのプログラミング</h1>
+<div><p>パフォーマンスが重要な場合、マルチスレッド・プログラミングを行う方法として、スレッドのプログラミングは最適ではないことがあります。スレッドではなく、「論理タスク」の観点からプログラムを構築したほうが非常に有効です。これには、次のような理由があります。</p>
+<ul><li><p>利用可能なリソースへの並列性のマッチング</p>
+</li>
+<li><p>タスクの迅速なスタートアップとシャットダウン</p>
+</li>
+<li><p>より効率的な評価順</p>
+</li>
+<li><p>ロード・バランシングの向上</p>
+</li>
+<li><p>よりハイレベルでの思考</p>
+</li>
+</ul>
+<p>次に、上記のポイントを詳細に説明します。</p>
+<p>スレッドパッケージを使用して作成するスレッドは「論理スレッド」で、ハードウェアの「物理スレッド」にマップします。外部デバイスで待機しない計算の場合、最も効率が良いのは、1 つの物理スレッドで 1 つの論理スレッドが実行されているときです。その他の場合は、ミスマッチにより効率が低下します。<em/>物理スレッドが動作し続けるために十分な論理スレッドが実行されていないと、「アンダーサブスクリプション」が発生するか、効率が低下します。逆に、物理スレッドよりも多くの論理スレッドが実行されている場合、「オーバーサブスクリプション」が発生します。通常、オーバーサブスクリプションは、「タイムスライスのコスト」で説明されているように、オーバーヘッドの原因である論理スレッドの「タイムスライス」実行を引き起こします。タスク・スケジューラーは、物理スレッドごとに 1 つの論理スレッドを割り当て、同じプロセスまたはほかのプロセスのほかのスレッドによる干渉を許容する方法で論理スレッドにタスクをマップして、オーバーサブスクリプションを回避しようとします。</p>
+<p>論理スレッドに比べてタスクが優れている点は、タスクは論理スレッドよりも「非常に軽い」ことです。Linux* システムでは、タスクの開始と終了は、スレッドの開始と終了より 18 倍も速く処理されます。Windows* システムでは、この比率は 100 倍以上になります。この差は、スレッドにはレジスターやスタックなど自分自身の多くのリソースのコピーがあるためです。Linux* では、スレッドにはプロセス ID もあります。一方、インテル&reg; TBB のタスクは小さなルーチンで、タスクレベルではスケジューラーでプリエンプトできません (関連する論理スレッドはオペレーティング・システムでプリエンプト可能です)。</p>
+<p>インテル&reg; TBB のタスクも、「スケジューラーがアンフェア」であるため、効率的です。スレッド・スケジューラーは、通常、ラウンドロビン方式でタイムスライスを分散します。この分散は、各論理スレッドに公平に時間が配分されるため "フェア" と呼ばれます。プログラムのハイレベルな構成が分からなくても使用できる最も安全な方法であるため、スレッド・スケジューラーはフェア (公平) です。タスクベースのプログラミングでは、タスク・スケジューラーは、オペレーティング・システムで利用できないより高いレベルの情報を持つため、効率化を優先して公平性を犠牲にする場合があります。確かに、スケジューラーは、効果が得られるまでタスクの開始を遅らせることがよくあります。</p>
+<p>スケジューラーは、「ロード・バランシング」を均等にする役割を負います。適切な数のスレッドを使用することに加え、それらのスレッドに均等にワークを分散することが重要です。プログラムが十分に小さなタスクに分割されている限り、スケジューラーはロードバランスをとりつつスレッドにタスクを割り当てることができます。スレッドベースのプログラミングでは、ロードバランスはプログラマー自身が処理しなければならないため、正しく処理することは困難です。</p>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>スレッド数以上のタスクを作成するプログラムを設計し、タスク・スケジューラーにタスクからスレッドへのマッピングを任せます。</p>
+</div>
+<p>最後に、スレッドの代わりにタスクを使用する主な利点は、タスクでは、よりハイレベルな、タスクベースのレベルで考えられることです。スレッドベースのプログラミングでは、効率性の観点から低レベルの物理スレッドで考えなければなりません。アンダーサブスクリプションやオーバーサブスクリプションを回避するには、物理スレッドごとに 1 つの論理スレッドを割り当て、論理スレッドが長時間ブロックされないようにする必要があります。さらに、比較的粗粒度のスレッドを処理する必要もあります。タスクを使用すると、効率的なスケジュールはスケジューラーに任せて、プログラマーはタスク間の依存性に集中できます。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/The_Task_Scheduler.html">タスク・スケジューラー</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="How_Task_Scheduling_Works.html#tutorial_How_Task_Scheduling_Works">タスク・スケジュールの動作</a></div></div></div>
+</body>
+</html>

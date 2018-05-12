@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="タスク割り当て"/>
+<meta name="DC.subject" content="タスク割り当て"/>
+<meta name="keywords" content="タスク割り当て"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/task_scheduler.html"/>
+<meta name="DC.Relation" scheme="URI" content="task_list_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="synchronization_task.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="task_allocation"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>タスク割り当て</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="task_allocation">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">タスク割り当て</h1>
+<div><div class="section"><p>常に特別にオーバーロードされる <samp class="codeph">new</samp> 演算子の 1 つを使用してタスク・オブジェクトにメモリーを割り当てます。割り当てメソッドはタスクを構築しません。代わりに、ライブラリーによって提供される new 演算子のオーバーロード・バージョンへの引数として使用できるプロキシー・オブジェクトを返します。</p>
+<p>一般的に、割り当てメソッドは割り当てられたタスクが生成される前に呼び出さなければなりません。この規則の例外は <samp class="codeph">allocate_additional_child_of(t)</samp> で、タスク <em>t</em> がすでに実行している場合でも呼び出せます。プロキシーの型は実装によって定義されます。唯一の保証は、フレーズ "new(proxy) T(...)" が <em>T</em> 型のタスクを割り当てて構築することです。</p>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>216 バイトよりも大きなタスクを割り当てると、より小さなタスクを割り当てる場合よりも大幅に遅くなります。一般に、タスク・オブジェクトは小さな軽いエンティティーにしてください。</p>
+</div>
+<p>これらのメソッドは慣用句的に使用されるため、次の表のメンバーは宣言ではなく慣用句を示しています。引数 <samp class="codeph">this</samp> は通常は暗黙的ですが、インスタンス・メソッドとスタティック・メソッドを区別するため、ヘッダー部では明示的に示されています。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d81010e45">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d81010e47">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d81010e45 "><span class="keyword">new( task::allocate_root( task_group_context&amp; group ) ) T </span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d81010e47 "><p>指定されたキャンセルグループで <em>T</em> 型のタスクを割り当てます。下記の図は、状態遷移を要約したものです。</p>
+<div class="fignone" id="fig7"><span class="figcap">task::allocate_root() の効果</span><br/><img src="../Resources/06000008.png"/><br/></div>
+<p><samp class="codeph">spawn_root_and_wait</samp> メソッドを使用してタスクを実行します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d81010e45 "><span class="keyword">new( task::allocate_root() ) T</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d81010e47 "><p>キャンセルグループが現在の最も内側のキャンセルグループであることを除いて、<samp class="codeph">new(task::allocate_root(task_group_context&amp;))</samp> に似ています。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d81010e45 "><span class="keyword">new( x.allocate_continuation() ) T</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d81010e47 "><p><samp class="codeph"><em>T</em></samp> 型のタスクを割り当てて構築し、<samp class="codeph"><em>x</em></samp> から新しいタスクに <em>successor</em> を転送します。参照カウントは変更されません。下記の図は、状態遷移を要約したものです。</p>
+<div class="fignone" id="fig8"><span class="figcap">allocate_continuation() の効果</span><br/><img src="../Resources/06000009.png"/><br/></div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d81010e45 "><span class="keyword">new( x.allocate_child() ) T</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d81010e47 "><p><samp class="codeph">this</samp> をその <em>successor</em> としてタスクを割り当てます。下記の図は、状態遷移を要約したものです。</p>
+<div class="fignone" id="fig9"><span class="figcap">allocate_child() の効果</span><br/><img src="../Resources/0600000A.png"/><br/></div>
+<p>明示的な継続渡しを行う場合、<samp class="codeph"><em>successor</em></samp> を正しく設定するため、サクセサーではなく継続で割り当てメソッドを呼び出します。</p>
+<p>タスク数が小さな定数でない場合、プレデセッサーの <samp class="codeph">task_list</samp> を最初に構築して、<samp class="codeph">task::spawn</samp> の単一呼び出しでプレデセッサーを生成してください。すべてが構築される前にタスクが一部のプレデセッサーを生成する必要がある場合、そのメソッドは <samp class="codeph"><em>refcount</em></samp> をアトミックにインクリメントするため、追加のプレデセッサーが適切にカウントされるように、代わりに <samp class="codeph">task::allocate_additional_child_of(*this)</samp> を使用してください。しかし、この処理を使用する場合は、ブロックスタイルのタスクパターンを使用して、<samp class="codeph"><em>refcount</em></samp> が 0 にならないように保護する必要があります。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d81010e45 "><span class="keyword">new(task::allocate_additional_child_of( y )) T</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d81010e47 "><p>タスクを別のタスク <samp class="codeph"><em>y</em></samp> のプレデセッサーとして割り当てます。タスク <samp class="codeph">y</samp> は、すでに実行中か、ほかのプレデセッサーが実行されています。下記の図は、状態遷移を要約したものです。</p>
+<div class="fignone" id="fig10"><span class="figcap">allocate_additional_child_of(successor) の効果</span><br/><img src="../Resources/0600000B.png"/><br/></div>
+<p><samp class="codeph"><em>y</em></samp> はすでにプレデセッサーを実行しているので、<samp class="codeph"><em>y</em></samp>.<samp class="codeph"><em>refcount</em></samp> のインクリメントは (インクリメントがアトミックではないほかの割り当てメソッドとは異なり) アトミックです。ほかのプレデセッサーを実行しているタスクにプレデセッサーを追加する場合、新しいプレデセッサーが追加される前にサクセサーの <samp class="codeph"><em>refcount</em></samp> が 0 にならないことと、サクセサーの実行をトリガーしないことを保証することはプログラマーの責任です。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/task_scheduler.html">タスク・スケジューラー</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="task_list_cls.html">task_list クラス</a></div>
+<div><a href="synchronization_task.html">同期</a></div></div></div>
+</body>
+</html>

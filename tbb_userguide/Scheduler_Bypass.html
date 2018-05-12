@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="スケジューラーのバイパス"/>
+<meta name="DC.subject" content="スケジューラーのバイパス"/>
+<meta name="keywords" content="スケジューラーのバイパス"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Useful_Task_Techniques.html"/>
+<meta name="DC.Relation" scheme="URI" content="Continuation_Passing.html#tutorial_Continuation_Passing"/>
+<meta name="DC.Relation" scheme="URI" content="Recycling.html#tutorial_Recycling"/>
+<meta name="DC.Relation" scheme="URI" content="How_Task_Scheduling_Works.html#tutorial_How_Task_Scheduling_Works"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Scheduler_Bypass"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>スケジューラーのバイパス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Scheduler_Bypass">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">スケジューラーのバイパス</h1>
+<div><p>スケジューラーのバイパスは、次に実行するタスクを直接指定する最適化です。継続渡しスタイルでは、スケジューラーのバイパス機会が多くなります。例えば、前のセクションの継続渡しの例の最後で、<samp class="codeph">execute()</samp> メソッドはタスク "a" を生成してリターンしました。<strong>「タスク・スケジュールの動作」</strong>の実行規則により、実行スレッドは次の処理を行います。</p>
+<ol><li><p>タスク "<samp class="codeph">a</samp>" をスレッドのデックにプッシュします。</p>
+</li>
+<li><p><samp class="codeph">execute()</samp> メソッドからリターンします。</p>
+</li>
+<li><p>タスク "<samp class="codeph">a</samp>" をスレッドのデックからポップします (タスクが別のスレッドによってスチールされている場合を除く)。</p>
+</li>
+</ol>
+<p>ステップ 1 および 3 で不必要なデック操作が追加されます。また、スチールを許可することで、多くの並列処理を実装することなく、局所性が損なわれてしまいます。これらの問題は、<samp class="codeph">execute()</samp> メソッドでタスクを作成する代わりに <samp class="codeph">a</samp> のポインターを返すことで回避できます。<strong>「タスク・スケジュールの動作」</strong>で説明したメソッドを使用すると、<samp class="codeph">a</samp> がスレッドで実行される次のタスクになります。さらに、この方法では、そのスレッドが (ほかのスレッドではなく) <samp class="codeph">a</samp> を実行することが保証されます。</p>
+<p>次の例は、前のセクションの例から必要な変更を<samp class="codeph"><span class="color(blue)" style="color:blue"><strong>太字</strong></span></samp>で示しています。</p>
+<pre>struct FibTask: public task {
+    ...
+    task* execute() {
+        if( n&lt;CutOff ) {
+            *sum = SerialFib(n);
+            return NULL;
+        } else {
+            FibContinuation&amp; c = 
+                *new( allocate_continuation() ) FibContinuation(sum);
+ 
+            FibTask&amp; a = *new( c.allocate_child() ) FibTask(n-2,&amp;c.x);
+            FibTask&amp; b = *new( c.allocate_child() ) FibTask(n-1,&amp;c.y);
+            // ref_count を "子タスクの数 2" に設定
+            c.set_ref_count(2);
+            spawn( b );
+            // 変更前: spawn( a );
+            // 変更前: return NULL;
+            <span class="color(blue)" style="color:blue"><strong>return &amp;a;</strong></span>
+        }
+    }
+};</pre></div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Useful_Task_Techniques.html">役立つタスク手法</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Continuation_Passing.html#tutorial_Continuation_Passing">継続渡し</a></div>
+<div><a href="Recycling.html#tutorial_Recycling">再利用</a></div>
+<div><a href="How_Task_Scheduling_Works.html#tutorial_How_Task_Scheduling_Works">タスク・スケジュールの動作</a></div></div></div>
+</body>
+</html>

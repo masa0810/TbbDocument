@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="固有の例外"/>
+<meta name="DC.subject" content="固有の例外"/>
+<meta name="keywords" content="固有の例外"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/exceptions.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="specific_exceptions"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>固有の例外</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="specific_exceptions">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">固有の例外</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>ほかのライブラリー・コンポーネントによってスローされた例外。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>class bad_last_alloc;
+class improper_lock;
+class invalid_multiple_scheduling;
+hclass missing_wait;
+class user_abort;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/tbb_exception.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p>次の表は、例外がスローされるタイミングを示します。</p>
+<p>特定の例外用のクラス</p>
+</div>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="border" border="1" cellspacing="0" rules="all"><thead align="left"><tr><th class="cellrowborder" valign="top" id="d45797e42"><p><strong>例外</strong></p>
+</th>
+<th class="cellrowborder" valign="top" id="d45797e46"><p><strong>スローされるタイミング</strong></p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" headers="d45797e42 "><p>bad_last_alloc</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d45797e46 "><ol><li><samp class="codeph">concurrent_queue</samp> または <samp class="codeph">concurrent_bounded_queue</samp> の <samp class="codeph">pop</samp> 操作が、例外をスローした push 操作に対応するものであるとき。</li>
+<li>前の操作が例外をスローしたため、<samp class="codeph">concurrent_vector</samp> の操作は実行できません。</li>
+</ol>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d45797e42 "><p>improper_lock</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d45797e46 "><p>すでにロックされている <samp class="codeph">critical_section</samp> または <samp class="codeph">reader_writer_lock</samp> をスレッドがロックしようとしたとき。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d45797e42 "><p>invalid_multiple_scheduling</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d45797e46 "><p><samp class="codeph">task_group</samp> または <samp class="codeph">structured_task_group</samp> が <samp class="codeph">task_handle</samp> を 2 回実行しようとしたとき。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d45797e42 "><p>missing_wait</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d45797e46 "><p><samp class="codeph">wait()</samp> メソッドが起動される前に <samp class="codeph">task_group</samp> または <samp class="codeph">structured_task_group</samp> が破棄されたとき。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" headers="d45797e42 "><p>user_abort</p>
+</td>
+<td class="cellrowborder" valign="top" headers="d45797e46 "><p>ユーザーによりアボートされた <samp class="codeph">concurrent_bounded_queue</samp> の <samp class="codeph">push</samp> 操作または <samp class="codeph">pop</samp> 操作が呼び出されたとき。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+        class bad_last_alloc: public std::bad_alloc {
+        public:
+            const char* what() const throw();
+        };
+        class improper_lock: public std::exception {
+        public:
+            const char* what() const throw();
+        };
+        class invalid_multiple_scheduler: public std::exception {
+           const char* what() const throw();
+        };
+        class missing_wait: public std::exception {
+        public:
+            const char* what() const throw();
+        };
+        class user_abort : public std::exception {
+        public:
+           const char* what() const throw();
+        };
+		  
+    }</pre></div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/exceptions.html">例外</a></div>
+</div>
+<div/>
+</body>
+</html>

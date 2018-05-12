@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="キャンセルと入れ子の並列処理"/>
+<meta name="DC.subject" content="キャンセルと入れ子の並列処理"/>
+<meta name="keywords" content="キャンセルと入れ子の並列処理"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Exceptions_and_Cancellation.html"/>
+<meta name="DC.Relation" scheme="URI" content="The_Task_Scheduler.html#tutorial_The_Task_Scheduler"/>
+<meta name="DC.Relation" scheme="URI" content="Lambda_Expressions.html#tutorial_Lambda_Expressions"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Cancellation_and_Nested_Parallelism"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>キャンセルと入れ子の並列処理</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Cancellation_and_Nested_Parallelism">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">キャンセルと入れ子の並列処理</h1>
+<div><p>これまでは、並列処理が入れ子になっていないことを仮定して <samp class="codeph">task_group_context</samp> の詳細については説明していませんでした。ここで、詳細を説明します。</p>
+<p>インテル&reg; TBB のアルゴリズムは、ユーザーがアルゴリズム・テンプレートに提供したコードの断片を実行する <samp class="codeph">task</samp> オブジェクトを作成することにより実行されます。デフォルトでは、これらの <samp class="codeph">task</samp> オブジェクトはアルゴリズムにより作成される <samp class="codeph">task_group_context</samp> と関連付けられます。入れ子のインテル&reg; TBB アルゴリズムは、これらの <samp class="codeph">task_group_context</samp> オブジェクトのツリーを作成します。<samp class="codeph">task_group_context</samp> をキャンセルすると、その子 <samp class="codeph">task_group_context</samp> オブジェクトがすべてキャンセルされ、結果的にそのすべての子孫がキャンセルされます。つまり、アルゴリズムと、そのアルゴリズムが呼び出したアルゴリズムをすべて、1 つのリクエストでキャンセルすることができます。</p>
+<p>例外は上向きに伝わります。キャンセルは下向きに伝わります。例外が発生すると、入れ子になっている計算も停止されます。例えば、次の図のツリーについて考えてみます。各ノードはアルゴリズムとその <samp class="codeph">task_group_context</samp> を表していると考えてください。</p>
+<div class="fignone" id="fig6"><span class="figcap"><span class="keyword">task_group_context</span> のツリー</span><br/><img src="Images/image013.jpg" width="261" height="131"/><br/></div>
+<p>C でアルゴリズムが例外をスローし、例外をキャッチするノードがないことを仮定します。インテル&reg; TBB は、次のように、例外を上方向に伝え、関連するサブツリーを下方向にキャンセルします。</p>
+<ol><li><p>C における例外の制御:</p>
+<ol class="abc" type="a"><li><p>C の例外をキャプチャーします。</p>
+</li>
+<li><p>C のタスクをキャンセルします。</p>
+</li>
+<li><p>C から B に例外をスローします。</p>
+</li>
+</ol>
+</li>
+<li><p>B における例外の制御:</p>
+<ol class="abc" type="a"><li><p>B の例外をキャプチャーします。</p>
+</li>
+<li><p>B のタスクをキャンセルし、下向きに D に伝えます。</p>
+</li>
+<li><p>B から A に例外をスローします。</p>
+</li>
+</ol>
+</li>
+<li><p>A における例外の制御:</p>
+<ol class="abc" type="a"><li><p>A の例外をキャプチャーします。</p>
+</li>
+<li><p>A のタスクをキャンセルし、下向きに E、F、G に伝えます。</p>
+</li>
+<li><p>A から上向きに例外をスローします。</p>
+</li>
+</ol>
+</li>
+</ol>
+<p>コードが (任意のレベルで) 例外をキャッチすると、インテル&reg; TBB は例外をそれ以上伝えません。例えば、<samp class="codeph">parallel_for</samp> のボディーの外部に例外が伝えられなければ、ほかの反復はキャンセルされません。</p>
+<p>キャンセルが下方向にアルゴリズムに伝えられるのを防ぐには、スタックに「孤立した」 <samp class="codeph">task_group_context</samp> を構築して、明示的にアルゴリズムに渡します。次のコードの<samp class="codeph"><span class="color(blue)" style="color:blue"><strong>太字</strong></span></samp>の部分です。簡潔に表現するため、サンプルは C++11 ラムダ式を使用しています。</p>
+<pre>#include "tbb/tbb.h"
+ 
+bool Data[1000][1000];
+ 
+int main() {
+    try {
+        parallel_for( 0, 1000, 1, 
+            []( int i ) {
+                task_group_context root(task_group_context::isolated);
+                parallel_for( 0, 1000, 1,
+                   []( int  ) {
+                       Data[i][j] = true;
+                   }<span class="color(blue)" style="color:blue">,</span>
+                   <span class="color(blue)" style="color:blue"><strong>root</strong></span>);
+                throw "oops";
+            });
+    } catch(...){
+    }
+    return 0;
+}</pre><p>サンプルは、外側のループ <samp class="codeph">i</samp> と内側のループ <samp class="codeph">j</samp> の 2 つの並列ループを実行します。孤立した <samp class="codeph">task_group_context</samp><samp class="codeph">root</samp> を作成することで、<samp class="codeph">i</samp> ループのキャンセルが下方向の内側のループに伝えられなくなります。例外が外側のループに伝えられると、保留中の <samp class="codeph">outer</samp> の反復はキャンセルされますが、(開始した外側の反復の) 内側の反復はキャンセルされません。そのため、プログラムが完了したときに、<samp class="codeph">Data</samp> の列は反復 <samp class="codeph">i</samp> をすべて実行したかどうかに依存して異なりますが、列の内部の要素は <samp class="codeph">false</samp> または <samp class="codeph">true</samp> のどちらか一方になります。</p>
+<p>青の部分を削除すると、内側のループにキャンセルが伝えられるようになります。この場合、<samp class="codeph">Data</samp> の列に <samp class="codeph">true</samp> と <samp class="codeph">false</samp> の両方の値が含まれるようになります。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Exceptions_and_Cancellation.html">例外とキャンセル</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="The_Task_Scheduler.html#tutorial_The_Task_Scheduler">タスク・スケジューラー</a></div>
+<div><a href="Lambda_Expressions.html#tutorial_Lambda_Expressions">ラムダ式</a></div></div></div>
+</body>
+</html>

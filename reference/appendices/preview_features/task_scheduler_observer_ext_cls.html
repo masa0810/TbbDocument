@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="task_scheduler_observer クラスの拡張"/>
+<meta name="DC.subject" content="task_scheduler_observer クラスの拡張"/>
+<meta name="keywords" content="task_scheduler_observer クラスの拡張"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/appendices/preview_features.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../task_scheduler/task_scheduler_observer.html#task_scheduler_observer_member"/>
+<meta name="DC.Relation" scheme="URI" content="../../task_scheduler/task_arena_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../task_scheduler/task_scheduler_init_cls.html#task_scheduler_init_cls"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="task_scheduler_observer_ext_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>task_scheduler_observer クラスの拡張</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="task_scheduler_observer_ext_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">task_scheduler_observer クラスの拡張</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>ワーカースレッドのスリープを制御するように、そしてスレッドがタスク・スケジューラー領域にジョインしたときや離脱したときを監視するように、<samp class="codeph">task_scheduler_observer</samp> クラスが拡張されました。以前の <samp class="codeph">task_scheduler_observer</samp> は、ワーカースレッドがグローバル・タスク・スケジューラーにジョインしたときと終了したときのみ監視していました。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>task_scheduler_observer は、浮動小数点設定の管理には適していません。この目的で使用した場合の動作は不定です。詳細は、「浮動小数点設定」セクションを参照してください。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>class task_scheduler_observer;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><p><pre>#define TBB_PREVIEW_LOCAL_OBSERVER 1
+#include "tbb/task_scheduler_observer.h"</pre></p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+  class task_scheduler_observer {
+  public:
+    explicit task_scheduler_observer( bool local = false );
+    explicit task_scheduler_observer( task_arena &amp; a );
+
+    // ローカル・オブザーバーに関連しないメソッドについては
+    // task_scheduler_observer を参照 ...
+
+#if TBB_USE_PREVIEW_BINARY
+    enum { keep_awake = false, allow_sleep = true };
+    // プレビューバイナリーを使用する機能のみ
+    virtual bool may_sleep() { return allow_sleep; }
+#endif
+  };
+}</pre></div>
+<div class="section"><h2 class="sectiontitle">サンプル: スレッド・アフィニティーの設定</h2><p>次のサンプルは、ワーカースレッドをハードウェア・スレッドに関連付けるオブザーバーのコードを示します。</p>
+<pre>class pinning_observer: public tbb::task_scheduler_observer {
+public:
+  affinity_mask_t m_mask; // この領域で使用する HW アフィニティー・マスク
+  pinning_observer( tbb::task_arena &amp;a, affinity_mask_t mask )
+    : tbb::task_scheduler_observer(a), m_mask(mask) {
+    observe(true); // オブザーバーをアクティブ化
+  }
+  /* オーバーライド */ void on_scheduler_entry( bool worker ) {
+    set_thread_affinity(tbb::this_task_arena::current_thread_index(), m_mask); 
+  }
+  /* オーバーライド */ void on_scheduler_exit( bool worker ) { }
+};</pre></div>
+<div class="section"><h2 class="sectiontitle">サンプル: ワーカースレッドをアクティブなまま保つ</h2><p>次のサンプルは、ワーカースレッドの構築中はスリープ状態にならないようにして、オブザーバーを破棄した後にスリープを許可する、オブザーバーのコードです。このオブザーバーを使用して並列計算を継続する範囲を表すことができます。</p>
+<pre>class computation_scope: public tbb::task_scheduler_observer {
+public:
+  computation_scope( ) { observe(true); } // オブザーバーをアクティブ化
+  /* オーバーライド */ bool may_sleep( ) {
+    return keep_awake;
+  }
+};
+
+void usage() {
+  non_TBB_code();
+  {
+    computation_scope protector(); // ワーカースレッドをアクティブなまま保つ
+    for(int i = 0; i &lt; N; i++)
+        tbb::parallel_for(0, M, ProcessingFunctor());
+  }
+  non_TBB_code();
+}</pre></div>
+<div class="section">
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d21708e67">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d21708e69">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d21708e67 "><samp class="codeph">explicit task_scheduler_observer( bool local = false ) </samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d21708e69 "><p>インアクティブ状態 (監視が無効な状態) の <samp class="codeph">task_scheduler_observer</samp> オブジェクトを構築します。<samp class="codeph">local</samp> が <samp class="codeph">false</samp> の場合、<samp class="codeph">task_scheduler_observer</samp> のグローバル・セマンティクスと同じです。<samp class="codeph">local</samp> が true で、オブザーバーがアクティブな場合、スレッドがタスク領域に追加されると、そのタスク領域のスレッドのみ通知を受け取ります。そして、タスク領域を離れるときも、スレッドは通知を受け取ります。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d21708e67 "><samp class="codeph">explicit task_scheduler_observer( task_arena &amp; ) </samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d21708e69 "><p>指定された <samp class="codeph">task_arena</samp> に関連付けられたインアクティブ状態 (監視が無効な状態) の <samp class="codeph">task_scheduler_observer</samp> オブジェクトを構築します。そして、指定されたタスク領域に関連する通知のみ受け取ります。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> このようなオブジェクトに対する observe(true) の呼び出しは、指定された <samp class="codeph">task_arena</samp> オブジェクトの内部タスク領域の初期化を強制します。</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d21708e67 "><samp class="codeph">virtual bool may_sleep()</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d21708e69 "><p>コールバックは、ワーカースレッドがスリープ状態になる前に、ワーカースレッドのグローバル・オブザーバーで呼び出されます。<samp class="codeph">keep_awake</samp> が返された場合、スレッドは直ちにスリープ状態になる代わりに新しいワークを積極的に探します。<div class="Note"><h3 class="NoteTipHead">注</h3> コールバックは、同じスレッドにより、ほかのスレッドと同時に、周期的に呼び出すことができます。ローカル・オブザーバー・モードやマスタースレッドに対しては呼び出されず、ワーカースレッドがリソース・マネージャーに無条件にリターンする場合にも呼び出されません。スレッドは、on_scheduler_entry() などのほかのコールバックの前に <samp class="codeph">may_sleep()</samp> を呼び出すことができます。</div>
+</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> このメソッドを有効にするには、アプリケーションをプレビュー・ライブラリーとリンクする必要があります。</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/appendices/preview_features.html">プレビュー機能</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../../task_scheduler/task_scheduler_observer.html#task_scheduler_observer_member">task_scheduler_observer</a></div>
+<div><a href="../../task_scheduler/task_arena_cls.html">task_arena クラスと this_task_arena 名前空間</a></div>
+<div><a href="../../task_scheduler/task_scheduler_init_cls.html#task_scheduler_init_cls">task_scheduler_init クラス</a></div></div></div>
+</body>
+</html>

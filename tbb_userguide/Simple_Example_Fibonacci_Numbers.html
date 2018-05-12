@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="簡単な例: フィボナッチ数"/>
+<meta name="DC.subject" content="簡単な例: フィボナッチ数"/>
+<meta name="keywords" content="簡単な例: フィボナッチ数"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/The_Task_Scheduler.html"/>
+<meta name="DC.Relation" scheme="URI" content="Scheduler_Bypass.html#tutorial_Scheduler_Bypass"/>
+<meta name="DC.Relation" scheme="URI" content="How_Task_Scheduling_Works.html#tutorial_How_Task_Scheduling_Works"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Simple_Example_Fibonacci_Numbers"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>簡単な例: フィボナッチ数</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Simple_Example_Fibonacci_Numbers">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">簡単な例: フィボナッチ数</h1>
+<div><p>このセクションでは、例として <var>n</var> 番目のフィボナッチ数を計算します。この例では、非効率的なメソッドを使用してフィボナッチ数を計算しますが、単純な再帰パターンを使用するタスク・ライブラリーの基本も示しています。タスクベースのプログラミングでスケーラブルに速度の向上を達成するには、多くのタスクを指定する必要があります。この場合は、再帰タスクパターンを使用します。</p>
+<p>シリアルバージョン:</p>
+<pre>long SerialFib( long n ) {
+    if( n&lt;2 )
+        return n;
+    else
+        return SerialFib(n-1)+SerialFib(n-2);
+}</pre><p>並列タスクベースのバージョンのトップレベル・コード: 
+	 </p>
+<pre>long ParallelFib( long n ) {
+    long sum;
+    FibTask&amp; a = *new(task::allocate_root()) FibTask(n,&amp;sum);
+    task::spawn_root_and_wait(a);
+    return sum;
+}</pre><p>このコードは、実際のワークに <samp class="codeph">FibTask</samp> 型のタスクを使用します。次のようなステップで実装します。 
+	 </p>
+<ol><li><p>タスクに空間を割り当てます。割り当ては、特別に "オーバーロードされた new" と <span class="option">task::allocate_root</span> メソッドで行われます。名前の <samp class="codeph">_root</samp> サフィックスは、作成されたタスクに親がないことを示します。このタスクは、タスクツリーのルートです。タスクの完了時に空間を効率良く再利用できるように特別なメソッドでタスクを割り当てる必要があります。</p>
+</li>
+<li><p><samp class="codeph">new</samp> により呼び出される <samp class="codeph">FibTask(n,&amp;sum)</samp> コンストラクターでタスクを構築します。ステップ 3 のタスクの実行時に、n 番目のフィボナッチ数を計算して、<samp class="codeph">*sum</samp> に格納します。</p>
+</li>
+<li><p><samp class="codeph">task::spawn_root_and_wait</samp> で完了するタスクを実行します。</p>
+</li>
+</ol>
+<p>実際のワークは、<samp class="codeph">FibTask</samp> の内部で処理されます。次にその定義を示します。</p>
+<pre>class FibTask: public task {
+public:
+    const long n;
+    long* const sum;
+    FibTask( long n_, long* sum_ ) :
+        n(n_), sum(sum_)
+    {}
+    task* execute() {      // 仮想関数 task::execute をオーバーライド
+        if( n&lt;CutOff ) {
+            *sum = SerialFib(n);
+        } else {
+            long x, y;
+            FibTask&amp; a = *new( allocate_child() ) FibTask(n-1,&amp;x);
+            FibTask&amp; b = *new( allocate_child() ) FibTask(n-2,&amp;y);
+            // ref_count を "2 つの子 + 待機用" で 3 に設定
+            set_ref_count(3);
+            // b の実行を開始
+            spawn( b );
+            // a の実行を開始してすべての子 (a と b) を待つ
+            spawn_and_wait_for_all(a);
+            // 総和を計算
+            *sum = x+y;
+        }
+        return NULL;
+    }
+};</pre><p>標準 C++ の拡張機能を使用しないで並列処理を表現しているため、このコードは <samp class="codeph">SerialFib</samp> よりも大きくなっています。 
+	 </p>
+<p>インテル&reg; TBB によってスケジュールされるすべてのタスクと同様に、<samp class="codeph">FibTask</samp> は <samp class="codeph">task</samp> クラスから派生しています。<samp class="codeph">n</samp> フィールドと <samp class="codeph">sum</samp> フィールドは、それぞれ入力値と出力のポインターを保持します。これらは、<samp class="codeph">FibTask</samp> のコンストラクターに渡される引数のコピーです。<samp class="codeph">execute</samp> メソッドは、実際の計算を行います。すべてのタスクで、純粋な仮想メソッド <span class="option">task::execute</span> をオーバーライドする <samp class="codeph">execute</samp> の定義を提供しなければなりません。定義は、タスクのワークを行い、NULL または次に実行するタスクのポインターを返します。この例では、NULL を返します。NULL でない場合の詳細は、<strong>「スケジューラーのバイパス」</strong>を参照してください。</p>
+<p><span class="option">FibTask::execute()</span> メソッドは次の処理を行います。</p>
+<ul><li><p><samp class="codeph">n</samp> が小さく、シリアル実行の方が高速かどうかを確認します。<samp class="codeph">CutOff</samp> の正しい値を見つけるには、試行が必要です。この例で最も速度向上を見込める値は 16 です。問題サイズが小さくなったときに、シーケンシャルなアルゴリズムに切り替えるのは、並列処理の分割統治法の特性です。切り替えのポイントを見つけるには試行が必要なため、試行に適したコードを記述してください。</p>
+</li>
+<li><p><samp class="codeph">else</samp> 文が実行される場合、コードは (<samp class="codeph">n</samp>-1) 番目と (<samp class="codeph">n</samp>-2) 番目のフィボナッチ数を計算する 2 つの子タスクを作成して実行します。ここで、継承した <samp class="codeph">allocate_child()</samp> メソッドがタスクの空間割り当てに使用されます。トップレベルのルーチン <samp class="codeph">ParallelFib</samp> で <samp class="codeph">allocate_root()</samp> を使用してタスクに空間を割り当てたことを思い出してください。違いは、ここではタスクが<strong>子</strong>タスクを作成していることです。この関係は、割り当てメソッドの選択によって示されます。</p>
+</li>
+<li><p><samp class="codeph">set_ref_count(3)</samp> を呼び出します。数字の <samp class="codeph">3</samp> は、2 つの子と <samp class="codeph">spawn_and_wait_for_all</samp> メソッドで必要な追加の暗黙的参照を表現しています。子を生成する前に、<samp class="codeph">set_reference_count(3)</samp> を必ず呼び出してください。呼び出しが行われない場合の動作は不定です。ライブラリーのデバッグバージョンは、通常この種のエラーを検出してレポートします。</p>
+</li>
+<li><p>2 つの子タスクを生成します。タスクの生成は、選択したときにいつでも、あるいは別のタスクを実行しながらでも、並列にそのタスクを実行できることをスケジューラーに知らせます。実行ポリシーの詳細は、<strong>「タスク・スケジュールの動作」</strong>を参照してください。<samp class="codeph">spawn</samp> メソッドによる 1 つ目の子の生成では、子タスクが実行を開始するのを待つことなくすぐにリターンします。<samp class="codeph">spawn_and_wait_for_all</samp> メソッドによる 2 つ目の子の生成では、親は現在割り当てられている子のタスクが終了するまで待機します。</p>
+</li>
+<li><p>2 つの子タスクが完了した後、親は <samp class="codeph">x+y</samp> を計算して、結果を <samp class="codeph">*sum</samp> に格納します。</p>
+</li>
+</ul>
+<p>タスクでは 2 つの子タスクしか生成されないため、並列処理に制約があるように見えます。ここでは、「再帰並列処理」がポイントです。2 つの子タスクは、それぞれ 2 つの子タスクを生成し、その後も <samp class="codeph">n&lt;Cutoff</samp> になるまで処理を繰り返します。この繰り返しは、多くの潜在的な並列処理の可能性を作り出します。タスク・スケジューラーの利点は、コンテキストの切り替えを抑え、物理スレッドができるだけ稼動状態になるように実行するタスクを選択するため、この潜在的な並列処理の可能性を、効率的な方法で実現できることです。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/The_Task_Scheduler.html">タスク・スケジューラー</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Scheduler_Bypass.html#tutorial_Scheduler_Bypass">スケジューラーのバイパス</a></div>
+<div><a href="How_Task_Scheduling_Works.html#tutorial_How_Task_Scheduling_Works">タスク・スケジュールの動作</a></div></div></div>
+</body>
+</html>

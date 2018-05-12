@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="構築、破棄、コピー"/>
+<meta name="DC.subject" content="構築、破棄、コピー"/>
+<meta name="keywords" content="構築、破棄、コピー"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/containers_overview/concurrent_unordered_set_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="construct_destroy_copy_set_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>構築、破棄、コピー</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="construct_destroy_copy_set_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">構築、破棄、コピー</h1>
+<div><div class="section">次の表は、<samp class="codeph">concurrent_unordered_set</samp> テンプレート・クラスと <samp class="codeph">concurrent_unordered_multiset</samp> テンプレート・クラスのメンバーの情報を提供します。</div>
+<div class="section"><h2 class="sectiontitle"><samp class="codeph">concurrent_unordered_set</samp></h2>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><thead align="left"><tr><th class="cellrowborder" valign="top" width="50%" id="d36420e32">メンバー</th>
+<th class="cellrowborder" valign="top" width="50%" id="d36420e34">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e32 "><span class="keyword">explicit concurrent_unordered_set(size_type n = &lt;implementation-defined&gt;, const hasher&amp; hf = hasher(),const key_equal&amp; eql = key_equal(), const allocator_type&amp; a = allocator_type()) </span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e34 "><p><samp class="codeph">n</samp> バケットのテーブルを構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e32 "><span class="keyword">template &lt;typename InputIterator&gt; concurrent_unordered_set (InputIterator first, InputIterator last, size_type n = &lt;implementation-defined&gt;, const hasher&amp; hf = hasher(), const key_equal&amp; eql = key_equal(), const allocator_type&amp; a = allocator_type()) </span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e34 "><p><samp class="codeph">value_type(*<em>i</em>)</samp> で初期化された <samp class="codeph">n</samp> バケットのテーブルを構築します。ここで、<samp class="codeph"><em>i</em></samp> は半開区間 [<samp class="codeph"><em>first,last</em></samp>) です。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e32 "><span class="keyword"> concurrent_unordered_set(const unordered_set&amp; m)</span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e34 "><p>セット <samp class="codeph"><em>m</em></samp> のコピーを構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e32 "><span class="keyword">explicit concurrent_unordered_set(const Alloc&amp; a)</span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e34 "><p>アロケーター <em>a</em> を使用して空のセットを構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e32 "><span class="keyword">concurrent_unordered_set(const unordered_set&amp;, const Alloc&amp; a) </span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e34 "><p>アロケーター <samp class="codeph"><em>a</em></samp> を使用してセット <em>m</em> のコピーを構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e32 "><span class="keyword">concurrent_unordered_set(std::initializer_list&lt;value_type&gt; il, size_type n = &lt;implementation-defined&gt;, const Hasher&amp; hf = hasher(), const key_equal&amp; eql = key_equal(), const allocator_type&amp; a = allocator_type()) </span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e34 "><p>C++11 からサポート。<samp class="codeph">concurrent_unordered_set(<em>il</em>.begin(), <em>il</em>.end(), <em>n</em>, <em>hf</em>, <em>eql</em>, <em>a</em>)</samp> と等価です。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e32 "><span class="keyword">concurrent_unorderd_set(concurrent_unorderd_set&amp;&amp; m) </span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e34 "><p>C++11 からサポート。<em>m</em> のコンテンツを移動することにより新しいテーブルを構築します。<em>m</em> は無指定の状態のままですが、安全に破棄することができます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e32 "><span class="keyword">concurrent_unorderd_set(concurrent_unorderd_set&amp;&amp; m, const Alloc&amp; a) </span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e34 "><p>C++11 からサポート。指定されたアロケーターを使用して <em>m</em> のコンテンツを移動することにより新しいテーブルを構築します。<em>m</em> は無指定の状態のままですが、安全に破棄することができます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e32 "><span class="keyword">~concurrent_unordered_set()</span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e34 "><p>セットを破棄します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e32 "><span class="keyword">concurrent_unordered_set&amp; operator=(const concurrent_unordered_set&amp; m); </span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e34 "><p><samp class="codeph">m</samp> のコンテンツを <samp class="codeph">*this</samp> に代入します。</p>
+<p><strong>戻り値</strong>: 計算後の <samp class="codeph">*this</samp> への参照。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e32 "><span class="keyword">concurrent_unordered_set&amp; operator=(concurrent_unordered_set&amp;&amp; m); </span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e34 "><p>C++11 からサポート。<samp class="codeph">m</samp> から <samp class="codeph">*<em>this</em></samp> にデータを移動します。<em>m</em> は無指定の状態のままですが、安全に破棄することができます。</p>
+<p><strong>戻り値</strong>: 計算後の <samp class="codeph">*this</samp> への参照。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e32 "><span class="keyword">concurrent_unordered_set&amp; operator=(std::initializer_list&lt;value_type&gt; il); </span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e34 "><p>C++11 からサポート。<samp class="codeph">il</samp> のコンテンツを <samp class="codeph">*this</samp> に代入します。</p>
+<p><strong>戻り値</strong>: 計算後の <samp class="codeph">*this</samp> への参照。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e32 "><span class="keyword">allocator_type get_allocator() const;</span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e34 "><p><samp class="codeph">*this</samp> に関連付けられているアロケーターのコピーを返します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle"><samp class="codeph">concurrent_unordered_multiset</samp></h2>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><thead align="left"><tr><th class="cellrowborder" valign="top" width="50%" id="d36420e250">メンバー</th>
+<th class="cellrowborder" valign="top" width="50%" id="d36420e252">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e250 "><span class="keyword">explicit concurrent_unordered_multiset(size_type n = &lt;implementation-defined&gt;, const hasher&amp; hf = hasher(), const key_equal&amp; eql = key_equal(), const allocator_type&amp; a = allocator_type()) </span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e252 "><p><samp class="codeph">n</samp> バケットのテーブルを構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e250 "><span class="keyword">template &lt;typename InputIterator&gt; concurrent_unordered_multiset (InputIterator first, InputIterator last, size_type n = &lt;implementation-defined&gt;, const hasher&amp; hf = hasher(), const key_equal&amp; eql = key_equal(), const allocator_type&amp; a = allocator_type()) </span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e252 "><p><samp class="codeph">value_type(*<em>i</em>)</samp> で初期化された <samp class="codeph">n</samp> バケットのテーブルを構築します。ここで、<samp class="codeph"><em>i</em></samp> は半開区間 [<samp class="codeph"><em>first,last</em></samp>) です。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e250 "><span class="keyword">concurrent_unordered_multiset(const unordered_multiset&amp; m) </span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e252 "><p>セット <samp class="codeph"><em>m</em></samp> のコピーを構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e250 "><span class="keyword">explicit concurrent_unordered_multiset(const Alloc&amp;a)</span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e252 "><p>アロケーター <em>a</em> を使用して空のセットを構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e250 "><span class="keyword">concurrent_unordered_multiset(const unordered_multiset&amp;, const Alloc&amp; a) </span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e252 "><p>アロケーター <samp class="codeph"><em>a</em></samp> を使用してセット <em>m</em> のコピーを構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e250 "><span class="keyword">concurrent_unordered_multiset(std::initializer_list&lt;value_type&gt; il, size_type n = &lt;implementation-defined&gt;, const Hasher&amp; hf = hasher(), const key_equal&amp; eql = key_equal(), const allocator_type&amp; a = allocator_type()) </span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e252 "><p>C++11 からサポート。<samp class="codeph">concurrent_unordered_multiset(<em>il</em>.begin(), <em>il</em>.end(), <em>n</em>, <em>hf</em>, <em>eql</em>, <em>a</em>)</samp> と等価です。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e250 "><span class="keyword">concurrent_unorderd_multiset(concurrent_unorderd_multiset&amp;&amp; m) </span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e252 "><p>C++11 からサポート。<em>m</em> のコンテンツを移動することにより新しいテーブルを構築します。<em>m</em> は無指定の状態のままですが、安全に破棄することができます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e250 "><span class="keyword">concurrent_unorderd_multiset(concurrent_unorderd_multiset&amp;&amp; m, const Alloc&amp; a) </span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e252 "><p>C++11 からサポート。指定されたアロケーターを使用して <em>m</em> のコンテンツを移動することにより新しいテーブルを構築します。<em>m</em> は無指定の状態のままですが、安全に破棄することができます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e250 "><span class="keyword">~concurrent_unordered_multiset()</span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e252 "><p>セットを破棄します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e250 "><span class="keyword">concurrent_unordered_multiset&amp; operator=( const concurrent_unordered_multiset&amp; m); </span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e252 "><p><samp class="codeph">m</samp> のコンテンツを <samp class="codeph">*this</samp> に代入します。</p>
+<p><strong>戻り値</strong>: 計算後の <samp class="codeph">*this</samp> への参照。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e250 "><span class="keyword">concurrent_unordered_multiset&amp; operator=( concurrent_unordered_multiset&amp;&amp; m); </span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e252 "><p>C++11 からサポート。<samp class="codeph">m</samp> から <samp class="codeph">*<em>this</em></samp> にデータを移動します。<em>m</em> は無指定の状態のままですが、安全に破棄することができます。</p>
+<p><strong>戻り値</strong>: 計算後の <samp class="codeph">*this</samp> への参照。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e250 "><span class="keyword">concurrent_unordered_multiset&amp; operator=(std::initializer_list&lt;value_type&gt; il); </span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e252 "><p>C++11 からサポート。<samp class="codeph">il</samp> のコンテンツを <samp class="codeph">*this</samp> に代入します。</p>
+<p><strong>戻り値</strong>: 計算後の <samp class="codeph">*this</samp> への参照。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="50%" headers="d36420e250 "><span class="keyword">allocator_type get_allocator() const;</span></td>
+<td class="cellrowborder" valign="top" width="50%" headers="d36420e252 "><p><samp class="codeph">*this</samp> に関連付けられているアロケーターのコピーを返します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/containers_overview/concurrent_unordered_set_cls.html">concurrent_unordered_set テンプレート・クラスと concurrent_unordered_multiset テンプレート・クラス</a></div>
+</div>
+<div/>
+</body>
+</html>

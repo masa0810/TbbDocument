@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="帯域幅とキャッシュ・アフィニティー"/>
+<meta name="DC.subject" content="帯域幅とキャッシュ・アフィニティー"/>
+<meta name="keywords" content="帯域幅とキャッシュ・アフィニティー"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/parallel_for.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Bandwidth_and_Cache_Affinity"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>帯域幅とキャッシュ・アフィニティー</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Bandwidth_and_Cache_Affinity">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">帯域幅とキャッシュ・アフィニティー</h1>
+<div><p>単純な関数 <samp class="codeph">Foo</samp> では、並列ループで記述された場合に大幅な速度向上が見込めません。原因は、プロセッサーとメモリー間のシステム帯域幅が不十分なためです。この場合、キャッシュを活用することを考えてアルゴリズムを検討する必要があります。キャッシュの利用を考慮した構造の見直しは、シリアルプログラムはもちろん、並列プログラムでも有益です。</p>
+<p>一部のケースでは作業を再構成する代わりに <samp class="codeph">affinity_partitioner</samp> を使用します。このパーティショナーは、粒度を自動的に選択するだけでなく、キャッシュ・アフィニティーを最適化して、スレッド間のデータを均等に分散しようとします。<samp class="codeph">affinity_partitioner</samp> を使用すると、次の場合にパフォーマンスを大幅に向上できます。</p>
+<ul><li><p>計算でデータアクセスごとにいくつかの操作を行う場合。</p>
+</li>
+<li><p>ループによって処理されたデータがキャッシュに配置される場合。</p>
+</li>
+<li><p>ループまたは同様のループが同じデータに対して再実行される場合。</p>
+</li>
+<li><p>2 つ以上のハードウェア・スレッドが利用できる (特にスレッド数が 2 の累乗でない場合)。2 スレッドのみ利用可能な場合、インテル&reg; TBB のデフォルトのスケジュールで、十分なキャッシュ・アフィニティーが通常提供されます。</p>
+</li>
+</ul>
+<p>次のコードは、<samp class="codeph">affinity_partitioner</samp> の使用方法を示しています。</p>
+<pre>#include "tbb/tbb.h"
+ 
+void ParallelApplyFoo( float a[], size_t n ) {
+    static affinity_partitioner ap;
+    parallel_for(blocked_range&lt;size_t&gt;(0,n), ApplyFoo(a), ap);
+}
+ 
+void TimeStepFoo( float a[], size_t n, int steps ) {    
+    for( int t=0; t&lt;steps; ++t )
+        ParallelApplyFoo( a, n );
+}</pre><p>サンプルで、<samp class="codeph">affinity_partitioner</samp> オブジェクト <samp class="codeph">ap</samp> はループの反復間で生存します。ループの反復がどこで実行されたかを記憶しているため、以前実行した同じスレッドに反復を渡すことができます。サンプルコードでは、<samp class="codeph">affinity_partitioner</samp> をローカル・スタティック・オブジェクトとして宣言することにより、パーティショナーの寿命を取得しています。別のアプローチは、<samp class="codeph">TimeStepFoo</samp> の反復ループの外でアフィニティーを宣言して、<samp class="codeph">parallel_for</samp> に渡す方法です。 
+	 </p>
+<p>データがシステムのキャッシュに格納できない場合、利点はほとんどありません。次の図は、この状況を示しています。</p>
+<div class="fignone" id="fig3"><span class="figcap">データセットとキャッシュの相対サイズにより決定されたアフィニティーの利点</span><br/><img src="Images/image007.jpg" width="453" height="178"/><br/></div>
+<p>次の図は、並列処理の高速化がデータセットのサイズに応じてどのように変化するかを示しています。サンプルの計算は、<samp class="codeph">A[i]+=B[i]</samp> で、<samp class="codeph">i</samp> の範囲は [0,N) です。この条件は、大きな変化を示すために選択されたものです。通常のコードではこのように大きな変化は起こりません。グラフの両端はあまり高速化されていません。N が小さい場合、並列スケジュールのオーバーヘッドが大きくなるため、あまり高速化されません。N が大きい場合、データセットが大きくなるため、ループ間でキャッシュに格納して処理できません。中間のピークがアフィニティーのスイートスポットです。したがって、メモリーアクセスに対する計算の比率が低い場合は、<samp class="codeph">affinity_partitioner</samp> を万能薬ではなく単なるツールと考えるべきです。</p>
+<div class="fignone" id="fig4"><span class="figcap">アフィニティーによる向上は配列サイズに依存</span><br/><img src="Images/image008.jpg" width="551" height="192"/><br/></div>
+<p>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><thead align="left"><tr><th class="cellrowborder" align="left" valign="top" width="100%" id="d92641e95"><p>最適化に関する注意事項</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="bgcolor(#ccecff)" bgcolor="#ccecff" valign="top" width="100%" headers="d92641e95 ">インテル&reg; コンパイラーでは、インテル&reg; マイクロプロセッサーに限定されない最適化に関して、他社製マイクロプロセッサー用に同等の最適化を行えないことがあります。これには、インテル&reg; ストリーミング SIMD 拡張命令 2、インテル&reg; ストリーミング SIMD 拡張命令 3、インテル&reg; ストリーミング SIMD 拡張命令 3 補足命令などの最適化が該当します。インテルは、他社製マイクロプロセッサーに関して、いかなる最適化の利用、機能、または効果も保証いたしません。本製品のマイクロプロセッサー依存の最適化は、インテル&reg; マイクロプロセッサーでの使用を前提としています。インテル&reg; マイクロアーキテクチャーに限定されない最適化のなかにも、インテル&reg; マイクロプロセッサー用のものがあります。この注意事項で言及した命令セットの詳細については、該当する製品のユーザー・リファレンス・ガイドを参照してください。<p>注意事項の改訂 #20110804</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/parallel_for.html">parallel_for</a></div>
+</div>
+<div/>
+</body>
+</html>

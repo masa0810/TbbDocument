@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="フローグラフの基本: ノード"/>
+<meta name="DC.subject" content="フローグラフの概念, ノード"/>
+<meta name="keywords" content="フローグラフの概念, ノード"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Basic_Flow_Graph_concepts.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_scheduler.html#task_scheduler"/>
+<meta name="DC.Relation" scheme="URI" content="Edges.html#Edges"/>
+<meta name="DC.Relation" scheme="URI" content="Graph_Object.html#Graph_Object"/>
+<meta name="DC.Relation" scheme="URI" content="Mapping_Nodes2Tasks.html#Mapping_Nodes2Tasks"/>
+<meta name="DC.Relation" scheme="URI" content="Predifined_Node_Types.html#predefined_node_types"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="Nodes"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>フローグラフの基本: ノード</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="Nodes">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">フローグラフの基本: ノード</h1>
+<div><p>ノードは <span class="keyword">tbb::flow::graph_node</span> から継承するクラスで、通常は <span class="keyword">tbb::flow::sender&lt;T&gt;</span>、<span class="keyword">tbb::flow::receiver&lt;T&gt;</span>、あるいは両方から継承します。ノードは通常、着信メッセージで操作を行い、0 以上の出力メッセージを生成します。2 つ以上の入力メッセージを要求したり、2 つ以上の出力メッセージを生成するノードもあります。</p>
+<p><span class="keyword">graph_node</span>、<span class="keyword">sender</span>、および <span class="keyword">receiver</span> から継承して独自のノードタイプを定義することは可能ですが、一般的には事前定義ノードタイプを使用してグラフを構築します。事前定義ノードのリストは、下記の<strong>関連情報</strong>セクションを参照してください。</p>
+<p><span class="keyword">function_node</span> は <span class="keyword">flow_graph.h</span> に含まれている事前定義タイプで、1 つの入力と 1 つの出力の単純な関数を表します。<span class="keyword">function_node</span> のコンストラクターには、3 つの引数を指定します。</p>
+<pre>template&lt; typename <em>Body</em>&gt; function_node(graph &amp;<em>g</em>, size_t <em>concurrency</em>, Body <em>body</em>)</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><thead align="left"><tr><th class="cellrowborder" valign="top" width="22.727272727272727%" id="d104767e76">引数</th>
+<th class="cellrowborder" valign="top" width="77.27272727272727%" id="d104767e78">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="22.727272727272727%" headers="d104767e76 "><span class="keyword">Body </span></td>
+<td class="cellrowborder" valign="top" width="77.27272727272727%" headers="d104767e78 "><p>ボディー・オブジェクトの種類</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="22.727272727272727%" headers="d104767e76 "><span class="keyword">g</span></td>
+<td class="cellrowborder" valign="top" width="77.27272727272727%" headers="d104767e78 "><p>ノードが属するグラフ</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="22.727272727272727%" headers="d104767e76 "><span class="keyword">concurrency</span></td>
+<td class="cellrowborder" valign="top" width="77.27272727272727%" headers="d104767e78 "><p>ノードの同時実行数の制限。ノードを同時に実行できる数を 1 (シリアル) から unlimited (無制限) まで制御できます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="22.727272727272727%" headers="d104767e76 "><span class="keyword">body</span></td>
+<td class="cellrowborder" valign="top" width="77.27272727272727%" headers="d104767e78 "><p>ユーザーは、着信メッセージに適用する関数オブジェクトまたはラムダ式を定義して送信メッセージを生成します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>次のコードは、1 つの <span class="keyword">function_node</span> を含む単純なグラフを作成します。この例では、グラフ <span class="keyword">g</span> に属するノード <span class="keyword">n</span> を構築しています。第 2 引数は 1 であるため、ノードの同時実行数は 1 です。ボディーは、受け取った値 <span class="keyword">v</span> を出力し、<span class="keyword">v</span> 秒間スピンして、値を再度出力した後、<span class="keyword">v</span> を変更しないで返すラムダ式です。<span class="keyword">spin_for</span> 関数のコードは提供されていません。</p>
+<pre>    graph g;
+    function_node&lt; int, int &gt; n( g, 1, []( int v ) -&gt; int { 
+        cout &lt;&lt; v;
+        spin_for( v );
+        cout &lt;&lt; v;
+        return v;
+    } );
+</pre><p>上記の例でノードを構築した後、エッジを介してほかのノードに接続するか、<span class="keyword">try_put</span> 関数を呼び出して、ノードにメッセージを渡すことができます。エッジの使用方法は、次のセクションで説明します。
+		
+	 </p>
+<pre>    n.try_put( 1 );
+    n.try_put( 2 );
+    n.try_put( 3 );
+</pre><p>次に、グラフ・オブジェクトで <span class="keyword">wait_for_all</span> を呼び出し、メッセージが処理されるのを待ちます。 
+	 </p>
+<pre>    g.wait_for_all(); </pre><p>上記のコード例で、<span class="keyword">function_node n</span> は同時実行数を 1 に制限して作成されています。メッセージシーケンス 1、2、3 を受け取ると、ノード <span class="keyword">n</span> は最初に入力 1 のボディーに適用するタスクをスポーンします。そのタスクが完了すると、ノードは入力 2 のボディーに適用する別のタスクをスポーンします。同様に、ノードは、2 番目のタスクが完了するのを待機してから、入力 3 のボディーに適用する 3 番目のタスクをスポーンします。タスクがスポーンされるまで、<span class="keyword">try_put</span> の呼び出しはブロックされません。ノードがメッセージを処理するタスクを直ちにスポーンできない場合、メッセージはノードにバッファーされます。有効な場合、同時実行数に基づいて、次にバッファーされたメッセージを処理するタスクがスポーンされます。 
+	 </p>
+<p>上記のグラフでは、各メッセージが順番に処理されます。しかし、異なる同時実行数でノードを構築して、並列処理を行うこともできます。</p>
+<pre>    function_node&lt; int, int &gt; n( g, tbb::flow::unlimited, []( int v ) -&gt; int { 
+        cout &lt;&lt; v;
+        spin_for( v );
+        cout &lt;&lt; v;
+        return v;
+    } );
+</pre><p>同時実行数として <span class="keyword">unlimited</span> を使用すると、ほかのタスクがスポーンした数に関係なく、メッセージを受け取るとすぐにタスクをスポーンするようにライブラリーに指示できます。同時実行数に 4 や 8 などの特定の値を使用して、同時に実行できる数を指定することもできます。タスクのスポーンはスレッドの作成を意味しないことに注意してください。そのため、グラフが多くのタスクをスポーンする場合でも、ライブラリーのスレッドプールで利用可能なスレッド数のみ、これらのタスクを実行するのに使用されます。 
+	 </p>
+<p><span class="keyword">function_node</span> コンストラクターで <span class="keyword">unlimited</span> を使用し、ノードで <span class="keyword">try_put</span> を呼び出す例を考えてみます。</p>
+<pre>    n.try_put( 1 );
+    n.try_put( 2 );
+    n.try_put( 3 );
+    g.wait_for_all(); 
+</pre><p>ライブラリーは 3 つのタスクをスポーンし、各タスクは <span class="keyword">n</span> のラムダ式をメッセージの 1 つに適用します。システムで十分な数のスレッドを利用可能な場合、3 つのボディーの呼び出しは並列に行われます。しかし、システムで 1 つのスレッドしか利用できない場合、順番に実行されます。 
+	 </p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Basic_Flow_Graph_concepts.html">基本的なフローグラフの概念</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../reference/task_scheduler.html#task_scheduler">タスク・スケジューラー</a></div>
+<div><a href="Edges.html#Edges">エッジ</a></div>
+<div><a href="Graph_Object.html#Graph_Object">グラフ・オブジェクト</a></div>
+<div><a href="Mapping_Nodes2Tasks.html#Mapping_Nodes2Tasks">タスクへのノードのマッピング</a></div>
+<div><a href="Predifined_Node_Types.html#predefined_node_types">事前定義ノードタイプ</a></div></div></div>
+</body>
+</html>

@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="HashCompare の詳細"/>
+<meta name="DC.subject" content="HashCompare の詳細"/>
+<meta name="keywords" content="HashCompare の詳細"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/concurrent_hash_map.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_More_on_HashCompare"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>HashCompare の詳細</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_More_on_HashCompare">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">HashCompare の詳細</h1>
+<div><p><samp class="codeph">concurrent_hash_map</samp> の <samp class="codeph"><var>HashCompare</var></samp> 引数を独自の型で動作するようにする方法はいくつかあります。</p>
+<ul><li><p><samp class="codeph"><var>HashCompare</var></samp> 引数を明示的に指定します。</p>
+</li>
+<li><p><samp class="codeph">tbb_hash_compare&lt;<var>Key</var>&gt;</samp> を <samp class="codeph"><var>HashCompare</var></samp> のデフォルトにして、次のいずれかの操作を行います。</p>
+<ul><li><p><samp class="codeph">tbb_hash_compare&lt;<var>Key</var>&gt;</samp> テンプレートの特殊化を定義します。</p>
+</li>
+<li><p><samp class="codeph">tbb_hasher(<var>Key</var>)</samp> 関数のオーバーロードを定義します。</p>
+</li>
+<li><p>ライブラリーによって提供される <samp class="codeph">tbb_hasher(<var>Key</var>)</samp> の定義に依存します。</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><samp class="codeph">tbb_hasher</samp> 関数は、次の型向けに事前に定義されています。</p>
+<ul><li><p><samp class="codeph">size_t</samp> に変換可能な型 (整数型など)。</p>
+</li>
+<li><p>ポインター型。</p>
+</li>
+<li><p><samp class="codeph">std::basic_string</samp> のインスタンス。</p>
+</li>
+<li><p><samp class="codeph">std::pair&lt;<var>Key1</var>,<var>Key2</var>&gt;</samp>,(<samp class="codeph">tbb_hasher(<var>Key</var>)</samp> および <samp class="codeph">tbb_hasher(<var>Key2</var>)</samp> が定義される)。</p>
+</li>
+</ul>
+<p>例えば、<samp class="codeph">Foo</samp> 型のキーがあり、<samp class="codeph">operator==</samp> が <samp class="codeph">Foo</samp> 用に定義されている場合、<samp class="codeph">tbb_hasher</samp> を次のように定義します。</p>
+<pre>size_t tbb_hasher(const Foo&amp; f) {
+    size_t h = ... size_t h = ...f のハッシュコードを計算 ...
+    return h;
+};</pre><p>一般に、<samp class="codeph">tbb_hash_compare&lt;<var>Key</var>&gt;</samp> または <samp class="codeph"><var>HashCompare</var></samp> の定義は 2 つの署名を提供します。</p>
+<ul><li><p><samp class="codeph"><var>Key</var></samp> を <samp class="codeph">size_t</samp> にマップする <samp class="codeph">hash</samp> メソッド</p>
+</li>
+<li><p>2 つのキーが等しいかどうかを判断する <samp class="codeph">equal</samp> メソッド</p>
+</li>
+</ul>
+<p>2 つのキーが等しい場合、同じ値にハッシュしなければならないため、署名は自然に単一クラスになります。そうしないと、ハッシュテーブルは動作しません。常に <samp class="codeph">0</samp> にハッシュすれば当然この要件を満たすことができますが、非常に効率が悪くなります。各キーが異なる値にハッシュされるのが理想的です。少なくとも、2 つの別のキーが同じ値にハッシュされる可能性を低くしておく必要があります。</p>
+<p>異なるインスタンスで異なる動作が必要でなければ、<em><samp class="codeph"><em>HashCompare</em></samp></em> のメソッドは <samp class="codeph">static</samp> です。この場合、<em><samp class="codeph"><em>HashCompare</em></samp></em> を引数とするコンストラクターを使用して <samp class="codeph">concurrent_hash_map</samp> を構築します。次のサンプルは、インスタンス依存のメソッドを使用した以前のサンプルのバリエーションです。インスタンスは、内部フラグ <samp class="codeph">ignore_case</samp> に基づいて、大文字/小文字を区別するハッシュまたは区別しないハッシュを行い、比較します。</p>
+<pre>// ユーザー定義型を扱うハッシュと比較操作を定義する構造体
+class VariantHashCompare {
+    // true の場合、文字列の大文字/小文字は無視される
+    bool ignore_case;
+public:
+    size_t hash(const string&amp; x) const {
+        size_t h = 0;
+        for(const char* s = x.c_str(); *s; s++) 
+            h = (h*16777179)^*(ignore_case?tolower(*s):*s);
+        return h;
+    }
+    // 文字列が等しい場合は true
+    bool equal(const string&amp; x, const string&amp; y) const {
+        if( ignore_case )
+            strcasecmp(x.c_str(), y.c_str())==0;
+        else
+            return x==y;
+    }
+    VariantHashCompare(bool ignore_case_) : ignore_case(ignore_case_) {}
+};
+ 
+typedef concurrent_hash_map&lt;string,int, VariantHashCompare&gt; VariantStringTable;
+ 
+VariantStringTable CaseSensitiveTable(VariantHashCompare(false));
+VariantStringTable CaseInsensitiveTable(VariantHashCompare(true));</pre><p><samp class="codeph">examples/concurrent_hash_map/count_strings</samp> ディレクトリーには、<samp class="codeph">concurrent_hash_map</samp> を使用して複数のプロセッサーがヒストグラムを協調して構築できる完全なサンプルが含まれています。 </p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/concurrent_hash_map.html">concurrent_hash_map</a></div>
+</div>
+<div/>
+</body>
+</html>

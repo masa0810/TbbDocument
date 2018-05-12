@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="parallel_for"/>
+<meta name="DC.subject" content="parallel_for"/>
+<meta name="keywords" content="parallel_for"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Parallelizing_Simple_Loops.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Lambda_Expressions.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Automatic_Chunking.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Controlling_Chunking.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Bandwidth_and_Cache_Affinity.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Partitioner_Summary.html"/>
+<meta name="DC.Relation" scheme="URI" content="Advanced_Topic_Other_Kinds_of_Iteration_Spaces.html#tutorial_Advanced_Topic_Other_Kinds_of_Iteration_Spaces"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_parallel_for"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>parallel_for</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_parallel_for">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">parallel_for</h1>
+<div><p>関数 <samp class="codeph">Foo</samp> を配列の各要素に適用させ、各要素を同時に処理しても安全だと仮定します。シーケンシャル・コードは次のようになります。</p>
+<pre>void SerialApplyFoo( float a[], size_t n ) {
+    for( size_t i=0; i!=n; ++i )
+        Foo(a[i]);
+}</pre><p>ここでの反復空間は、<samp class="codeph">size_t</samp> 型で、範囲は <samp class="codeph">0</samp> から <samp class="codeph">n-1</samp> までです。テンプレート関数 <span class="option">tbb::parallel_for</span> は、反復空間をチャンクに分け、個別のスレッドで各チャンクを実行します。このループの並列化における最初のステップは、ループボディーをチャンクで動作するような形式に変換することです。この形式は、標準テンプレート・ライブラリー (STL) スタイルの「ボディー」と呼ばれる関数オブジェクトで、<samp class="codeph">operator()</samp> がチャンクを処理します。次のコードは、ボディー・オブジェクトを宣言します。インテル&reg; TBB に必要なコードは、<samp class="codeph"><span class="color(blue)" style="color:blue"><strong>太字</strong></span></samp>で示されています。 
+	 </p>
+<pre><span class="color(blue)" style="color:blue"><strong>#include "tbb/tbb.h</strong>"</span>
+ 
+<span class="color(blue)" style="color:blue"><strong>using namespace tbb;</strong></span>
+ 
+<span class="color(blue)" style="color:blue"><strong>class ApplyFoo {</strong></span>
+    <span class="color(blue)" style="color:blue"><strong>float *const my_a;</strong></span>
+<span class="color(blue)" style="color:blue"><strong>public:</strong></span>
+    <span class="color(blue)" style="color:blue"><strong>void operator()( const blocked_range&lt;size_t&gt;&amp; r ) const {</strong></span>
+        <span class="color(blue)" style="color:blue"><strong>float *a = my_a;</strong></span>
+        for( size_t i=r.begin(); i!=r.end(); ++i ) 
+           Foo(a[i]);
+    <span class="color(blue)" style="color:blue"><strong>}</strong></span>
+    <span class="color(blue)" style="color:blue"><strong>ApplyFoo( float a[] ) :</strong></span>
+        <span class="color(blue)" style="color:blue"><strong>my_a(a)</strong></span>
+    <span class="color(blue)" style="color:blue"><strong>{}</strong></span>
+<span class="color(blue)" style="color:blue"><strong>};</strong></span></pre><p>サンプルの <samp class="codeph">using</samp> 宣言子は、各識別子の前に名前空間のプリフィクス <samp class="codeph">tbb</samp> を付けなくてもライブラリー識別子を使用できるようにします。サンプルの残りの部分は、<samp class="codeph">using</samp> 宣言子が存在していると仮定しています。</p>
+<p><samp class="codeph">operator()</samp> の引数に注目してください。<samp class="codeph">blocked_range&lt;T&gt;</samp> は、ライブラリーによって提供されるテンプレート・クラスで、型 <samp class="codeph">T</samp> の 1 次元の反復空間を示します。<samp class="codeph">parallel_for</samp> クラスは、別の反復空間とも動作します。ライブラリーは、2 次元空間用に <samp class="codeph">blocked_range2d</samp> を提供します。<strong>「高度なトピック: 異なる種類の反復空間」</strong>で説明されているように独自の空間を定義することもできます。</p>
+<p><samp class="codeph">ApplyFoo</samp> のインスタンスでは、オリジナルのループの外で定義されるがループ内で使用される、すべてのローカル変数を認識するメンバーフィールドが必要です。通常、ボディー・オブジェクトのコンストラクターはこれらのフィールドを初期化しますが、<samp class="codeph">parallel_for</samp> は、ボディー・オブジェクトが作成される方法は問いません。テンプレート関数 <samp class="codeph">parallel_for</samp> では、ボディー・オブジェクトに、各ワーカースレッドの個別のコピー (または複数のコピー) を作成するために起動されるコピー・コンストラクターが必要です。また、コピー・コンストラクターはこれらのコピーを破棄するデストラクターも起動します。ほとんどの場合、暗黙的に生成されたコピー・コンストラクターとデストラクターは正常に動作します。正常に動作しない場合は、<strong>両方</strong>に一貫性がない場合がほとんどです。</p>
+<p>ボディー・オブジェクトはコピーされることがあるため、その <samp class="codeph">operator()</samp> ではボディーの変更はできません。変更された場合は、<samp class="codeph">operator()</samp> がオリジナルとコピーのどちらで動作するかによって、<samp class="codeph">parallel_for</samp> を起動するスレッドに対する可視性が変わります。この場合の注意点は、<samp class="codeph">parallel_for</samp> がボディー・オブジェクトの <samp class="codeph">operator()</samp> を <samp class="codeph">const</samp> として宣言する必要があることです。</p>
+<p>サンプルの <samp class="codeph">operator()</samp> は、<samp class="codeph">my_a</samp> をローカル変数の <samp class="codeph">a</samp> にロードします。この必須ではない処理を行う理由は 2 つあります。</p>
+<ul><li><p><strong>スタイル</strong>。ループボディーをよりオリジナルに近付けます。</p>
+</li>
+<li><p><strong>パフォーマンス</strong>。ローカル変数はコンパイラーにより追跡されやすいため、頻繁にアクセスされる値をローカル変数に置くことで、コンパイラーはループをより効果的に最適化できます。</p>
+</li>
+</ul>
+<p>ループボディーをボディー・オブジェクトとして記述すると、次のようにテンプレート関数 <samp class="codeph">parallel_for</samp> を起動できます。</p>
+<pre>#include "tbb/tbb.h"
+ 
+void ParallelApplyFoo( float a[], size_t n ) {
+    parallel_for(blocked_range&lt;size_t&gt;(0,n), ApplyFoo(a));
+}</pre><p>ここで構築されている <samp class="codeph">blocked_range</samp> は、0 から n-1 までの反復空間全体を表し、<samp class="codeph">parallel_for</samp> は、各プロセッサーにサブ空間を分割します。
+		コンストラクターの一般的な形式は、<samp class="codeph">blocked_range&lt;T&gt;(<em>begin</em>,<em>end</em>,<em>grainsize</em>)</samp> です。
+		<var>T</var> は、値の型を指定します。引数 <var>begin</var> と <em><samp class="codeph"><em>end</em></samp></em> は、反復空間を半開区間 [<samp class="codeph"><em>begin</em></samp>,<var>end</var>) として STL スタイルで指定します。引数 <em>grainsize</em> の説明は、<strong>「チャンクの制御」</strong>を参照してください。デフォルトの <samp class="codeph">parallel_for</samp> はデフォルトの粒度で適切に動作するヒューリスティックを適用するため、サンプルではデフォルトの粒度 1 を使用しています。 
+	 </p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Parallelizing_Simple_Loops.html">単純なループの並列化</a></div>
+</div>
+<div class="See Also">
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../tbb_userguide/Lambda_Expressions.html">ラムダ式</a><br/>
+</li>
+<li class="ulchildlink"><a href="../tbb_userguide/Automatic_Chunking.html">自動チャンク</a><br/>
+</li>
+<li class="ulchildlink"><a href="../tbb_userguide/Controlling_Chunking.html">チャンクの制御</a><br/>
+</li>
+<li class="ulchildlink"><a href="../tbb_userguide/Bandwidth_and_Cache_Affinity.html">帯域幅とキャッシュ・アフィニティー</a><br/>
+</li>
+<li class="ulchildlink"><a href="../tbb_userguide/Partitioner_Summary.html">パーティショナーのまとめ</a><br/>
+</li>
+</ul>
+<h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Advanced_Topic_Other_Kinds_of_Iteration_Spaces.html#tutorial_Advanced_Topic_Other_Kinds_of_Iteration_Spaces">高度なトピック: 異なる種類の反復空間</a></div></div></div>
+</body>
+</html>

@@ -1,0 +1,243 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="join_node テンプレート・クラス"/>
+<meta name="DC.subject" content="join_node テンプレート・クラス"/>
+<meta name="keywords" content="join_node テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/flow_graph.html"/>
+<meta name="DC.Relation" scheme="URI" content="input_port_func.html#input_port_func"/>
+<meta name="DC.Relation" scheme="URI" content="message_passing_protocol.html"/>
+<meta name="DC.Relation" scheme="URI" content="sender_and_buffer_policy.html"/>
+<meta name="DC.Relation" scheme="URI" content="flow_tuple.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="join_node_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>join_node テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="join_node_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">join_node テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>入力ポートで受け取ったメッセージのセットから tuple&lt;T0,T1, ... &gt; を作成して、タプルをすべてのサクセサーにブロードキャストするノード。<span class="keyword">join_node</span> クラスは、入力ポートで 3 つのバッファーポリシー (<span class="keyword">reserving</span>、<span class="keyword">queueing</span>、<span class="keyword">key_matching</span>) をサポートします。デフォルトでは、<span class="keyword">join_node</span> の入力ポートは <span class="keyword">queueing</span> ポリシーを使用します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>
+struct queueing;
+struct reserving;
+template&lt;typename K, typename KHash=tbb_hash_compare&lt;K&gt; &gt; struct key_matching;
+typedef key_matching&lt;tag_value&gt; tag_matching;
+
+template&lt;typename OutputTuple, class JP = queueing&gt;
+class join_node;
+</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/flow_graph.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p>join_node は、<span class="keyword">graph_node</span> および <span class="keyword">sender&lt; flow::tuple&lt; T0, T1, ... &gt; &gt;</span> です。<span class="keyword">OutputTuple</span> の <span class="keyword">T0</span> .. <span class="keyword">TN</span> に対応する <span class="keyword">receiver&lt;Ti&gt;</span> である入力ポートのタプルが含まれます。異なる型の複数の入力レシーバーをサポートしており、受け取ったメッセージのタプルをすべてのサクセサーにブロードキャストします。<span class="keyword">join_node</span> の入力ポートはすべて、同じバッファーポリシーを使用しなければなりません。バッファーポリシーに基づく <span class="keyword">join_node</span> の動作は、下記の表に示されています。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl28" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">入力ポートのバッファーポリシーに基づく join_node の動作</span></caption><thead align="left"><tr><th class="cellrowborder" align="center" valign="top" width="25%" id="d54368e86"><p>バッファーポリシー</p>
+</th>
+<th class="cellrowborder" align="center" valign="top" width="75%" id="d54368e89"><p>動作</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="25%" headers="d54368e86 "><p>queueing</p>
+</td>
+<td class="cellrowborder" valign="top" width="75%" headers="d54368e89 "><p>各入力ポートで、着信メッセージがポートの無制限の FIFO (先入れ先出し) キューに追加されます。各入力ポートに少なくとも 1 つのメッセージがある場合、<span class="keyword">join_node</span> は各キューの先頭を含むタプルをすべてのサクセサーにブロードキャストします。少なくとも 1 つのサクセサーがタプルを受け付けた場合、各入力ポートのキューの先頭は削除されます。その他の場合、メッセージは各入力ポートのキューに残されます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="25%" headers="d54368e86 "><p>reserving</p>
+</td>
+<td class="cellrowborder" valign="top" width="75%" headers="d54368e89 "><p>各入力ポートで、<span class="keyword">join_node</span> は入力が利用可能であるとマークして <span class="keyword">false</span> を返します。すべてのポートが利用可能であるとマークされている場合、<span class="keyword">join_node</span> は既知のプレデセッサーから各ポートのメッセージを予約しようとします。あるポートでメッセージを予約できない場合は、そのポートのマークを解除して、以前取得した予約をすべて解除します。すべてのポートでメッセージを予約できる場合は、これらのメッセージを含むタプルをすべてのサクセサーにブロードキャストします。少なくとも 1 つのサクセサーがタプルを受け付けた場合、予約は消費されます。その他の場合、予約は解除されます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="25%" headers="d54368e86 "><p>key_matching&lt;typename K, class KHash=tbb_hash_compare&lt;K&gt; &gt;</p>
+</td>
+<td class="cellrowborder" valign="top" width="75%" headers="d54368e89 "><p>各入力ポートで、ユーザー定義関数オブジェクトがメッセージに適用され、キーが取得されます。次に、メッセージが各入力ポートのハッシュテーブルに追加されます。指定されたキーの各入力ポートにメッセージがある場合、<span class="keyword">join_node</span> はすべての一致するメッセージを入力ポートから削除し、一致するメッセージを含むタプルを構築して、すべてのサクセサーにブロードキャストします。タプルを受け付けるサクセサーがない場合、タプルは保存され、後続の try_get に転送されます。</p>
+<p>K が参照型 (int&amp; など) の場合、コンストラクターに提供される関数オブジェクトは、タプルの各型 Ti に対して次の型シグネチャーを持ちます。<pre>
+                                           const K' &amp;(const Ti&amp;)
+                                         </pre>(ここで K == K'&amp;)K が参照型でない場合、コンストラクターに提供される関数オブジェクトは、タプルの各型 Ti に対して次の型シグネチャーを持ちます。<pre>
+                                           K (const Ti&amp;)
+                                         </pre></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="25%" headers="d54368e86 "><p>tag_matching</p>
+</td>
+<td class="cellrowborder" valign="top" width="75%" headers="d54368e89 "><p>key_matching の特殊化。型 tag_value のキーを受け付けます。それ以外は、key_matching の動作と同じです。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><span class="keyword">join_node</span> のサクセサーがメッセージを拒否した場合、および入力ポートのプレデセッサーからのメッセージの取得に失敗した場合、メッセージ・パッシング・プロトコルを使用して処理されます。</p>
+<p><span class="keyword">input_port</span> テンプレート関数は、特定の入力ポートへの参照を取得するための構文を単純化します。</p>
+<p><span class="keyword">OutputTuple</span> は、各要素がコピー構築および代入可能な <span class="keyword">flow::tuple&lt;T0,T1, ... &gt;</span> でなければなりません。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><pre>#include&lt;cstdio&gt;
+#include "tbb/flow_graph.h"
+
+using namespace tbb::flow;
+
+int main() {
+   graph g;
+   function_node&lt;int,int&gt;
+       f1( g, unlimited, [](const int &amp;i) { return 2*i; } );
+   function_node&lt;float,float&gt;
+       f2( g, unlimited, [](const float &amp;f) { return f/2; } );
+
+   join_node&lt; tbb::flow::tuple&lt;int,float&gt; &gt; j(g);
+
+   function_node&lt; flow::tuple&lt;int,float&gt; &gt;
+       f3( g, unlimited,
+           []( const flow::tuple&lt;int,float&gt; &amp;t ) {
+               printf( "Result is %f\n",
+                       std::get&lt;0&gt;(t) + std::get&lt;1&gt;(t));
+           } );
+
+   make_edge( f1, input_port&lt;0&gt;( j ) );
+   make_edge( f2, input_port&lt;1&gt;( j ) );
+   make_edge( j, f3 );
+
+   f1.try_put( 3 );
+   f2.try_put( 3 );
+   g.wait_for_all( );
+   return 0;
+}</pre><p>上記のサンプルでは、3 つの <span class="keyword">function_node</span> オブジェクトが作成されます。<span class="keyword">f1</span> は <span class="keyword">int i</span> に 2 を掛けて、<span class="keyword">f2</span> は <span class="keyword">float f</span> を 2 で割って、<span class="keyword">f3</span> は <span class="keyword">flow::tuple&lt;int,float&gt; t</span> を受け取り、要素を互いに追加して結果を出力します。<span class="keyword">join_node j</span> は、<span class="keyword">f1</span> と <span class="keyword">f2</span> の出力を組み合わせて、生成されたタプルを <span class="keyword">f3</span> に送ります。このサンプルは構文を示すことを目的としているため、ノードでほとんど作業を行っていません。
+		</p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+namespace flow {
+
+struct reserving;
+struct queueing;
+template&lt;typename K, class KHash=tbb_hash_compare&lt;K&gt; &gt;
+struct key_matching;
+typedef key_matching&lt;tag_value&gt; tag_matching;
+
+template&lt;typename OutputTuple, class JP = queueing&gt;
+class join_node :
+    public graph_node, public sender&lt; OutputTuple &gt; {
+
+public:
+    typedef OutputTuple output_type;
+    typedef receiver&lt;output_type&gt; successor_type;
+    typedef <em>implementation-dependent-tuple</em> input_ports_type;
+
+    explicit join_node( graph &amp;g );
+    join_node( const join_node &amp;src );
+    input_ports_type &amp;input_ports( );
+    bool register_successor( successor_type &amp;r );
+    bool remove_successor( successor_type &amp;r );
+    bool try_get( output_type &amp;v );
+    bool try_reserve( output_type &amp;v );
+    bool try_release( );
+    bool try_consume( );
+
+};
+
+//
+// key_matching の特殊化
+//
+
+template&lt;typename OutputTuple, typename K, class KHash=tbb_hash_compare&lt;K&gt; &gt;
+class join_node&lt;OutputTuple, key_matching&lt;K,KHash&gt; &gt; :
+    public graph_node, public sender&lt; OutputTuple &gt; {
+
+public:
+
+    // 以前の join_node と同じメソッドで、
+    // key_matching 関数オブジェクトを指定する
+    // コンストラクターを持つ
+
+    template&lt;typename B0, typename B1&gt;
+    join_node( graph &amp;g, B0 b0, B1 b1 );
+
+    // 3 ～ 10 要素に対するコンストラクターも
+    // 同様に定義される ...
+};
+
+}
+}</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d54368e215">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d54368e217">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d54368e215 "><span class="keyword">explicit join_node( graph &amp;g )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d54368e217 "><span class="keyword">g</span> のルートタスクを使用してタスクをスポーンする <span class="keyword">join_node</span> を構築します。</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d54368e215 "><span class="keyword">template &lt; typename B0, typename B1, ... &gt; join_node( graph &amp;g, B0 b0, B1 b1, ... )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d54368e217 "><p><span class="keyword">join_node</span> の <span class="keyword">key_matching</span> の特殊化でのみ利用できるコンストラクター。</p>
+<p>関数オブジェクト <span class="keyword">b0</span>、<span class="keyword">b1</span>、...、<span class="keyword">bN</span> を使用して入力ポート 0 から N のタグを決定する <span class="keyword">join_node</span> を作成します。<span class="keyword">g</span> のルートタスクを使用してタスクをスポーンします。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>join_node コンストラクターに渡す関数オブジェクトは例外をスローしてはなりません。これらは並列に呼び出されます。純粋で、最短時間で、非ブロックでなければなりません。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d54368e215 "><span class="keyword">join_node( const join_node &amp;src )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d54368e217 "><p><span class="keyword">src</span> の構築時の状態と同じ初期状態で <span class="keyword">join_node</span> を構築します。プレデセッサーのリスト、入力ポートのメッセージ、サクセサーはコピーされません。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d54368e215 "><span class="keyword">input_ports_type &amp;input_ports( )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d54368e217 "><p><strong>戻り値</strong>: <span class="keyword">receiver</span> の <span class="keyword">flow::tuple</span>。各要素は <span class="keyword">tbb::receiver&lt;T&gt;</span> から継承されます。<span class="keyword">T</span> はその入力で想定されるメッセージの型です。各タプル要素は、<span class="keyword">flow::receiver&lt;T&gt;</span> と同じように使用できます。選択した <span class="keyword">join_node</span> ポリシーに基づくポートの動作は上記の表に示されています。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d54368e215 "><span class="keyword">bool register_successor( successor_type &amp;r )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d54368e217 "><p>サクセサーのセットに <span class="keyword">r</span> を追加します。</p>
+<p><strong>戻り値</strong>: <span class="keyword">true</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d54368e215 "><span class="keyword">bool remove_successor( successor_type &amp;r )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d54368e217 "><p>サクセサーのセットから <span class="keyword">r</span> を削除します。</p>
+<p><strong>戻り値</strong>: <span class="keyword">true</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d54368e215 "><span class="keyword">bool try_get( output_type &amp;v )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d54368e217 "><p><span class="keyword">join_node</span> のバッファーポリシーに基づいてタプルを生成しようとします。</p>
+<p><strong>戻り値</strong>: タプルの生成に成功した場合、生成したタプルを <span class="keyword">v</span> にコピーして <span class="keyword">true</span> を返します。その他の場合は <span class="keyword">false</span> を返します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d54368e215 "><span class="keyword">bool try_reserve( output_type &amp;v )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d54368e217 "><p>予約をサポートしません。</p>
+<p><strong>戻り値</strong>: <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d54368e215 "><span class="keyword">bool try_release( )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d54368e217 "><p>予約をサポートしません。</p>
+<p><strong>戻り値</strong>: <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d54368e215 "><span class="keyword">bool try_consume( )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d54368e217 "><p>予約をサポートしません。</p>
+<p><strong>戻り値</strong>: <span class="keyword">false</span>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d54368e215 "><span class="keyword">template&lt;size_t N, typename JNT&gt; typename flow::tuple_element&lt;N, typename JNT::input_ports_type&gt;::type &amp;input_port( JNT &amp;jn )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d54368e217 "><p><span class="keyword">input_port &lt;N&gt;( jn )</span> の呼び出しは <span class="keyword">std::get&lt;N&gt;( jn.input_ports() )</span> の呼び出しと等価です。</p>
+<p><strong>戻り値</strong>: <span class="keyword">join_node jn</span> の N 番目の入力ポート。<sup/></p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/flow_graph.html">フローグラフ</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="input_port_func.html#input_port_func">input_port テンプレート関数</a></div>
+<div><a href="message_passing_protocol.html">メッセージ・パッシング・プロトコル</a></div>
+<div><a href="sender_and_buffer_policy.html">転送、バッファー、受信ポリシー</a></div>
+<div><a href="flow_tuple.html">flow::tuple テンプレート・クラス</a></div></div></div>
+</body>
+</html>

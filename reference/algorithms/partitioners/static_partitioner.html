@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="static_partitioner クラス"/>
+<meta name="DC.subject" content="static_partitioner クラス"/>
+<meta name="keywords" content="static_partitioner クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/algorithms/partitioners.html"/>
+<meta name="DC.Relation" scheme="URI" content="../partitioners.html#partitioners"/>
+<meta name="DC.Relation" scheme="URI" content="../splittable_concept/proportional_split_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../range_concept.html#range_concept"/>
+<meta name="DC.Relation" scheme="URI" content="../../task_scheduler/task_scheduler_init_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../task_scheduler/task_arena_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="static_partitioner_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>static_partitioner クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="static_partitioner_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">static_partitioner クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>並列アルゴリズムが複数のスレッドにわたってワークを均等に分散し、ロード・バランシングを行わないように指定します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>
+#include "tbb/partitioner.h"
+      </pre></div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>class static_partitioner;</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">static_partitioner</samp> のアルゴリズムは、複数のスレッドにわたってワークをほぼ等しいサイズのサブ範囲で分散します。サブ範囲の数は、<samp class="codeph">task_scheduler_init</samp> および <samp class="codeph">task_arena</samp> クラスで指定される、タスク実行に参加できるスレッド数と同じです。これらのサブ範囲はこれ以上分割されません。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p><samp class="codeph">static_partitioner</samp> は、もともとワークのバランスがとれていた並列アルゴリズムのオーバーヘッドを小さくします。しかし、利用可能な並列処理も制限されます。また、ワークのバランスがとれていない場合、パフォーマンスは低下します。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>範囲の型が比例分割をサポートしない場合、または <samp class="codeph">grainsize</samp> の値がタスク実行に参加するスレッド数で分割された範囲のサイズよりも大きな値に設定された場合、サブ範囲サイズの規則性は保証されません。</p>
+</div>
+<p>また、<samp class="codeph">static_partitioner</samp> は、決定性のあるタスク・アフィニティー・パターンを使用して、サブ範囲をスレッドに割り当てる方法をタスク・スケジューラーに伝えます。その結果、<samp class="codeph">affinity_partitioner</samp> と同様にキャッシュの局所性が向上します。</p>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>以下の場合は <samp class="codeph">static_partitioner</samp> を使用することを推奨します。</p>
+<ul><li>ロード・バランシングが可能な、小さなバランスの取れたワークロードを並列化すると、パフォーマンスの利点よりもオーバーヘッドが大きくなる。</li>
+<li>複数のスレッドにわたって決定性のあるワークを分割することが重要な場合に、OpenMP* 並列ループを <samp class="codeph">schedule(static)</samp> でスケジュールする。</li>
+</ul>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>
+namespace tbb {
+    class static_partitioner {
+    public:
+        static_partitioner();
+        ~static_partitioner();
+    };
+}
+      </pre></div>
+<div class="section">
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このクラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d6709e93">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d6709e95">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d6709e93 "><span class="keyword">static_partitioner()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d6709e95 "><p><samp class="codeph">static_partitioner</samp> を構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d6709e93 "><span class="keyword">~static_partitioner()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d6709e95 "><p>この <samp class="codeph">static_partitioner</samp> を破棄します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/algorithms/partitioners.html">パーティショナー</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../partitioners.html#partitioners">パーティショナー</a></div>
+<div><a href="../splittable_concept/proportional_split_cls.html">proportional_split クラス</a></div>
+<div><a href="../range_concept.html#range_concept">Range コンセプト</a></div>
+<div><a href="../../task_scheduler/task_scheduler_init_cls.html">task_scheduler_init クラス</a></div>
+<div><a href="../../task_scheduler/task_arena_cls.html">task_arena クラス</a></div></div></div>
+</body>
+</html>

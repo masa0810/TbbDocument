@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="例外をスローするノード内部の例外のキャッチ"/>
+<meta name="DC.subject" content="フローグラフのヒント, 例外のキャッチ, 例外をスローするノード内部の例外のキャッチ"/>
+<meta name="keywords" content="フローグラフのヒント, 例外のキャッチ, 例外をスローするノード内部の例外のキャッチ"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Flow_Graph_exception_tips.html"/>
+<meta name="DC.Relation" scheme="URI" content="cancel_a_graph.html#cancel_a_graph"/>
+<meta name="DC.Relation" scheme="URI" content="use_graph_reset.html#use_graph_reset"/>
+<meta name="DC.Relation" scheme="URI" content="cancelling_nested_parallelism.html#cancelling_nested_parallelism"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="catching_exceptions"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>例外をスローするノード内部の例外のキャッチ</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="catching_exceptions">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">例外をスローするノード内部の例外のキャッチ</h1>
+<div><p>ノードのボディー内で例外をキャッチした場合、実行は通常継続されます。例外がスローされ、ノードのボディーの外に伝わる前にキャッチできなかった場合、グラフのノードのすべての実行はキャンセルされ、<span class="keyword">graph::wait_for_all()</span> の呼び出しで例外が再びスローされます。次に例を示します。</p>
+<pre>  graph g;
+
+  function_node&lt; int, int &gt; f1( g, 1, []( int i ) {  return i; } );
+
+  function_node&lt; int, int &gt; f2( g, 1, 
+      []( const int i ) -&gt; int {
+      throw i;
+      return i;
+  } );
+
+  function_node&lt; int, int &gt; f3( g, 1, []( int i ) {  return i; } );
+
+  make_edge( f1, f2 );
+  make_edge( f2, f3 );
+  f1.try_put(1);
+  f1.try_put(2);
+  g.wait_for_all();
+</pre><p>上記のコードで、2 番目の <span class="keyword">function_node</span>、<span class="keyword">f2</span> はボディー内でキャッチされない例外をスローします。そのため、グラフの実行はキャンセルされ、<span class="keyword">g.wait_for_all()</span> の呼び出しで例外が再びスローされます。この例外は処理されないため、プログラムは終了します。必要に応じて、例外をボディー内でキャッチして処理できます。 
+	 </p>
+<pre>  function_node&lt; int, int &gt; f2( g, 1, 
+      []( const int i ) -&gt; int {
+          try {
+              throw i;
+          } catch (int j) {
+              cout &lt;&lt; "Caught " &lt;&lt; j &lt;&lt; "\n";
+          }
+          return i;
+  } );
+</pre><p>例外がボディー内でキャッチされ処理されても、グラフの実行そのものに影響はありません。しかし、代わりに <span class="keyword">wait_for_all</span> の呼び出しで例外をキャッチすることもできます。 
+	 </p>
+<pre>  try {
+      g.wait_for_all();
+  } catch ( int j ) {
+      cout &lt;&lt; "Caught " &lt;&lt; j &lt;&lt; "\n";
+  }
+</pre><p>この場合、グラフの実行はキャンセルされます。例では、入力 <span class="keyword">1</span> が <span class="keyword">f3</span> に達しないで、入力 <span class="keyword">2</span> が <span class="keyword">f2</span> または <span class="keyword">f3</span> のいずれかに達しないことを意味します。 
+	 </p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Flow_Graph_exception_tips.html">例外処理とキャンセルにおけるフローグラフのヒント</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="cancel_a_graph.html#cancel_a_graph">グラフの明示的なキャンセル</a></div>
+<div><a href="use_graph_reset.html#use_graph_reset">graph::reset() によるキャンセル済みグラフのリセット</a></div>
+<div><a href="cancelling_nested_parallelism.html#cancelling_nested_parallelism">入れ子の並列処理のキャンセル</a></div></div></div>
+</body>
+</html>

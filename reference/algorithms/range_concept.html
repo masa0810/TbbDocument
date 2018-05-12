@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="Range コンセプト"/>
+<meta name="DC.subject" content="Range コンセプト"/>
+<meta name="keywords" content="Range コンセプト"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/algorithms.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/algorithms/range_concept/blocked_range_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/algorithms/range_concept/blocked_range2d_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/algorithms/range_concept/blocked_range3d_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="parallel_for_func.html#parallel_for_func"/>
+<meta name="DC.Relation" scheme="URI" content="parallel_reduce_func.html#parallel_reduce_func"/>
+<meta name="DC.Relation" scheme="URI" content="parallel_scan_func.html#parallel_scan_func"/>
+<meta name="DC.Relation" scheme="URI" content="../containers_overview/container_range_concept.html#container_range_concept"/>
+<meta name="DC.Relation" scheme="URI" content="splittable_concept/proportional_split_cls.html#proportional_split_cls"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="range_concept"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>Range コンセプト</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="range_concept">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">Range コンセプト</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>再帰的に分割可能な値のセットを表す型の要件。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">要件</h2><p>次の表は、Range 型 <samp class="codeph">R</samp> の要件を示しています。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl8" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">Range コンセプト</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" id="d8382e39"><p>擬似署名</p>
+</th>
+<th class="row-nocellborder" valign="top" id="d8382e42"><p>意味</p>
+</th>
+</tr>
+</thead>
+<tbody><tr valign="top"><td class="cellrowborder" valign="top" headers="d8382e39 "><p><samp class="codeph"> R::R( const R&amp; )</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d8382e42 "><p>コピー・コンストラクター。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d8382e39 "><p><samp class="codeph"> R::~R()</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d8382e42 "><p>デストラクター。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d8382e39 "><p><samp class="codeph"> bool R::empty() const</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d8382e42 "><p>範囲が空の場合は true です。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d8382e39 "><p><samp class="codeph"> bool R::is_divisible() const</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d8382e42 "><p>範囲を 2 つのサブ範囲に分割できる場合は true です。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d8382e39 "><p><samp class="codeph"> R::R( R&amp; r, split )</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d8382e42 "><p>基本分割コンストラクター。<samp class="codeph">r</samp> を 2 つのサブ範囲に分割します。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d8382e39 "><p><samp class="codeph"> R::R( R&amp; r, proportional_split proportion )</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d8382e42 "><p><strong>オプション</strong>。比例分割コンストラクター。<samp class="codeph">r</samp> を <samp class="codeph">proportion</samp> に応じて 2 つのサブ範囲に分割します。</p>
+</td>
+</tr>
+<tr valign="top"><td class="cellrowborder" valign="top" headers="d8382e39 "><p><samp class="codeph"> static const bool R::is_splittable_in_proportion</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" headers="d8382e42 "><p><strong>オプション</strong>。true の場合、範囲の比例分割コンストラクターが定義され、並列アルゴリズムで使用されます。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p>Range は 2 つの部分に再帰的に再分割することができます。再分割は、Range の分割コンストラクターを呼び出して行います。次の 2 種類の分割コンストラクターがあります。</p>
+<ul><li>基本分割コンストラクター。このコンストラクターでは、範囲はできるだけ等しい大きさになることが推奨されますが、必須ではありません。できるだけ等しくなるように分割することが最良の並列処理につながります。</li>
+<li>比例分割コンストラクター。このコンストラクターはオプションで、<em>is_splittable_in_proportion</em> クラス変数とともに省略できます。この種のコンストラクターを使用したときに最適な結果を得るには、必要に応じて指定した割合を最も近い整数に丸めてください。</li>
+</ul>
+<p>理想的には、それ以上分割するよりもシリアルに実行するほうが効率的な大きさになるまで再帰分割します。Range によって表現されるワークの量はより上位レベルのコンテキストに依存します。したがって、Range をモデル化する典型的な型は、分割する大きさを制御する方法を提供すべきです。例えば、<samp class="codeph">blocked_range</samp> テンプレート・クラスには、それ以上分割できない最も大きな範囲を示す <em>grainsize</em> 引数があります。</p>
+<p>値のセットに方向性がある場合、分割コンストラクターは範囲の 2 番目の部分を構築して、範囲の最初の部分になるように引数を更新します。この処理により、シリアルに実行する場合、<samp class="codeph">parallel_for</samp>、<samp class="codeph">parallel_reduce</samp>、および <samp class="codeph">parallel_scan</samp> アルゴリズムは通常のシーケンシャル・ループが増加する順番で範囲全体にわたって動作します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>次のコードは、Range コンセプトをモデル化する <samp class="codeph">TrivialIntegerRange</samp> 型を定義します。この型は、一桁の整数まで分割可能な半開区間 [lower,upper) を表します。分割は、基本分割コンストラクターまたは比例分割コンストラクターで行うことができます。基本分割コンストラクターは、範囲を半分に分割します。比例分割コンストラクターは、範囲を指定された比率 <samp class="codeph">p</samp> で分割し、<samp class="codeph">r</samp> を左部分に、新しく構築される <samp class="codeph">TrivialIntegerRange</samp> を右部分にします。複雑な <samp class="codeph">TrivialIntegerRange</samp> インスタンスが空にならないように特別な注意が払われています。</p>
+<pre> 
+struct TrivialIntegerRange {
+    int lower;
+    int upper;
+    bool empty() const {return lower==upper;}
+    bool is_divisible() const {return upper&gt;lower+1;}
+    // 基本分割コンストラクター
+    TrivialIntegerRange( TrivialIntegerRange&amp; r, split ) {
+        int m = (r.lower+r.upper)/2;
+        lower = m;
+        upper = r.upper;
+        r.upper = m;
+    }
+    // オプションの比例分割コンストラクター
+    TrivialIntegerRange( TrivialIntegerRange&amp; r, proportional_split p ) {
+        int m = ((r.lower+r.upper)*p.right())/(p.left()+p.right());
+        if (m == 0)
+            m = 1;
+        else if (m == r.upper)
+            m = r.upper - 1;
+        lower = m;
+        upper = r.upper;
+        r.upper = m;
+    }
+    // 比例分割を有効にするオプションの特性
+    static const bool is_splittable_in_proportion = true;
+};
+</pre><p><samp class="codeph">TrivialIntegerRange</samp> はデモ用です。grainsize 引数がないため、あまり実用的ではありません。代わりに、<samp class="codeph">blocked_range</samp> ライブラリー・クラスを使用してください。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">モデル型</h2><p><samp class="codeph">blocked_range</samp> は、1 次元の範囲をモデル化します。</p>
+<p><samp class="codeph">blocked_range2d</samp> は、2 次元の範囲をモデル化します。</p>
+<p><samp class="codeph">blocked_range3d</samp> は、3 次元の範囲をモデル化します。</p>
+<p>Container Range コンセプトは、範囲としてコンテナーをモデル化します。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/algorithms.html">アルゴリズム</a></div>
+</div>
+<div class="See Also">
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../../reference/algorithms/range_concept/blocked_range_cls.html">blocked_range テンプレート・クラス</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/algorithms/range_concept/blocked_range2d_cls.html">blocked_range2d テンプレート・クラス</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/algorithms/range_concept/blocked_range3d_cls.html">blocked_range3d テンプレート・クラス</a><br/>
+</li>
+</ul>
+<h2>関連情報</h2>
+<div class="linklist">
+<div><a href="parallel_for_func.html#parallel_for_func">parallel_for テンプレート関数</a></div>
+<div><a href="parallel_reduce_func.html#parallel_reduce_func">parallel_reduce テンプレート関数</a></div>
+<div><a href="parallel_scan_func.html#parallel_scan_func">parallel_scan テンプレート関数</a></div>
+<div><a href="../containers_overview/container_range_concept.html#container_range_concept">Container Range コンセプト</a></div>
+<div><a href="splittable_concept/proportional_split_cls.html#proportional_split_cls">proportional_split クラス</a></div></div></div>
+</body>
+</html>

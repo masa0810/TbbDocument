@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="tick_count::interval_t クラス"/>
+<meta name="DC.subject" content="tick_count::interval_t クラス"/>
+<meta name="keywords" content="tick_count::interval_t クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/timing/tick_count_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tick_count_interval_t_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>tick_count::interval_t クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tick_count_interval_t_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">tick_count::interval_t クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>相対時計時間用のクラス。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>class tick_count::interval_t;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/tick_count.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">tick_count::interval_t</samp> は、相対時計時間または期間を表します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>
+namespace tbb {
+
+    class tick_count::interval_t {
+    public:
+        interval_t();
+        explicit interval_t( double sec );
+        double seconds() const;
+        interval_t operator+=( const interval_t&amp; i );
+        interval_t operator-=( const interval_t&amp; i );
+    };
+
+    tick_count::interval_t operator+( 
+        const tick_count::interval_t&amp; i, 
+        const tick_count::interval_t&amp; j );
+
+    tick_count::interval_t operator-( 
+        const tick_count::interval_t&amp; i, 
+        const tick_count::interval_t&amp; j );
+
+} // tbb 名前空間
+                </pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d90935e49">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d90935e51">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d90935e49 "><span class="keyword">interval_t()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d90935e51 "><p>ゼロ時間期間を表す <samp class="codeph">interval_t</samp> を構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d90935e49 "><span class="keyword">interval_t( double sec )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d90935e51 "><p>指定した秒数を表す <samp class="codeph">interval_t</samp> を構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d90935e49 "><span class="keyword">double seconds() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d90935e51 "><p><strong>戻り値</strong>: 秒単位で測定された時間間隔。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d90935e49 "><span class="keyword">interval_t operator+=( const interval_t&amp; i )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d90935e51 "><p><samp class="codeph">*this = *this + i</samp></p>
+<p><strong>戻り値</strong>: 計算後の <samp class="codeph">*this</samp> への参照。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d90935e49 "><span class="keyword">interval_t operator-=( const interval_t&amp; i )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d90935e51 "><p><samp class="codeph">*this = *this - i</samp></p>
+<p><strong>戻り値</strong>: 計算後の <samp class="codeph">*this</samp> への参照。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d90935e49 "><span class="keyword">interval_t operator+ ( const interval_t&amp; i, const interval_t&amp; j )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d90935e51 "><p><strong>戻り値</strong>: 間隔 <samp class="codeph"><em>i</em></samp>と <samp class="codeph"><em>j</em></samp> の合計を表す interval_t。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d90935e49 "><span class="keyword">interval_t operator- ( const interval_t&amp; i, const interval_t&amp; j )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d90935e51 "><p><strong>戻り値</strong></p>
+<p>間隔 <samp class="codeph"><em>i</em></samp> と <samp class="codeph"><em>j</em></samp> の差を表す <samp class="codeph">interval_t</samp>。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>Microsoft* Windows* オペレーティング・システムでは、<samp class="codeph">tick_count::seconds()</samp> の現在の実装は <samp class="codeph">QueryPerformanceFrequency</samp> 関数を使用します。<samp class="codeph">tick_count::seconds()</samp> を繰り返し呼び出すと、<samp class="codeph">QueryPerformanceFrequency</samp> が複数回呼び出され、非効率的になります。タイトなループでは、累積時間を <samp class="codeph">tick_count::interval_t</samp> 値としてストアし、実行された外部の測定コードを <samp class="codeph">tick_count::seconds()</samp> に変換します。</p>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/timing/tick_count_cls.html">tick_count クラス</a></div>
+</div>
+<div/>
+</body>
+</html>

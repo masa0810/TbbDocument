@@ -1,0 +1,207 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="mutex の特性"/>
+<meta name="DC.subject" content="mutex の特性"/>
+<meta name="keywords" content="mutex の特性"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Mutual_Exclusion.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Mutex_Flavors"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>mutex の特性</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Mutex_Flavors">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">mutex の特性</h1>
+<div><p>mutex に精通すると、さまざまな mutex 属性を使い分けることができます。mutex 属性は、汎用性と効率性のトレードオフに関わるため、いくつか知っておくと便利です。適切な属性を選択することにより、パフォーマンスの向上に役立ちます。mutex の特性を次に説明します。下記の表の要約も参照してください。</p>
+<ul><li><p><strong>スケーラブル</strong>。一部の mutex は、「スケーラブル」と呼ばれます。mutex は実行を一度に 1 つのスレッドに制限するため、この名称は厳密には正しくありません。「スケーラブルな mutex」は、この制限<strong>以下</strong>のことは行いません。待機スレッドがプロセッサー・サイクルとメモリー帯域幅を過剰に消費し、実際のワークを行うスレッドの速度を減少させてしまう場合、mutex はシリアル実行よりもパフォーマンスを低下させることがあります。スケーラブル mutex は、競合が少ない場合はスケーラブルでない mutex よりも低速なことがあるため、このような場合はスケーラブルでない mutex を使用する方が良いでしょう。確実でない場合は、スケーラブルな mutex を使用してください。</p>
+</li>
+<li><p><strong>フェア</strong>。mutex は「フェア (公正)」または「アンフェア (非公正)」です。フェアな mutex は、要求された順番にスレッドを処理し、スレッドが放置されることを回避します。各スレッドで、それぞれ順番が回ってきます。しかし、アンフェアな mutex の方が、割り込みのためにスリープしている次のスレッドの代わりに実行中のスレッドを先に処理するため、フェアな mutex よりも高速な場合があります。</p>
+</li>
+<li><p><strong>再帰</strong>。mutex は、「再帰」または「非再帰」です。再帰 mutex は、すでにロックを保持しているスレッドが別の mutex のロックを取得することを許可します。これは、一部の再帰アルゴリズムでは役立つものの、通常はロック実装のオーバーヘッドが増えます。</p>
+</li>
+<li><p><strong>イールドまたはブロック</strong>。実装に依存してパフォーマンスに影響します。長い待機では、インテル&reg; TBB の mutex は「イールド」または「ブロック」のいずれかです。ここでは、「イールド」とは、進行可能かどうか繰り返しポーリングし、進行できない場合はプロセッサーを「一時的に」イールド<a href="#ftn5"><sup><sup>[5]</sup></sup></a> する (ほかのスレッドに譲る) ことを意味します。「ブロック」とは、mutex が進行を許可するまでプロセッサーをイールドすることを意味します。待機が短い場合はイールド mutex を、待機が長い場合はブロック mutex を使用します。</p>
+</li>
+</ul>
+<p>次は、mutex の動作の概要です。</p>
+<ul><li><p><samp class="codeph">spin_mutex</samp> は、非スケーラブル、アンフェア、非再帰で、ユーザー空間でスピンします。一見、不適切な機能のようですが、「競合範囲がわずかな」場合は「非常に高速」です。多くの <samp class="codeph">spin_mutex</samp> オブジェクトに競合状態を分散できるようなプログラム設計が可能な場合は、ほかの mutex を使用してパフォーマンスを向上させることができます。mutex の競合状態が激しい場合は、いずれにしてもそのアルゴリズムではパフォーマンスは向上しません。効率的なロックを探すよりも先に、アルゴリズムの再設計を検討してください。</p>
+</li>
+<li><p><samp class="codeph">queuing_mutex</samp> は、スケーラブル、フェア、非再帰で、ユーザー空間でスピンします。スケーラビリティーと公平性が重要な場合に使用してください。</p>
+</li>
+<li><p><samp class="codeph">spin_rw_mutex</samp> と <samp class="codeph">queuing_rw_mutex</samp> は、<samp class="codeph">spin_mutex</samp> と <samp class="codeph">queuing_mutex</samp> に似ていますが、「リーダー」ロックをサポートします。</p>
+</li>
+<li><p><samp class="codeph">speculative_spin_mutex</samp> と <samp class="codeph">speculative_spin_rw_mutex</samp> は、<samp class="codeph">spin_mutex</samp> と <samp class="codeph">spin_rw_mutex</samp> に似ていますが、ハードウェア・トランザクショナル・メモリーをサポートするプロセッサーで「スペキュレーティブ・ロック」を提供します。スペキュレーティブ・ロックは、非スペキュレーティブ・ロックと異なる結果を生成する「競合」がない限り、複数のスレッドで同じロックを取得して動作します。競合レートが低い場合 (つまり、ほとんどスペキュレーティブ・ロック・モードの場合)、これらの mutex は「スケーラブル」です。</p>
+</li>
+<li><p><samp class="codeph">mutex</samp> と <samp class="codeph">recursive_mutex</samp> は、「ネイティブ」環境の排他制御を行うラッパーです。Windows* システムでは、<samp class="codeph">CRITICAL_SECTION</samp> の上に実装されます。Linux* および macOS* システムでは、<samp class="codeph">pthread</samp> mutex の上に実装されます。このラッパーを使用する利点は、例外セーフなインターフェイスを追加し、インテル&reg; TBB のほかの mutex と同一のインターフェイスを提供することです。後でパフォーマンス測定を行い、必要であれば、別の mutex に簡単に切り替えることができます。</p>
+</li>
+<li><p><samp class="codeph">null_mutex</samp> と <samp class="codeph">null_rw_mutex</samp> は、何もしません。テンプレート引数として使用します。例えば、コンテナー・テンプレートを定義していて、一部のインスタンス化は複数のスレッドで共有され内部ロックが必要ですが、ほかのインスタンス化はスレッドに対してプライベートでロックする必要がないと仮定します。この場合、mutex 型の引数でテンプレートを定義できます。引数は、ロックが必要な場合は実際の mutex 型の 1 つで、ロックが必要ない場合は <samp class="codeph">null_mutex</samp> になります。</p>
+</li>
+</ul>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl11" width="100%" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">mutex の特徴と動作</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="26.247689463955638%" id="d102868e138"><p>mutex</p>
+</th>
+<th class="cellrowborder" valign="top" width="17.744916820702404%" id="d102868e141"><p>スケーラブル</p>
+</th>
+<th class="cellrowborder" valign="top" width="17.56007393715342%" id="d102868e144"><p>フェア</p>
+</th>
+<th class="cellrowborder" valign="top" width="14.602587800369685%" id="d102868e147"><p>再帰</p>
+</th>
+<th class="cellrowborder" valign="top" width="12.199630314232902%" id="d102868e150"><p>長い待機</p>
+</th>
+<th class="cellrowborder" valign="top" width="11.645101663585953%" id="d102868e153"><p>サイズ</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="26.247689463955638%" headers="d102868e138 "><p><samp class="codeph">mutex</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="17.744916820702404%" headers="d102868e141 "><p>OS 依存</p>
+</td>
+<td class="cellrowborder" valign="top" width="17.56007393715342%" headers="d102868e144 "><p>OS 依存</p>
+</td>
+<td class="cellrowborder" valign="top" width="14.602587800369685%" headers="d102868e147 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="12.199630314232902%" headers="d102868e150 "><p>ブロック</p>
+</td>
+<td class="cellrowborder" valign="top" width="11.645101663585953%" headers="d102868e153 "><p>3 ワード以上</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="26.247689463955638%" headers="d102868e138 "><p><samp class="codeph">recursive_mutex</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="17.744916820702404%" headers="d102868e141 "><p>OS 依存</p>
+</td>
+<td class="cellrowborder" valign="top" width="17.56007393715342%" headers="d102868e144 "><p>OS 依存</p>
+</td>
+<td class="cellrowborder" valign="top" width="14.602587800369685%" headers="d102868e147 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" width="12.199630314232902%" headers="d102868e150 "><p>ブロック</p>
+</td>
+<td class="cellrowborder" valign="top" width="11.645101663585953%" headers="d102868e153 "><p>3 ワード以上</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="26.247689463955638%" headers="d102868e138 "><p><samp class="codeph">spin_mutex</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="17.744916820702404%" headers="d102868e141 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="17.56007393715342%" headers="d102868e144 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="14.602587800369685%" headers="d102868e147 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="12.199630314232902%" headers="d102868e150 "><p>イールド</p>
+</td>
+<td class="cellrowborder" valign="top" width="11.645101663585953%" headers="d102868e153 "><p>1 バイト</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="26.247689463955638%" headers="d102868e138 "><p><samp class="codeph">speculative_spin_mutex クラス</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="17.744916820702404%" headers="d102868e141 "><p>HW 依存</p>
+</td>
+<td class="cellrowborder" valign="top" width="17.56007393715342%" headers="d102868e144 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="14.602587800369685%" headers="d102868e147 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="12.199630314232902%" headers="d102868e150 "><p>イールド</p>
+</td>
+<td class="cellrowborder" valign="top" width="11.645101663585953%" headers="d102868e153 "><p>2 キャッシュライン</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="26.247689463955638%" headers="d102868e138 "><p><samp class="codeph">queuing_mutex</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="17.744916820702404%" headers="d102868e141 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" width="17.56007393715342%" headers="d102868e144 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" width="14.602587800369685%" headers="d102868e147 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="12.199630314232902%" headers="d102868e150 "><p>イールド</p>
+</td>
+<td class="cellrowborder" valign="top" width="11.645101663585953%" headers="d102868e153 "><p>1 ワード</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="26.247689463955638%" headers="d102868e138 "><p><samp class="codeph">spin_rw_mutex クラス</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="17.744916820702404%" headers="d102868e141 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="17.56007393715342%" headers="d102868e144 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="14.602587800369685%" headers="d102868e147 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="12.199630314232902%" headers="d102868e150 "><p>イールド</p>
+</td>
+<td class="cellrowborder" valign="top" width="11.645101663585953%" headers="d102868e153 "><p>1 ワード</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="26.247689463955638%" headers="d102868e138 "><p><samp class="codeph">speculative_spin_rw_mutex クラス</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="17.744916820702404%" headers="d102868e141 "><p>HW 依存</p>
+</td>
+<td class="cellrowborder" valign="top" width="17.56007393715342%" headers="d102868e144 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="14.602587800369685%" headers="d102868e147 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="12.199630314232902%" headers="d102868e150 "><p>イールド</p>
+</td>
+<td class="cellrowborder" valign="top" width="11.645101663585953%" headers="d102868e153 "><p>3 キャッシュライン</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="26.247689463955638%" headers="d102868e138 "><p><samp class="codeph">queuing_rw_mutex</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="17.744916820702404%" headers="d102868e141 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" width="17.56007393715342%" headers="d102868e144 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" width="14.602587800369685%" headers="d102868e147 "><p>X</p>
+</td>
+<td class="cellrowborder" valign="top" width="12.199630314232902%" headers="d102868e150 "><p>イールド</p>
+</td>
+<td class="cellrowborder" valign="top" width="11.645101663585953%" headers="d102868e153 "><p>1 ワード</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="26.247689463955638%" headers="d102868e138 "><p><samp class="codeph">Null_mutex[6]</samp><a href="#ftn6"><sup><sup>[6]</sup></sup></a></p>
+</td>
+<td class="cellrowborder" valign="top" width="17.744916820702404%" headers="d102868e141 "><p>-</p>
+</td>
+<td class="cellrowborder" valign="top" width="17.56007393715342%" headers="d102868e144 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" width="14.602587800369685%" headers="d102868e147 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" width="12.199630314232902%" headers="d102868e150 "><p>-</p>
+</td>
+<td class="cellrowborder" valign="top" width="11.645101663585953%" headers="d102868e153 "><p>空</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="26.247689463955638%" headers="d102868e138 "><p><samp class="codeph">null_rw_mutex</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="17.744916820702404%" headers="d102868e141 "><p>-</p>
+</td>
+<td class="cellrowborder" valign="top" width="17.56007393715342%" headers="d102868e144 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" width="14.602587800369685%" headers="d102868e147 "><p>○</p>
+</td>
+<td class="cellrowborder" valign="top" width="12.199630314232902%" headers="d102868e150 "><p>-</p>
+</td>
+<td class="cellrowborder" valign="top" width="11.645101663585953%" headers="d102868e153 "><p>空</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Mutual_Exclusion.html">排他制御</a></div>
+</div>
+<div/><p class="tfootnote"><a id="ftn5"><sup>[5]</sup></a>  イールドは、Microsoft* Windows* システムでは <samp class="codeph">SwitchToThread()</samp> で、別のシステムでは <samp class="codeph">sched_yield()</samp> で実装されます。</p><p class="tfootnote"><a id="ftn6"><sup>[6]</sup></a>  null mutex はスタベーションを起こさないため、インテル&reg; TBB ではフェアと見なされています。非スタティックなデータメンバーはありません。</p>
+</body>
+</html>

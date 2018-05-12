@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="task_scheduler_init クラス"/>
+<meta name="DC.subject" content="task_scheduler_init クラス"/>
+<meta name="keywords" content="task_scheduler_init クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/task_scheduler.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/task_scheduler/task_scheduler_init_cls/task_scheduler_init.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/task_scheduler/task_scheduler_init_cls/task_scheduler_init_1.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="task_scheduler_init_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>task_scheduler_init クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="task_scheduler_init_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">task_scheduler_init クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>タスク・スケジュール・サービスにおけるスレッドの状態を明示的に表すクラス。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><p><pre>class task_scheduler_init;</pre></p>
+</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><p><pre>#include "tbb/task_scheduler_init.h"</pre></p>
+</div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">task_scheduler_init</samp> の使用は、インテル&reg; TBB 2.2 ではオプションです。デフォルトでは、インテル&reg; TBB 2.2 は、スレッドが最初にタスク・スケジュール・サービスを使用するときにタスク・スケジューラーを自動的に作成し、スレッドが最後に終了するときにタスク・スケジューラーを破棄します。</p>
+<p><samp class="codeph">task_scheduler_init</samp> のインスタンスは、次のような場合に使用できます。</p>
+<ul><li><p>タスク・スケジューラーの構築と破棄を制御する。</p>
+</li>
+<li><p>タスク・スケジューラーで使用するスレッド数を指定する。</p>
+</li>
+<li><p>ワーカースレッドのスタックサイズを指定する。</p>
+</li>
+</ul>
+<p>タスク・スケジュールのデフォルトの動作をオーバーライドするには、タスク・スケジュール・サービスを最初に使用する前に <samp class="codeph">task_scheduler_init</samp> がアクティブになっていなければなりません。</p>
+<p><samp class="codeph">task_scheduler_init</samp> は、"アクティブ" または "インアクティブ" のいずれかです。</p>
+<p><samp class="codeph">task_scheduler_init</samp> のデフォルト・コンストラクターはオブジェクトをアクティブにし、デストラクターはオブジェクトを非アクティブにします。初期化を遅らせるには、コンストラクターに <samp class="codeph">task_scheduler_init::deferred</samp> 値を渡します。この場合、<samp class="codeph">task_scheduler_init</samp> は <samp class="codeph">initialize</samp> メソッドを呼び出して、後で初期化されます。初期化された <samp class="codeph">task_scheduler_init</samp> の破棄は、オブジェクトを暗黙的に非アクティブにします。オブジェクトをより早く非アクティブにするには、<samp class="codeph">terminate</samp> メソッドを呼び出します。</p>
+<p>コンストラクターのオプション引数および <samp class="codeph">initialize</samp> メソッドでタスク実行に使用されるスレッド数を指定できます。この引数は開発中にスケーリングを調査するのに役立ちますが、製品には設定しないでください。</p>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>製品コードでスレッド数を指定しない理由は、大規模なソフトウェア・プロジェクトでは、さまざまなコンポーネントでほかのスレッドに対する最適なスレッド数を知る方法がないためです。ハードウェア・スレッドは、共有グローバルリソースであるため、タスク・スケジューラーにスレッド数の制御を任せるのが最良の方法です。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>タスク・スケジューラーは、初期化中に現在のスレッドから浮動小数点設定を取得します。取得した浮動小数点設定は、すべてのワーカースレッドに伝えられます。詳細は、「浮動小数点設定」セクションを参照してください。</p>
+</div>
+<p>時間のオーバーヘッドを最小限にするには、スレッドがすべてのライブラリーのタスク・スケジュールをアクティブ化して使用する間は単一の <samp class="codeph">task_scheduler_init</samp> オブジェクトを作成することがベストです。<samp class="codeph">task_scheduler_init</samp> は、コピー構築や割り当てはできません。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><pre>// スケーリング研究を行う 1 つの方法のスケッチ
+#include &lt;iostream&gt;
+#include "tbb/task_scheduler_init.h"
+ 
+int main() {
+     int n = task_scheduler_init::default_num_threads();
+     for( int p=1; p&lt;=n; ++p ) {
+         // p スレッドのタスク・スケジューラーを構築
+         task_scheduler_init init(p);
+         tick_count t0 = tick_count::now();
+          ... タスクを使用する並列アルゴリズムまたは
+              テンプレート・アルゴリズムを実行...
+         tick_count t1 = tick_count::now();
+         double t = (t1-t0).seconds();
+         cout &lt;&lt; "time = " &lt;&lt; t &lt;&lt; " with " &lt;&lt; p &lt;&lt; "threads\n";
+         // タスク・スケジューラーを暗黙的に破棄
+     }
+     return 0;
+}</pre></div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>  namespace tbb {
+        typedef <em>unsigned-integral-type</em> stack_size_type;
+     
+        class task_scheduler_init {
+        public:
+            static const int automatic = <em>implementation-defined</em>;
+            static const int deferred = <em>implementation-defined</em>;
+            task_scheduler_init( int max_threads=automatic, 
+                                 stack_size_type thread_stack_size=0 );
+            ~task_scheduler_init();
+            void initialize( int max_threads=automatic );
+            void terminate();
+            static int default_num_threads();
+            bool is_active() const;
+        };
+    } // tbb 名前空間</pre></div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/task_scheduler.html">タスク・スケジューラー</a></div>
+</div>
+<div>
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../../reference/task_scheduler/task_scheduler_init_cls/task_scheduler_init.html">task_scheduler_init( int max_threads=automatic, stack_size_type thread_stack_size=0 )</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/task_scheduler/task_scheduler_init_cls/task_scheduler_init_1.html">~task_scheduler_init()</a><br/>
+</li>
+</ul>
+</div>
+</body>
+</html>

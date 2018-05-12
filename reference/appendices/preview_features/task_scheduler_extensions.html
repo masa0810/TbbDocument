@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="task_scheduler_init クラスの拡張"/>
+<meta name="DC.subject" content="task_scheduler_init クラスの拡張"/>
+<meta name="keywords" content="task_scheduler_init クラスの拡張"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/appendices/preview_features.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../task_scheduler/task_scheduler_init_cls.html#task_scheduler_init_cls"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="task_scheduler_extensions"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>task_scheduler_init クラスの拡張</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="task_scheduler_extensions">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">task_scheduler_init クラスの拡張</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>task_scheduler_init クラスは、ワーカースレッドの完了を待つメソッドで拡張されます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>
+#define TBB_PREVIEW_WAITING_FOR_WORKERS 1
+#include "tbb/task_scheduler_init.h"
+</pre></div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>
+void tbb::task_scheduler_init::blocking_terminate();
+bool tbb::task_scheduler_init::blocking_terminate(const std::nothrow_t&amp;) noexcept(true);
+</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">task_scheduler_init</samp> クラスの <samp class="codeph">blocking_terminate</samp> メソッドは、ライブラリーにより暗黙的に作成されたすべてのワーカースレッドが完了するまで、スレッドの呼び出しをブロックします。スレッドの完了を待つことが安全でない場合 (例えば、デッドロックが発生する場合)、メソッドは失敗します。メソッドは、失敗をレポートする異なる方法を提供するため多重定義されます。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d21447e49">メソッド</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d21447e51">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d21447e49 "><samp class="codeph">void tbb::task_scheduler_init::blocking_terminate()</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d21447e51 "><p>すべてのワーカースレッドが完了するまでブロックします。ワーカースレッドの完了を待つことが安全でない場合、<samp class="codeph">runtime_error</samp> をスローします。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d21447e49 "><samp class="codeph">bool tbb::task_scheduler_init::blocking_terminate(const std::nothrow_t&amp;) noexcept(true) </samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d21447e51 "><p>すべてのワーカースレッドが完了するまでブロックします。すべてのワーカースレッドが正常に完了した場合は <samp class="codeph">true</samp>、ワーカースレッドの完了を待つことが安全でない場合は <samp class="codeph">false</samp> を返します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>ブロックを正常に終了するには、次の条件を満たす必要があります。</p>
+<ul><li><p>アクティブな (まだ完了していない) アプリケーション・スレッドがタスク・スケジューラーを自動的に初期化していない。</p>
+</li>
+<li><p>アクティブな (まだ終了していない) <samp class="codeph">task_arena</samp> クラスのインスタンスがプログラム全体に存在しない。</p>
+</li>
+<li><p><samp class="codeph">blocking_terminate</samp> が <samp class="codeph">task_scheduler_init</samp> クラスのすべてのアクティブなインスタンスで (異なるアプリケーション・スレッドにより) 呼び出された。</p>
+</li>
+</ul>
+<p>これらの条件の下では、すべてのワーカースレッドが完了した時点で、少なくとも 1 つの <samp class="codeph">blocking_terminate</samp> 呼び出しが成功することが保証されます。複数のアプリケーション・スレッドで複数の呼び出しが同時に行われた場合、2 つ以上の呼び出しが成功することがあります。</p>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>プログラムに存在するアクティブな <samp class="codeph">task_scheduler_init</samp> インスタンスの数が分かっている場合は、最後のインスタンス以外のすべてのインスタンスを終了した後、最後のインスタンスで <samp class="codeph">blocking_terminate</samp> を呼び出すことを推奨します。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>タスク、並列アルゴリズム、またはフローグラフのノードの内部で呼び出された場合、メソッドは常に失敗します。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><pre>
+#define TBB_PREVIEW_WAITING_FOR_WORKERS 1
+#include "tbb/task_scheduler_init.h"
+#include "tbb/parallel_for.h"
+
+#include &lt;iostream&gt;
+
+int main() {
+    tbb::task_scheduler_init init;
+    // ここで並列処理を行う
+    tbb::parallel_for(0, 10000, [](int){});
+    try {
+        init.blocking_terminate();
+        // インテル&reg; TBB のワーカースレッドを終了
+    } catch (const std::runtime_error&amp;) {
+        std::cerr &lt;&lt; "ワーカースレッドの終了に失敗しました"  &lt;&lt; std::endl;
+    }
+    return 0;
+}
+</pre></div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/appendices/preview_features.html">プレビュー機能</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../../task_scheduler/task_scheduler_init_cls.html#task_scheduler_init_cls">task_scheduler_init クラス</a></div></div></div>
+</body>
+</html>

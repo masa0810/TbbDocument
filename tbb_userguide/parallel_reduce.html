@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="parallel_reduce"/>
+<meta name="DC.subject" content="parallel_reduce"/>
+<meta name="keywords" content="parallel_reduce"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Parallelizing_Simple_Loops.html"/>
+<meta name="DC.Relation" scheme="URI" content="parallel_for.html#tutorial_parallel_for"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_parallel_reduce"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>parallel_reduce</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_parallel_reduce">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">parallel_reduce</h1>
+<div><p>以下ループは、リダクションを行うことができます。</p>
+<pre>float SerialSumFoo( float a[], size_t n ) {
+    float sum = 0;
+    for( size_t i=0; i!=n; ++i )
+        sum += Foo(a[i]);
+    return sum;
+}</pre><p>反復が独立している場合、次のように <samp class="codeph">parallel_reduce</samp> テンプレート・クラスを使用して、このループを並列化できます。 
+	 </p>
+<pre>float ParallelSumFoo( const float a[], size_t n ) {
+    SumFoo sf(a);
+    parallel_reduce( blocked_range&lt;size_t&gt;(0,n), sf );
+    return <span class="color(blue)" style="color:blue"><strong>sf.my_</strong></span>sum;
+}</pre><p><samp class="codeph">SumFoo</samp> クラスでは、サブ合計を集積して結合する方法など、リダクションの詳細を記述します。<samp class="codeph">SumFoo</samp> クラスの定義は次のようになります。</p>
+<pre>class SumFoo {
+    float* my_a;
+public:
+    float my_sum; 
+    void operator()( const blocked_range&lt;size_t&gt;&amp; r ) {
+        float *a = my_a;
+        float sum = my_sum;
+        size_t end = r.end();
+        for( size_t i=r.begin(); i!=end; ++i ) 
+            sum += Foo(a[i]); 
+        <span class="color(blue)" style="color:blue"><strong>my_sum = sum;</strong></span>    
+    <span class="color(blue)" style="color:blue"><strong>}</strong></span>
+ 
+    SumFoo( SumFoo&amp; x, split ) : my_a(x.my_a), my_sum(0) {}
+ 
+    void join( const SumFoo&amp; y ) {my_sum+=y.my_sum;}
+             
+    SumFoo(float a[] ) :
+        my_a(a), my_sum(0)
+    {}
+};</pre><p><span class="keyword">parallel_for</span> の <samp class="codeph">ApplyFoo</samp> クラスとは異なることに注意してください。まず、<samp class="codeph">operator()</samp> は <samp class="codeph">const</samp> ではありません。これは、<span class="option">SumFoo::sum</span> を更新しなければならないためです。次に、<samp class="codeph">SumFoo</samp> には「分割コンストラクター」があり、<samp class="codeph">parallel_reduce</samp> が機能するために <samp class="codeph">join</samp> メソッドがなければなりません。分割コンストラクターの引数は、オリジナル・オブジェクトへの参照と、ライブラリーによって定義される型 <samp class="codeph">split</samp> の仮引数です。この仮引数によって、分割コンストラクターとコピー・コンストラクターが区別されます。</p>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>サンプルの <samp class="codeph">operator()</samp> の定義では、ループ内部でアクセスされるスカラー値にローカル一時変数 (<samp class="codeph">a</samp>, <samp class="codeph">sum</samp>, <samp class="codeph">end</samp>) を使用しています。この手法は、値をメモリーの代わりにレジスターに保持できることをコンパイラーに伝えることにより、パフォーマンスを向上させます。値が大きすぎてレジスターに格納できない場合、またはコンパイラーがこの手法に対応できない場合、この手法を使用してもパフォーマンスは向上しません。一般的な最適化コンパイラーでは、ループはほかの場所に書き込みを行わず、ループの外でほかの読み取りを行わないことをコンパイラーが推測するため、ローカル一時変数を書き込み変数 (サンプルの <samp class="codeph">sum</samp> など) に使用するだけで十分です。</p>
+</div>
+<p>タスク・スケジューラーでワーカースレッドが利用できると判断された場合、<samp class="codeph">parallel_reduce</samp> は分割コンストラクターを呼び出してワーカーのサブタスクを作成します。サブタスクが完了すると、<samp class="codeph">parallel_reduce</samp> は <samp class="codeph">join</samp> メソッドを使用してサブタスクの結果を集積します。次の図の上のチャートは、ワーカーが利用可能な場合に発生する分割と結合のシーケンスを示しています。</p>
+<div class="fignone" id="fig5"><span class="figcap">分割と結合のシーケンス</span><br/><img src="Images/image009.jpg" width="512" height="438"/><br/></div>
+<p>上記の図の矢印は時間軸で順序を示しています。前半のリダクションでオブジェクト x が使用される間に、分割コンストラクターが同時に実行される可能性があります。そのため、y を作成する分割コンストラクターのすべての動作が、x に関してスレッドセーフである必要があります。分割コンストラクターでほかのオブジェクトと共有の参照カウントをインクリメントする必要がある場合は、アトミック・インクリメントを使用しなければなりません。</p>
+<p>ワーカーが利用できない場合、反復の前半のリダクションを行った同じボディー・オブジェクトを使用して後半のリダクションが行われます。つまり、前半のリダクションが終了したところで後半のリダクションが開始します。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>ワーカーが利用できない場合は分割と結合が使用されないため、<samp class="codeph">parallel_reduce</samp> は必ずしも再帰的な分割を行いません。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>同じボディーが複数のサブ範囲の集積に使用される可能性があるため、<samp class="codeph">operator()</samp> が以前の集積を破棄しないことは問題です。次のコードは、<samp class="codeph">SumFoo::operator()</samp> の誤った定義を示しています。</p>
+</div>
+<pre>class SumFoo {
+    ...
+public:
+    float my_sum; 
+    void operator()( const blocked_range&lt;size_t&gt;&amp; r ) {
+        ...
+        float <span class="color(blue)" style="color:blue"><strong>sum = 0;</strong></span>  // WRONG – should be 'sum = <span class="color(blue)" style="color:blue"><strong>my_sum</strong></span>".
+        ...
+        for( ... )
+            sum += Foo(a[i]); 
+        my_sum = sum;   
+    }
+    ...
+};</pre><p>誤った定義では、<samp class="codeph">parallel_reduce</samp> が適用されるすべてのサブ範囲ではなく、最後のサブ範囲の部分和をボディーが返しています。</p>
+<p><samp class="codeph">parallel_reduce</samp> のパーティショナーと粒度の規則は、<samp class="codeph">parallel_for</samp> と同じです。</p>
+<p><samp class="codeph">parallel_reduce</samp> は、あらゆる結合操作を一般化します。一般に、分割コンストラクターでは、2 つのことが行われます。</p>
+<ul><li><p>ループボディーを実行するために必要な読み取り専用情報をコピーする。</p>
+</li>
+<li><p>リダクション変数を初期化して操作要素を特定する。</p>
+</li>
+</ul>
+<p>join メソッドは、対応するマージ操作を行います。複数のリダクションを同時に行うことが可能です。単一の <samp class="codeph">parallel_reduce</samp> で最小値と最大値を同時に求めることができます。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>リダクション操作は可換的でない場合があります。浮動小数点の加算が文字列の連結に置換されても、サンプルは動作します。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Parallelizing_Simple_Loops.html">単純なループの並列化</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="parallel_for.html#tutorial_parallel_for">parallel_for</a></div></div></div>
+</body>
+</html>

@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="動的メモリー割り当て用の malloc とその他の C/C++ 関数の自動置換"/>
+<meta name="DC.subject" content="動的メモリー割り当て用の malloc とその他の C/C++ 関数の自動置換, malloc の置換"/>
+<meta name="keywords" content="動的メモリー割り当て用の malloc とその他の C/C++ 関数の自動置換, malloc の置換"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Memory_Allocation.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Windows_C_Dynamic_Memory_Interface_Replacement.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Linux_C_Dynamic_Memory_Interface_Replacement.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/OS_X_C_Dynamic_Memory_Interface_Replacement.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Automically_Replacing_malloc"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>動的メモリー割り当て用の malloc とその他の C/C++ 関数の自動置換</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Automically_Replacing_malloc">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">動的メモリー割り当て用の <samp class="codeph">malloc</samp> とその他の C/C++ 関数の自動置換</h1>
+<div><p>Windows*、Linux*、macOS* オペレーティング・システムでは、動的メモリー割り当て用の標準関数 (<samp class="codeph">malloc</samp> など) に対するすべての呼び出しを、インテル&reg; TBB のスケーラブルな関数に自動的に置換できます。この置換により、アプリケーションのパフォーマンスが向上することがあります。</p>
+<p>置換インターフェイスは、プロキシー・ライブラリーにより提供されます (ライブラリー名は、下記のプラットフォーム固有のセクションを参照)。プロキシー・ライブラリーおよびスケーラブル・メモリー・アロケーター・ライブラリーは、同じリリースのインテル&reg; TBB のライブラリーを使用してください。異なるリリースのライブラリーを使用すると、互換性がない場合があります。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Memory_Allocation.html">メモリー割り当て</a></div>
+</div>
+<div>
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../tbb_userguide/Windows_C_Dynamic_Memory_Interface_Replacement.html">Windows* の C/C++ 動的メモリー・インターフェイスの置換</a><br/>
+</li>
+<li class="ulchildlink"><a href="../tbb_userguide/Linux_C_Dynamic_Memory_Interface_Replacement.html">Linux* の C/C++ 動的メモリー・インターフェイスの置換</a><br/>
+</li>
+<li class="ulchildlink"><a href="../tbb_userguide/OS_X_C_Dynamic_Memory_Interface_Replacement.html">macOS* の C/C++ 動的メモリー・インターフェイスの置換</a><br/>
+</li>
+</ul>
+</div>
+</body>
+</html>

@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="高度な表現方法: 要素での待機"/>
+<meta name="DC.subject" content="高度な表現方法: 要素での待機"/>
+<meta name="keywords" content="高度な表現方法: 要素での待機"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/concurrent_vector_ug.html"/>
+<meta name="DC.Relation" scheme="URI" content="Memory_Consistency.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Advanced_Idiom_Waiting_on_an_Element"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>高度な表現方法: 要素での待機</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Advanced_Idiom_Waiting_on_an_Element">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">高度な表現方法: 要素での待機</h1>
+<div><p>スレッドは、別のスレッドによって非同期に追加されている要素 <samp class="codeph"><var>v</var>[<var>i</var>]</samp> を待たなければならないことがあります。次のような表現で待機することができます。</p>
+<ol><li><p><samp class="codeph"><var>i</var>&lt;<var>v</var>.size()</samp> まで待機する。この後、<samp class="codeph"><var>v</var>[<var>i</var>]</samp> は割り当てられますが、おそらく構築されません。</p>
+</li>
+<li><p><samp class="codeph"><var>v</var>[<var>i</var>]</samp> が構築されるのを待つ。</p>
+</li>
+</ol>
+<p>ステップ 2 を行う最適な方法は、要素のアトミックフラグがゼロ以外になるのを待つことです。要素全体がフラグの場合もあります。要素が構築されるまでフラグがゼロであることを保証するには、次の操作を行います。</p>
+<ul><li><p><samp class="codeph">tbb::zero_allocator</samp> のような、ゼロに設定されたメモリーを割り当てるアロケーターで <samp class="codeph">concurrent_vector</samp> を具体化します。</p>
+</li>
+<li><p>要素コンストラクターが最後のアクションでフラグをゼロ以外に設定するようにします。</p>
+</li>
+</ul>
+<p>次のサンプルでは、ベクトル要素がアトミックポインターです。ベクトルに追加されるポインターはゼロ以外であると仮定しているため、フラグはポインターそのものです。</p>
+<pre>#include ″tbb/compat/thread″
+#include ″tbb/tbb_allocator.h″ // ここで zero_allocator を定義
+#include ″tbb/atomic.h″
+#include ″tbb/concurrent_vector.h″
+ 
+using namespace tbb;
+typedef concurrent_vector&lt;atomic&lt;Foo*&gt;, zero_allocator&lt;atomic&lt;Foo*&gt; &gt; &gt; FooVector;
+ 
+Foo* FetchElement( const FooVector&amp; v, size_t i ) {
+    // i 番目の要素が割り当てられるのを待つ
+    while( i&gt;=v.size() )
+        std::this_thread::yield();
+    // i 番目の要素が構築されるのを待つ
+    while( v[i]==NULL )
+        std::this_thread::yield();
+    return v[i];
+}</pre><p>一般に、適切なメモリーの一貫性を保証するため、フラグはアトミック型でなければなりません。 
+	 </p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/concurrent_vector_ug.html">concurrent_vector</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Memory_Consistency.html">メモリーの一貫性</a></div></div></div>
+</body>
+</html>

@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="ルックアップ"/>
+<meta name="DC.subject" content="ルックアップ"/>
+<meta name="keywords" content="ルックアップ"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/containers_overview/concurrent_unordered_map_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="lookup_map_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>ルックアップ</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="lookup_map_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">ルックアップ</h1>
+<div><div class="section">
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、<samp class="codeph">concurrent_unordered_map</samp> テンプレート・クラスと <samp class="codeph">concurrent_unordered_multimap</samp> テンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d33399e29">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d33399e31">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d33399e29 "><samp class="codeph">iterator find(const key_type&amp; k)</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d33399e31 "><p><strong>戻り値</strong>: キーが <samp class="codeph">k</samp> と等しいアイテムを指す <samp class="codeph">iterator</samp>、またはそのようなアイテムがない場合は <samp class="codeph">end()</samp>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d33399e29 "><samp class="codeph">const_iterator find(const key_type&amp; k) const</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d33399e31 "><p><strong>戻り値</strong>: キーが <samp class="codeph">k</samp> と等しいアイテムを指す <samp class="codeph">const_iterator</samp>、またはそのようなアイテムがない場合は <samp class="codeph">end()</samp>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d33399e29 "><samp class="codeph">size_type count(const key_type&amp; k) const</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d33399e31 "><p><strong>戻り値</strong>: キーが <samp class="codeph">k</samp> と等しいアイテムの数。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d33399e29 "><samp class="codeph">std::pair&lt;iterator, iterator&gt; equal_range(const key_type&amp; k)</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d33399e31 "><p><strong>戻り値</strong>: <samp class="codeph">k</samp> と等しいマップのすべてのキーを含む範囲。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d33399e29 "><samp class="codeph">std::pair&lt;const_iterator, const_iterator&gt; equal_range(const key_type&amp; k) const</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d33399e31 "><p><strong>戻り値</strong></p>
+<p><samp class="codeph">k</samp> と等しいマップのすべてのキーを含む範囲。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section">
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、<samp class="codeph">concurrent_unordered_map</samp> テンプレート・クラスでのみ利用可能なメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d33399e118">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d33399e120">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d33399e118 "><samp class="codeph">mapped_type&amp; operator[](const key_type&amp; k)</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d33399e120 "><p>キーが <samp class="codeph">k</samp> と等しいアイテムがない場合は新しいアイテムを挿入します。</p>
+<p><strong>戻り値</strong>: <samp class="codeph">x</samp>.second への参照。ここで、<samp class="codeph">x</samp> はキーが <samp class="codeph">k</samp> と等しいマップのアイテムです。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d33399e118 "><samp class="codeph">mapped_type&amp; at( const key_type&amp; k )</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d33399e120 "><p>キーが <samp class="codeph">k</samp> と等しいアイテムがない場合は例外をスローします。</p>
+<p><strong>戻り値</strong>: <samp class="codeph">x</samp>.second への参照。ここで、<samp class="codeph">x</samp> はキーが <samp class="codeph">k</samp> と等しいマップのアイテムです。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d33399e118 "><samp class="codeph">const mapped_type&amp; at(const key_type&amp; k) const</samp></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d33399e120 "><p>キーが <samp class="codeph">k</samp> と等しいアイテムがない場合は例外をスローします。</p>
+<p><strong>戻り値</strong>: <samp class="codeph">x</samp>.second への const 参照。ここで、<samp class="codeph">x</samp> はキーが <samp class="codeph">k</samp> と等しいマップのアイテムです。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/containers_overview/concurrent_unordered_map_cls.html">concurrent_unordered_map テンプレート・クラスと concurrent_unordered_multimap テンプレート・クラス</a></div>
+</div>
+<div/>
+</body>
+</html>

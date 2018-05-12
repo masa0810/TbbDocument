@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="トークンベース・システムの作成"/>
+<meta name="DC.subject" content="フローグラフのヒント, トークンベース・システム"/>
+<meta name="keywords" content="フローグラフのヒント, トークンベース・システム"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Flow_Graph_resource_tips.html"/>
+<meta name="DC.Relation" scheme="URI" content="use_limiter_node.html#use_limiter_node"/>
+<meta name="DC.Relation" scheme="URI" content="use_concurrency_limits.html#use_concurrency_limits"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="create_token_based_system"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>トークンベース・システムの作成</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="create_token_based_system">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">トークンベース・システムの作成</h1>
+<div><p>フローグラフのメッセージ数を制限する柔軟なソリューションは、トークンを使用することです。トークンベース・システムでは、グラフで利用可能なトークンの数が限られており、メッセージはトークンとペアになるまでグラフに入ることができません。メッセージがグラフからリタイアされると、そのトークンが解放され、新しいメッセージとペアになり、グラフに入ることができます。</p>
+<p><span class="keyword">tbb::pipeline</span> および <span class="keyword">tbb::parallel_pipeline</span> アルゴリズムはトークンベース・システムに依存します。フローグラフのインターフェイスはトークンを明示的にサポートしていませんが、<span class="keyword">join_node</span> を使用して類似のシステムを作成できます。<span class="keyword">join_node</span> には、2 つのテンプレート引数、入力の種類を記述するタプル、バッファーポリシーがあります。</p>
+<pre>template&lt;typename OutputTuple, graph_buffer_policy JP = queueing&gt;
+class join_node;
+</pre><p> バッファーポリシーは次のいずれかになります。 
+	 </p>
+<p><ul><li><span class="keyword">queueing</span>: 入力を先入れ先出しにします。入力は、入力を受け取る命令で結合されタプルを形成します。 
+		</li>
+<li><span class="keyword">tag_matching</span>: タグが一致する入力を結合します。 
+		</li>
+<li><span class="keyword">reserving</span>: <span class="keyword">join_node</span> は内部にバッファーしません。しかし、アップストリーム・ソースの各ポートから入力を最初に保存できる場合に限り、代わりに入力を消費します。各ポートで入力を保存できる場合、入力を取得して結合し、出力タプルを形成します。 
+		</li>
+</ul>
+ トークンベース・システムは、reserving join_node を使用して作成できます。 
+	 </p>
+<p>下記の例では、<span class="keyword">M</span> ビッグ・オブジェクトを生成する <span class="keyword">source_node</span> と、3 つのトークンがあらかじめ設定された <span class="keyword">buffer_node</span> があります。<span class="keyword">token_t</span> は何にでも (例えば、<span class="keyword">typedef int token_t;</span> に) できます。<span class="keyword">source_node</span> と <span class="keyword">buffer_node</span> は、reserving <span class="keyword">join_node</span> に接続されます。reserving <span class="keyword">join_node</span> により取得されると、<span class="keyword">source_node</span> は入力を生成します。また、reserving <span class="keyword">join_node</span> は、<span class="keyword">buffer_node</span> から取得するアイテムがあることを知っている場合は、<span class="keyword">source_node</span> から入力を取得します。</p>
+<pre>  graph g;
+
+  int src_count = 0;
+  int number_of_objects = 0;
+  int max_objects = 3;
+
+  source_node&lt; big_object * &gt; s( g, [&amp;]( big_object* &amp;v ) -&gt; bool {
+	  if ( src_count &lt; M ) {
+		v = new big_object();
+        ++src_count;
+        return true;
+      } else {
+        return false;
+      }
+  } );
+
+  join_node&lt; tuple_t, reserving &gt; j(g);
+
+  buffer_node&lt; token_t &gt; b(g);
+
+  function_node&lt; tuple_t, token_t &gt; f( g, unlimited, 
+    []( const tuple_t &amp;t ) -&gt; token_t {
+        spin_for(1);
+	 cout &lt;&lt; get&lt;1&gt;(t) &lt;&lt; "\n";
+        delete get&lt;0&gt;(t);
+	 return get&lt;1&gt;(t);
+  } );
+
+  make_edge( s, input_port&lt;0&gt;(j) );
+  make_edge( b, input_port&lt;1&gt;(j) );
+  make_edge( j, f );
+  make_edge( f, b );
+
+  b.try_put( 1 );
+  b.try_put( 2 );
+  b.try_put( 3 );
+
+  g.wait_for_all();
+</pre><p> 上記のコードで、<span class="keyword">function_node</span> はトークンを <span class="keyword">buffer_node</span> に戻しています。このフローグラフのサイクルにより、トークンがリサイクルされ、source_node の別の入力とペアになることができます。そのため、前のセクションのように、グラフには最大 4 つのビッグ・オブジェクトがあります。<span class="keyword">function_node</span> に 3 つのビッグ・オブジェクト、<span class="keyword">source_node</span> にバッファーされる 1 つのビッグ・オブジェクトがあり、ペアになるトークンを待機します。 
+	 </p>
+<p>フローグラフ用に定義された特定の <span class="keyword">token_t</span> はないため、オブジェクトや配列へのポインターを含む、任意の型をトークンに使用できます。そのため、上記の例とは異なり、<span class="keyword">token_t</span> は仮の型である必要はなく、例えば、計算に不可欠なバッファーやその他のオブジェクトでもかまいません。例えば、ビッグ・オブジェクト自身をトークンとして使用するように上記の例を変更すると、ビッグ・オブジェクトの割り当てと割り当て解除の繰り返し、そして <span class="keyword">buffer_node</span> に戻すサイクルを利用してビッグ・オブジェクトのフリーリストを作成する必要性がなくなります。</p>
+<p>また、上記の例で、<span class="keyword">buffer_node</span> は固定数の <span class="keyword">try_put</span> の明示的な呼び出しによりあらかじめ設定されていますが、ほかの方法もあります。例えば、<span class="keyword">source_node</span> は <span class="keyword">buffer_node</span> の入力にアタッチできます。また、トークンを生成できます。さらに、<span class="keyword">function_node</span> は、出力ポートに 0 以上の出力を送る <span class="keyword">multifunction_node</span> に置換できます。<span class="keyword">multifunction_node</span> を使用して、トークンをリサイクルするかしないか、より多くのトークンを生成するかを選択し、グラフで許可される同時実行数を増減できます。</p>
+<p>このため、トークンベース・システムは非常に柔軟です。トークンを任意の種類で宣言し、実行とともにシステムに挿入あるいはシステムから削除して、システムで許可される同時実行数を動的に制御できます。ソースでトークンを入力とペアにできるため、このアプローチにより、グラフ全体のリソース消費を制限することができます。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Flow_Graph_resource_tips.html">リソース消費を制限するためのフローグラフのヒント</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="use_limiter_node.html#use_limiter_node">limiter_node の使用</a></div>
+<div><a href="use_concurrency_limits.html#use_concurrency_limits">同時実行数の制限の使用</a></div></div></div>
+</body>
+</html>

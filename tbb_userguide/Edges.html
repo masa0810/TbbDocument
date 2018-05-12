@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="フローグラフの基本: エッジ"/>
+<meta name="DC.subject" content="フローグラフの概念, エッジ"/>
+<meta name="keywords" content="フローグラフの概念, エッジ"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Basic_Flow_Graph_concepts.html"/>
+<meta name="DC.Relation" scheme="URI" content="Nodes.html#Nodes"/>
+<meta name="DC.Relation" scheme="URI" content="Graph_Object.html#Graph_Object"/>
+<meta name="DC.Relation" scheme="URI" content="Mapping_Nodes2Tasks.html#Mapping_Nodes2Tasks"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="Edges"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>フローグラフの基本: エッジ</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="Edges">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">フローグラフの基本: エッジ</h1>
+<div><p>ほとんどのアプリケーションには、複数のノードとノードを接続するエッジが含まれています。フローグラフのインターフェイスでは、エッジはメッセージを渡す指示チャネルです。エッジは、<samp class="codeph">make_edge( p, s )</samp> 関数を呼び出して作成します。引数は <span class="keyword">p</span> (サクセサー) と <span class="keyword">s</span> (プレデセッサー) の 2 つです。出力する前に受け取った値の 2 乗を計算する 2 番目のノードを追加し、最初のノードへエッジで接続するように、<strong>「ノード」</strong>トピックで取り上げた例を変更します。</p>
+<pre>    graph g;
+    function_node&lt; int, int &gt; n( g, unlimited, []( int v ) -&gt; int { 
+        cout &lt;&lt; v;
+        spin_for( v );
+        cout &lt;&lt; v;
+        return v;
+    } );
+    function_node&lt; int, int &gt; m( g, 1, []( int v ) -&gt; int {
+        v *= v;
+        cout &lt;&lt; v;
+        spin_for( v );
+        cout &lt;&lt; v;
+        return v;
+    } );
+    make_edge( n, m );
+    n.try_put( 1 );
+    n.try_put( 2 );
+    n.try_put( 3 );
+    g.wait_for_all();
+</pre><p><span class="keyword">function_node</span> が <span class="keyword">n</span> と <span class="keyword">m</span> の 2 つになりました。<span class="keyword">make_edge</span> を呼び出すと、<span class="keyword">n</span> から <span class="keyword">m</span> へのエッジが作成されます。ノード <span class="keyword">n</span> は同時実行数を unlimited にして作成していますが、<span class="keyword">m</span> は同時実行数を 1 に制限して作成しています。<span class="keyword">n</span> の呼び出しはすべて並列に処理できますが、m の呼び出しはシリアルに処理されます。<span class="keyword">n</span> から <span class="keyword">m</span> へのエッジがあるため、<span class="keyword">n</span> が返す値 <span class="keyword">v</span> はそれぞれ、ランタイム・ライブラリーによってノード <span class="keyword">m</span> へ自動的に渡されます。 
+	 </p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Basic_Flow_Graph_concepts.html">基本的なフローグラフの概念</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Nodes.html#Nodes">ノード</a></div>
+<div><a href="Graph_Object.html#Graph_Object">グラフ・オブジェクト</a></div>
+<div><a href="Mapping_Nodes2Tasks.html#Mapping_Nodes2Tasks">タスクへのノードのマッピング</a></div></div></div>
+</body>
+</html>

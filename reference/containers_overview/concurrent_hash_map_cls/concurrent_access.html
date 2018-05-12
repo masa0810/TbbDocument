@@ -1,0 +1,166 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="同時アクセス"/>
+<meta name="DC.subject" content="同時アクセス"/>
+<meta name="keywords" content="同時アクセス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/containers_overview/concurrent_hash_map_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="concurrent_access"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>同時アクセス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="concurrent_access">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">同時アクセス</h1>
+<div><div class="section"><p><samp class="codeph">const_accessor</samp> メンバークラスと <samp class="codeph">accessor</samp> メンバークラスは、「アクセサー」と呼ばれます。アクセサーは、複数のスレッドが共有の <samp class="codeph">concurrent_hash_map</samp> のペアを同時アクセスすることを許可します。「アクセサー」は、<samp class="codeph">concurrent_hash_map</samp> ペアへのスマートポインターとして動作します。インスタンスが破棄されるか、<samp class="codeph">release</samp> メソッドがアクセサーで呼び出されるまで、ペアの暗黙的なロックを保持します。</p>
+<p><samp class="codeph">const_accessor</samp> クラスと <samp class="codeph">accessor</samp> クラスは、許可するアクセスの種類が異なります。</p>
+<p/>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">const_accessor と accessor の違い</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="NaN%" id="d24213e48"><p>クラス</p>
+</th>
+<th class="cellrowborder" valign="top" width="NaN%" id="d24213e51"><p><samp class="codeph">value_type</samp></p>
+</th>
+<th class="row-nocellborder" valign="top" width="NaN%" id="d24213e55"><p><samp class="codeph">ペア</samp>の暗黙的なロック</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="NaN%" headers="d24213e48 "><p><samp class="codeph">const_accessor</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="NaN%" headers="d24213e51 "><p><samp class="codeph">const std::pair&lt;const Key,T&gt;</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d24213e55 "><p>リーダーロック – ほかのリーダーで共有アクセスを許可します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d24213e48 "><p><samp class="codeph">accessor</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="NaN%" headers="d24213e51 "><p><samp class="codeph">std::pair&lt;const Key,T&gt;</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d24213e55 "><p>ライターロック – スレッドによる排他的アクセスを許可します。ほかのスレッドによるアクセスをブロックします。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>割り当てまたはコピー構築を許可するとロック・セマンティクスが非常に複雑になるため、アクセサーは割り当てまたはコピー構築できません。</p>
+</div>
+<div class="section"><h2 class="sectiontitle"><samp class="codeph">const_accessor</samp></h2>
+<h2>概要</h2>
+<p><samp class="codeph">concurrent_hash_map</samp> のキー/値ペアへの読み取り専用アクセスを提供します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>template&lt;typename Key, typename T, typename HashCompare, typename A&gt; 
+class concurrent_hash_map&lt;Key,T,HashCompare,A&gt;::const_accessor;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/concurrent_hash_map.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">const_accessor</samp> は、<samp class="codeph">concurrent_hash_map</samp> のキー/値ペアへの読み取り専用アクセスを許可します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+        template&lt;typename Key, typename T, typename HashCompare, typename A&gt;
+        class concurrent_hash_map&lt;Key,T,HashCompare,A&gt;::const_accessor {
+        public:
+            // 型
+            typedef const std::pair&lt;const Key,T&gt; value_type;
+     
+            // 構築と破棄
+            const_accessor();
+            ~const_accessor();
+            
+            // 調査
+            bool empty() const;
+            const value_type&amp; operator*() const;
+            const value_type* operator-&gt;() const;
+     
+            // 早期解放
+            void release();
+        }; 
+    }</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d24213e131">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d24213e133">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d24213e131 "><span class="keyword">bool empty() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d24213e133 "><p><strong>戻り値</strong>: インスタンスが何も指さない場合は ture。インスタンスがキー/値ペアを指す場合は false。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d24213e131 "><span class="keyword">void release()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d24213e133 "><p><samp class="codeph">!empty()</samp> の場合、ペアの暗黙的なロックを解放して、インスタンスが何も指さないように設定します。その他の場合は、何もしません。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d24213e131 "><span class="keyword">const value_type&amp; operator*() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d24213e133 "><p><samp class="codeph">empty()</samp> が true で、<samp class="codeph">TBB_USE_ASSERT</samp> が非ゼロで定義された場合、アサーション・エラーが発生します。</p>
+<p><strong>戻り値</strong>: キー/値ペアへの const 参照。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d24213e131 "><span class="keyword">const value_type* operator-&gt;() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d24213e133 "><p><strong>戻り値</strong>: <samp class="codeph">&amp;operator*()</samp>。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d24213e131 "><span class="keyword">const_accessor()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d24213e133 "><p>何も指さない <samp class="codeph">const_accessor</samp> を構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d24213e131 "><span class="keyword">const_accessor</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d24213e133 "><p>キー/値ペアを指す場合は、ペアの暗黙的なロックを解放します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle"><samp class="codeph">accessor</samp></h2>
+<h2>概要</h2>
+<p><samp class="codeph">concurrent_hash_map</samp> ペアへの読み取り/書き込みアクセスを提供するクラス。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre> template&lt;typename Key, typename T, typename HashCompare,
+    typename Alloc&gt;
+ class concurrent_hash_map&lt;Key,T,HashCompare,A&gt;::accessor;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/concurrent_hash_map.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">accessor</samp> は、<samp class="codeph">concurrent_hash_map</samp> のキー/値ペアへの読み取り/書き込みアクセスを許可します。<samp class="codeph">const_accessor</samp> からの派生なので、<samp class="codeph">const_accessor</samp> に暗黙的にキャストできます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+        template&lt;typename Key, typename T, typename HashCompare, typename Alloc&gt;
+        class concurrent_hash_map&lt;Key,T,HashCompare,Alloc&gt;::accessor:
+            concurrent_hash_map&lt;Key,T,HashCompare,Alloc&gt;::const_accessor {
+        public:
+            typedef std::pair&lt;const Key,T&gt; value_type;
+            value_type&amp; operator*() const;
+            value_type* operator-&gt;() const;
+        };
+    }</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d24213e249">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d24213e251">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d24213e249 "><span class="keyword">value_type&amp; operator*() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d24213e251 "><p><samp class="codeph">empty()</samp> が true で、<samp class="codeph">TBB_USE_ASSERT</samp> が非ゼロで定義された場合、アサーション・エラーが発生します。</p>
+<p><strong>戻り値</strong>: キー/値ペアへの参照。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d24213e249 "><span class="keyword">value_type* operator-&gt;() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d24213e251 "><p><strong>戻り値</strong>: <samp class="codeph">&amp;operator*()</samp>。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/containers_overview/concurrent_hash_map_cls.html">concurrent_hash_map テンプレート・クラス</a></div>
+</div>
+<div/>
+</body>
+</html>

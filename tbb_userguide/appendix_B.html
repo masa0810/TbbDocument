@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="付録 B: その他のスレッドパッケージとの併用"/>
+<meta name="DC.subject" content="付録 B: その他のスレッドパッケージとの併用"/>
+<meta name="keywords" content="付録 B: その他のスレッドパッケージとの併用"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/title.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_appendix_B"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>付録 B: その他のスレッドパッケージとの併用</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_appendix_B">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">付録 B: その他のスレッドパッケージとの併用</h1>
+<div><p>インテル&reg; TBB は、ほかのスレッドパッケージと併用できます。ほかのスレッドパッケージとともにインテル&reg; TBB の機能を使用するために、特別な作業は必要ありません。<a href="#ftn9"><sup><sup>[9]</sup></sup></a></p>
+<p>OpenMP* で外側のループを並列化し、インテル&reg; TBB で内側のループを並列化する例を次に示します。</p>
+<pre>int M, N;
+ 
+struct InnerBody {
+    ...
+};
+ 
+void TBB_NestedInOpenMP() {
+#pragma omp parallel
+    {
+#pragma omp for
+        for( int i=0; i&lt;M; ++ ) {
+            parallel_for( blocked_range&lt;int&gt;(0,N,10), InnerBody(i) );
+        }
+    }
+}</pre><p><samp class="codeph">InnerBody</samp> の詳細は、ここでは省略します。<samp class="codeph">#pragma omp parallel</samp> 文では、OpenMP* はスレッドのチームを作成し、各スレッドはプラグマに関連付けられているブロック文を実行します。<samp class="codeph">#pragma omp for</samp> 文は、コンパイラーが直前の OpenMP* 並列領域で作成されたスレッドチームを使用してループを並列に実行することを示します。</p>
+<p>次の例は、上の例を POSIX* スレッドを使用して記述したものです。</p>
+<pre>int M, N;
+ 
+struct InnerBody {
+    ...
+};
+ 
+void* OuterLoopIteration( void* args ) {
+    int i = (int)args;
+    parallel_for( blocked_range&lt;int&gt;(0,N,10), InnerBody(i) );
+}
+ 
+void TBB_NestedInPThreads() {
+    std::vector&lt;pthread_t&gt; id( M );
+    // 外側のループ反復用のスレッドを生成
+    for( int i=0; i&lt;M; ++i )
+        pthread_create( &amp;id[i], NULL, OuterLoopIteration, NULL );
+    // 外側のループの終了を待つ
+    for( int i=0; i&lt;M; ++i )
+        pthread_join( &amp;id[i], NULL );
+} </pre></div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/title.html">インテル&reg; TBB デベロッパー・ガイド</a></div>
+</div>
+<div/><p class="tfootnote"><a id="ftn9"><sup>[9]</sup></a> インテル&reg; TBB 2.1 では、並列化アルゴリズムやタスク・スケジューラーを使用する各スレッドで、<samp class="codeph">tbb::task_scheduler_init</samp> オブジェクトを構築する必要がありました。インテル&reg; TBB 2.2 以降では、タスク・スケジューラーが自動的に作成されます。 </p>
+</body>
+</html>

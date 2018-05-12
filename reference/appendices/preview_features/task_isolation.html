@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="タスクの分離"/>
+<meta name="DC.subject" content="タスクの分離"/>
+<meta name="keywords" content="タスクの分離"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/appendices/preview_features.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../task_scheduler.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../task_scheduler/task_arena_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="task_isolation"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>タスクの分離</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="task_isolation">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">タスクの分離</h1>
+<div><div class="section"><p>インテル&reg; TBB では、タスクグループの完了を待つスレッドがほかの利用可能なタスクを実行することがあります (詳細は、「タスク・スケジューラー」を参照)。特に、並列構造が別の並列構造を呼び出した場合、スレッドは内側レベルの構造の完了を待つ間、外側レベルの構造からタスクを取得することができます。</p>
+<p>次の 2 つの <samp class="codeph">parallel_for</samp> 呼び出しの例では、2 つ目の (入れ子の) 並列ループの呼び出しが最初の (内側の) ループ反復の実行をブロックしています。</p>
+<pre>
+// 最初の並列ループ
+tbb::parallel_for( 0, N1, []( int i ) { 
+    // 2 つ目の並列ループ
+    tbb::parallel_for( 0, N2, []( int j ) { /* 処理を行う */ } );
+} );
+</pre><p>ブロックされたスレッドは最初の並列ループに属するタスクを処理することができます。その結果、外側のループの 2 つ以上の反復が同じスレッドに同時に割り当てられることがあります。つまり、インテル&reg; TBB では、並列構造を構成する関数の実行は、シングルスレッド内でも順序関係がありません。スレッドで利用可能な並列処理を制限しないため、ほとんどの場合、この動作は無害または有益です。</p>
+<p>しかし、場合によっては、順序関係のない実行によりエラーが発生することがあります。例えば、スレッドローカル変数は、入れ子の並列構造の後に予期せず変数の値を変更することがあります。</p>
+<pre>
+tbb::enumerable_thread_specific&lt;int&gt; ets;
+tbb::parallel_for( 0, N1, [&amp;ets]( int i ) {
+    // スレッド固有の値を設定
+    ets.local() = i;
+    tbb::parallel_for( 0, N2, []( int j ) { /* 処理を行う */ } );
+    // 上記の parallel_for の実行中に、スレッドは外側の parallel_for の
+    // タスクを処理してスレッド固有の値を変更することがある
+    assert( ets.local()==i ); // その場合はアサーションに失敗する
+} );
+</pre><p>
+        ほかのシナリオでは、デフォルトのインテル&reg; TBB の動作によりデッドロック、スタック・オーバーフロー、その他が発生することがあります。そのため、スレッド内の順序での実行を保証することを強く推奨します。この保証をインテル&reg; TBB で行う 1 つの方法は、<samp class="codeph">task_arena</samp> を使用して内側のレベルでタスクを分離することです。
+      </p>
+<pre>
+tbb::enumerable_thread_specific&lt;int&gt; ets;
+tbb::task_arena nested;
+tbb::parallel_for( 0, N1, [&amp;]( int i ) {
+    // スレッド固有の値を設定
+    ets.local() = i;
+    nested.execute( []{
+        tbb::parallel_for( 0, N2, []( int j ) { /* 処理を行う */ } );
+    } );
+    // 上記の parallel_for は、別の領域で実行され、スレッドが外側の
+    // parallel_for のタスクを処理しないようにしている
+    assert( ets.local()==i ); // 有効なアサーション
+} );
+</pre><p>しかし、ワークの分離のために個別の領域を使用することは必ずしも便利であるとは限りません。また、オーバーヘッドが発生することもあります。これらの欠点を克服するため、インテル&reg; TBB では <samp class="codeph">this_task_arena::isolate</samp> 関数を追加しました。</p>
+</div>
+<div class="section"><h2 class="sectiontitle"><samp class="codeph">this_task_arena::isolate</samp> 関数サマリー</h2><p>ユーザー定義関数オブジェクトを現在のタスク領域内で分離して実行する関数。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>
+#define TBB_PREVIEW_TASK_ISOLATION 1
+#include "tbb/task_arena.h"
+</pre></div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>
+namespace tbb {
+    namespace this_task_arena {
+        template&lt;typename F&gt; void isolate( const F&amp; f );
+    }
+}
+</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">this_task_arena::isolate</samp> は、ファンクターの有効範囲 (分離領域とも呼ばれます) でスケジュールされたタスクのみ処理するように呼び出しスレッドを制限することにより、ユーザー定義ファンクターを分離して実行します。</p>
+<p>呼び出しを待っている、または分離された領域内部の並列構造をブロックしているタスクに入ったスレッドは、その領域内でスポーンされたタスクまたはほかのスレッドによりスポーンされた子タスクのみ実行できます。スレッドは、外側レベルのタスクまたはほかの分離された領域に属するタスクを実行することはできません。</p>
+<p>分離領域は、その領域を呼び出したスレッドにのみ制限を適用します。インテル&reg; TBB のワーカースレッドを含む、同じタスク領域内で実行しているほかのスレッドは、<samp class="codeph">this_task_arena::isolate</samp> を個別に呼び出して分離しない限り、タスク選択の制限を受けません。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> フローグラフや <samp class="codeph">task_group</samp> のような非同期並列構造は、分離された領域内で注意して使用する必要があります。分離して実行される <samp class="codeph">graph::wait_for_all</samp> や <samp class="codeph">task_group::wait</samp> では、フローグラフのノードで <samp class="codeph">try_put</samp> を呼び出して (または <samp class="codeph">task_group::run</samp> で) スケジュールされたタスクは、同じ分離領域 (またはその領域で以前にスポーンされたタスク) でスケジュールされた場合にのみアクセスできます。その他の場合にアクセスすると、パフォーマンス問題やデッドロックが発生します。</div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> この関数を使用するには、アプリケーションをプレビュー・ライブラリーとリンクする必要があります。</div>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p>次のサンプルは、<samp class="codeph">this_task_arena::isolate</samp> を使用して、入れ子の並列構造の呼び出し中にスレッドローカル変数が予期せず変更されないことを保証しています。</p>
+<pre>
+#define TBB_PREVIEW_TASK_ISOLATION 1
+#include "tbb/task_arena.h"
+#include "tbb/parallel_for.h"
+#include "tbb/enumerable_thread_specific.h"
+#include &lt;cassert&gt;
+
+int main() {
+    const int N1 = 1000, N2 = 1000;
+    tbb::enumerable_thread_specific&lt;int&gt; ets;
+    tbb::parallel_for( 0, N1, [&amp;ets]( int i ) {
+        // スレッド固有の値を設定
+        ets.local() = i;
+        // 現在のスレッドが外側の並列ループに関連するタスクを処理しない
+        // ように 2 つ目の並列ループを分離された領域で実行
+        tbb::this_task_arena::isolate( []{
+            tbb::parallel_for( 0, N2, []( int j ) { /* 処理を行う */ } );
+        } );
+        assert( ets.local()==i ); // 有効なアサーション
+    } );
+    return 0;
+}
+</pre></div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/appendices/preview_features.html">プレビュー機能</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../../task_scheduler/task_arena_cls.html">task_arena クラスと this_task_arena 名前空間</a></div>
+<div><a href="../../task_scheduler.html">タスク・スケジューラー</a></div>
+</div>
+</div>
+</body>
+</html>

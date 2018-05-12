@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="優先度"/>
+<meta name="DC.subject" content="優先度"/>
+<meta name="keywords" content="優先度"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/task_scheduler.html"/>
+<meta name="DC.Relation" scheme="URI" content="task_group_context.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="priorities"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>優先度</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="priorities">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">優先度</h1>
+<div><div class="section"><p>個々のタスクまたはタスクグループに優先度レベルを割り当てることができます。ライブラリーは、3 つのレベル {low, normal, high} と 2 種類の優先度をサポートしています。</p>
+<p><ul><li>キューに入れられたタスクの静的な優先度。</li>
+<li>タスクグループの動的な優先度。</li>
+</ul>
+</p>
+<p>前者は <samp class="codeph">task::enqueue()</samp> メソッドのオプションの引数として指定され、特定のタスクのみに影響します。優先度は後から変更できます。優先度が高いタスクは、優先度が低いタスクの前にキューから出されます。後者は、グループのすべてのタスクに影響します。優先度は、関連付けられている <samp class="codeph">task_group_context</samp> オブジェクトから、またはグループに属するすべてのタスクからいつでも変更できます。<samp class="codeph">task_group_context</samp> の優先度に関連するメソッドは、「task_group_context」セクションで説明しています。タスク・スケジューラーは準備ができているタスク (キューに入れられたタスクとスポーンされたタスクの両方) の最も高い優先度を確認して、優先度の高いタスクがすべて実行されるまで、優先度の低いタスクの実行を延期します。デフォルトでは、すべてのタスクとタスクグループは優先度 normal で作成されます。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>優先度の変更は、すべてのスレッドで直ちに有効にならない場合があります。このため、優先度の高いタスクがある場合でも、しばらくの間、優先度の低いタスクが実行されることがあります。</p>
+</div>
+<p>いくつかのユーザースレッド (マスター) が同時に並列アルゴリズムを実行すると、ワーカースレッドのプールは要求された並列化レベルに比例して分割されます。優先度が異なるタスクがある場合、ワーカースレッドのプールは最初に最も優先度が高いマスター間で比例して分割されます。これらの最も優先度が高いマスターの要求を完全に満たした場合のみ、残りのスレッドがほかのマスターに提供されます。</p>
+<p>優先度の低いマスターはワーカースレッドなしになりますが、マスタースレッドが自身をストールすることはありません。タスクの優先度は、OS スレッドの優先度設定に影響を与えません。また、OS スレッドの優先度設定の影響も受けません。<div class="Note"><h3 class="NoteTipHead">注</h3> <p>あるマスタースレッドから別のマスタースレッドへのワーカースレッドの移行は、直ちに行われないことがあります。</p>
+</div>
+</p>
+<p><strong>関連する定数とメソッド</strong></p>
+<p><pre>namespace tbb {
+    enum priority_t {
+        priority_normal = implementation-defined,
+        priority_low = implementation-defined,
+        priority_high = implementation-defined
+    };
+
+    class task {
+        // ...
+        static void enqueue( task&amp;, priority_t );
+        void set_group_priority ( priority_t );
+        priority_t group_priority () const;        
+        // ...
+    };
+}
+</pre></p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d79214e58">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d79214e60">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d79214e58 "><span class="keyword">void enqueue ( task&amp; t, priority_t p ) const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d79214e60 "><p>タスク <samp class="codeph">t</samp> を優先度レベル <samp class="codeph">p</samp> でキューに入れます。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>キューに入れられたタスクの優先度は、<samp class="codeph">task::enqueue()</samp> が呼び出されたタスクグループ、つまり、<samp class="codeph">task::self()</samp> メソッドで返されたタスクが属するグループの優先度に影響を与えません。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d79214e58 "><span class="keyword">void set_group_priority ( priority_t )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d79214e60 "><p>このタスクが属する、タスクグループの優先度を変更します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d79214e58 "><span class="keyword">priority_t group_priority () const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d79214e60 "><p><strong>戻り値</strong>: このタスクが属する、タスクグループの優先度。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/task_scheduler.html">タスク・スケジューラー</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="task_group_context.html">task_group_context クラス</a></div></div></div>
+</body>
+</html>

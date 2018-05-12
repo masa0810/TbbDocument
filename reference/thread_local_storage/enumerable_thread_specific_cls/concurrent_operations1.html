@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="並列操作"/>
+<meta name="DC.subject" content="並列操作"/>
+<meta name="keywords" content="並列操作"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/thread_local_storage/enumerable_thread_specific_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="concurrent_operations1"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>並列操作</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="concurrent_operations1">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">並列操作</h1>
+<div><div class="section"><p>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d86907e26">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d86907e28">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d86907e26 "><span class="keyword">reference local()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d86907e28 "><p>現在のスレッドに対応する現在の要素がない場合、このメソッドは新しい要素を作成します。イグザンプラーが <samp class="codeph">*this</samp> のコンストラクターに提供されている場合、新しい要素はコピー構築されます。提供されていない場合、新しい要素はデフォルト設定で構築されます。以下の「警告」を参照してください。</p>
+<p><strong>戻り値</strong>: 現在のスレッドに対応する <samp class="codeph">*this</samp> の要素への参照。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d86907e26 "><span class="keyword">reference local( bool&amp; exists )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d86907e28 "><p>要素が現在のスレッドに存在していた場合は <samp class="codeph"><em>exists</em></samp> が true に設定され、存在していなかった場合は false に設定されることを除いて、<samp class="codeph">local()</samp> に似ています。以下の「警告」を参照してください。</p>
+<p><strong>戻り値</strong>: スレッドローカル要素への参照。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d86907e26 "><span class="keyword">size_type size() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d86907e28 "><p><strong>戻り値</strong>: <samp class="codeph">*this</samp> の要素の数。値は、<samp class="codeph">*this</samp> が作成された後、または最後に消去された後に local() を呼び出した (個別の) スレッドの数と同じです。以下の「警告」を参照してください。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d86907e26 "><span class="keyword">bool empty() const</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d86907e28 "><p><strong>戻り値</strong>: <samp class="codeph">size()==0</samp>。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p><samp class="codeph">tbb::this_tbb_thread::get_id()</samp> が返す OS 固有の値はスレッドを識別するために使用されます。スレッドの寿命を除いて一意であることは保証されません。新しく作成されたスレッドには、すでに破棄されたスレッドと同じ OS 固有の ID が割り当てられます。このため、<samp class="codeph">enumerable_thread_specific</samp> の要素数は <samp class="codeph">local()</samp> を呼び出した実際の (個別の) スレッド数よりも少ないことがあります。また、スレッドによる最初の参照で <samp class="codeph">enumerable_thread_specific</samp> に返された要素は新しく構築されないことがあります。</p>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/thread_local_storage/enumerable_thread_specific_cls.html">enumerable_thread_specific テンプレート・クラス</a></div>
+</div>
+<div/>
+</body>
+</html>

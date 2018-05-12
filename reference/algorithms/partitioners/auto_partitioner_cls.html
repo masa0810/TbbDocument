@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="auto_partitioner クラス"/>
+<meta name="DC.subject" content="auto_partitioner クラス"/>
+<meta name="keywords" content="auto_partitioner クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../reference/algorithms/partitioners.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../task_scheduler/task_scheduler_init_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../task_scheduler/task_arena_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="auto_partitioner_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../intel_css_styles.css"/>
+<title>auto_partitioner クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="auto_partitioner_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(3);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">auto_partitioner クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>並列ループがワークスチール・イベントに基づいて範囲の細分化を最適化するように指定します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/partitioner.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>class auto_partitioner;</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">auto_partitioner</samp> を含むループ・テンプレートは、ワークスチールのための十分な機会を提供しながら、範囲分割を最小限に抑えようとします。</p>
+<p>範囲分割は、最初は S サブ範囲に限定されます。ここで、S は <samp class="codeph">task_scheduler_init</samp> または <samp class="codeph">task_arena</samp> によって指定されたスレッド数に比例します。各サブ範囲は、アイドルスレッドによってスチールされない限り、さらに分割されることはありません。スチールされた場合は、追加のサブ範囲を作成するために再分割されます。このため、<samp class="codeph">auto_partitioner</samp> を含むループ・テンプレートは、負荷のバランスをとる必要がある場合のみ、追加のサブ範囲を作成します。</p>
+<div class="Note"><h3 class="NoteTipHead">ヒント</h3> <p>並列ループで <samp class="codeph">auto_partitioner</samp> と <samp class="codeph">blocked_range</samp> を使用する場合、ボディーに <samp class="codeph">blocked_range</samp> よりも大きな粒度のサブ範囲が渡されることがあります。このため、粒度はサブ範囲の上限であると仮定することはできません。上限が必要な場合は、<samp class="codeph">simple_partitioner</samp> を使用してください。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>
+namespace tbb {
+    class auto_partitioner {
+    public:
+        auto_partitioner();
+        ~auto_partitioner();
+    };
+}
+      </pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d6255e79">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d6255e81">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d6255e79 "><span class="keyword">auto_partitioner()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d6255e81 "><p><samp class="codeph">auto_partitioner</samp> を構築します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d6255e79 "><span class="keyword">~auto_partitioner()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d6255e81 "><p>この <samp class="codeph">auto_partitioner</samp> を破棄します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../reference/algorithms/partitioners.html">パーティショナー</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../../task_scheduler/task_scheduler_init_cls.html">task_scheduler_init クラス</a></div>
+<div><a href="../../task_scheduler/task_arena_cls.html">task_arena クラス</a></div></div></div>
+</body>
+</html>

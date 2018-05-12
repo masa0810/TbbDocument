@@ -1,0 +1,196 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="Windows*"/>
+<meta name="DC.subject" content="Windows*"/>
+<meta name="keywords" content="Windows*"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Package_Contents.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Microsoft_Visual_Studio_Code_Examples.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Integration_Plug-In_for_Microsoft_Visual_Studio_Projects.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Windows_OS"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>Windows*</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Windows_OS">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">Windows*</h1>
+<div><p>このセクションでは、インストール・ディレクトリーの表記に &lt;<em>install_dir</em>&gt; を使用します。次の表は、Windows* システムの &lt;<em>install_dir</em>&gt; 以下のサブディレクトリー構造を示したものです。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl3" width="100%" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">インテル&reg; TBB のサブディレクトリー (Windows*)</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="19.433962264150946%" id="d113907e35"><p>項目</p>
+</th>
+<th class="cellrowborder" valign="top" width="63.0188679245283%" id="d113907e38"><p>場所</p>
+</th>
+<th class="cellrowborder" valign="top" width="17.547169811320753%" id="d113907e41"><p>環境変数</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="19.433962264150946%" headers="d113907e35 "><p>インクルード・ファイル</p>
+</td>
+<td class="cellrowborder" valign="top" width="63.0188679245283%" headers="d113907e38 "><p><samp class="codeph">include</samp><samp class="codeph">\tbb\*.h</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="17.547169811320753%" headers="d113907e41 "><p><samp class="codeph">INCLUDE</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="19.433962264150946%" headers="d113907e35 "><p><span class="keyword">.lib</span> ファイル</p>
+</td>
+<td class="cellrowborder" valign="top" width="63.0188679245283%" headers="d113907e38 "><p><samp class="codeph">lib\&lt;<var>arch</var>&gt;\vc&lt;<var>vcversion</var>&gt;\&lt;<var>lib</var>&gt;&lt;<var>variant</var>&gt;.lib</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="17.547169811320753%" headers="d113907e41 "><p><samp class="codeph">LIB</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="19.433962264150946%" headers="d113907e35 "><p><span class="keyword">.dll</span> ファイル</p>
+</td>
+<td class="cellrowborder" valign="top" width="63.0188679245283%" headers="d113907e38 "><p><samp class="codeph">..\redist\&lt;<var>arch</var>&gt;\tbb\vc&lt;<var>vcversion</var>&gt;\&lt;<var>lib</var>&gt;&lt;<var>variant</var>&gt;.dll</samp>
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="border" border="1" cellspacing="0" rules="all"><thead align="left"><tr><th class="cellrowborder" valign="top" width="31.06796116504854%" id="d113907e113"><p>&lt;<var>arch</var>&gt;</p>
+</th>
+<th class="cellrowborder" valign="top" width="68.93203883495146%" id="d113907e119"><p>プロセッサー</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="31.06796116504854%" headers="d113907e113 "><p>ia32</p>
+</td>
+<td class="cellrowborder" valign="top" width="68.93203883495146%" headers="d113907e119 "><p>IA-32 アーキテクチャー・プロセッサー</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="31.06796116504854%" headers="d113907e113 "><p>intel64</p>
+</td>
+<td class="cellrowborder" valign="top" width="68.93203883495146%" headers="d113907e119 "><p>インテル&reg; 64 アーキテクチャー・プロセッサー</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</p>
+<p>
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="border" border="1" cellspacing="0" rules="all"><thead align="left"><tr><th class="cellrowborder" valign="top" width="31.715210355987054%" id="d113907e144"><p>&lt;<var>vcversion</var>&gt;</p>
+</th>
+<th class="cellrowborder" valign="top" width="68.28478964401295%" id="d113907e150"><p>環境</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="31.715210355987054%" headers="d113907e144 "><p>12</p>
+<p>12_ui</p>
+</td>
+<td class="cellrowborder" valign="top" width="68.28478964401295%" headers="d113907e150 "><p>Microsoft* Visual Studio* 2013</p>
+<p>Microsoft* Windows* ストア・アプリケーション</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="31.715210355987054%" headers="d113907e144 "><p>14</p>
+<p>14_uwp</p>
+<p>14_uwd</p>
+</td>
+<td class="cellrowborder" valign="top" width="68.28478964401295%" headers="d113907e150 "><p>Microsoft* Visual Studio* 2015</p>
+<p>Microsoft* Visual Studio* 2017</p>
+<p>Microsoft* Windows* ストア・アプリケーション</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="31.715210355987054%" headers="d113907e144 "><p>_mt</p>
+</td>
+<td class="cellrowborder" valign="top" width="68.28478964401295%" headers="d113907e150 "><p>Microsoft* Visual Studio* のバージョンとは無関係です。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</p>
+<p>
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="border" border="1" cellspacing="0" rules="all"><thead align="left"><tr><th class="cellrowborder" valign="top" width="41.10032362459547%" id="d113907e194"><p>&lt;<var>lib</var>&gt;</p>
+</th>
+<th class="cellrowborder" valign="top" width="58.89967637540453%" id="d113907e200"><p>バージョン</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="41.10032362459547%" headers="d113907e194 "><p><samp class="codeph">tbb</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="58.89967637540453%" headers="d113907e200 "><p>一般ライブラリー</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="41.10032362459547%" headers="d113907e194 "><p><samp class="codeph">tbbmalloc</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="58.89967637540453%" headers="d113907e200 "><p>メモリー・アロケーター</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="41.10032362459547%" headers="d113907e194 "><p><samp class="codeph">tbbmalloc_proxy</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="58.89967637540453%" headers="d113907e200 "><p>デフォルトのメモリー・アロケーターの代替</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="41.10032362459547%" headers="d113907e194 "><p><samp class="codeph">tbb_preview</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="58.89967637540453%" headers="d113907e200 "><p>プレビュー機能ライブラリー</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</p>
+<p>
+<div class="tablenoborder"><table cellpadding="4" summary="" width="100%" frame="border" border="1" cellspacing="0" rules="all"><thead align="left"><tr><th class="cellrowborder" valign="top" width="34.95145631067961%" id="d113907e243"><p>&lt;<var>variant</var>&gt;</p>
+</th>
+<th class="cellrowborder" valign="top" width="65.0485436893204%" id="d113907e249"><p>バージョン</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="34.95145631067961%" headers="d113907e243 "><p>(なし)</p>
+</td>
+<td class="cellrowborder" valign="top" width="65.0485436893204%" headers="d113907e249 "><p>リリースバージョン</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="34.95145631067961%" headers="d113907e243 "><p><samp class="codeph">_debug</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="65.0485436893204%" headers="d113907e249 "><p>デバッグバージョン</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</p>
+</td>
+<td class="cellrowborder" valign="top" width="17.547169811320753%" headers="d113907e41 "><p><samp class="codeph">PATH</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="19.433962264150946%" headers="d113907e35 "><p><span class="keyword">.pdb</span> ファイル</p>
+</td>
+<td class="cellrowborder" valign="top" width="63.0188679245283%" headers="d113907e38 "><p>対応する <samp class="codeph">.dll</samp> ファイルと同じです。</p>
+</td>
+<td class="cellrowborder" valign="top" width="17.547169811320753%" headers="d113907e41 "><p> </p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>最後の列は、これらのサブディレクトリーを認識するために Microsoft* Visual C++* またはインテル&reg; C++ コンパイラーによって使用される環境変数です。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>適切な製品ディレクトリーが環境変数によって指定されるようにしてください。適切に指定されない場合、コンパイラーが必要なファイルを認識できないことがあります。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>Microsoft* C/C++ ランタイム・ライブラリーは、スタティック形式とダイナミック形式で提供されます。どちらの形式もインテル&reg; TBB と一緒に使用できます。インテル&reg; TBB ライブラリーへのリンクは常にダイナミックです。</p>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>インテル&reg; TBB 2017 から、Windows* 向けのインテル&reg; TBB サンプルは、ライブラリーとは別に、スタンドアロン・パッケージ (<a href="https://software.intel.com/en-us/product-code-samples" target="_blank">https://software.intel.com/en-us/product-code-samples</a>) またはインテル&reg; Parallel Studio XE/インテル&reg; System Studio のオンライン・サンプル・パッケージの一部として配布されるようになりました。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Package_Contents.html">パッケージの内容</a></div>
+</div>
+<div>
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../tbb_userguide/Microsoft_Visual_Studio_Code_Examples.html">Microsoft* Visual Studio* のコードサンプル</a><br/>
+</li>
+<li class="ulchildlink"><a href="../tbb_userguide/Integration_Plug-In_for_Microsoft_Visual_Studio_Projects.html">Microsoft* Visual Studio* プロジェクト用統合プラグイン</a><br/>
+</li>
+</ul>
+</div>
+</body>
+</html>

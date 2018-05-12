@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="ノンプリエンプティブな優先度"/>
+<meta name="DC.subject" content="ノンプリエンプティブな優先度"/>
+<meta name="keywords" content="ノンプリエンプティブな優先度"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/Design_Patterns.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="Non-Preemptive_Priorities"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>ノンプリエンプティブな優先度</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="Non-Preemptive_Priorities">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">ノンプリエンプティブな優先度</h1>
+<div><div class="section"><h2 class="sectiontitle">問題</h2><p>優先度に基づいて次に処理するワークアイテムを選択する。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">コンテキスト</h2><p>インテル&reg; TBB のスケジューラーは、スケーラビリティーに基づく規則を使用してタスクを選択します。この規則は、タスクがスポーンまたはキューに入れられた順序に基づいており、タスクの内容は考慮しません。場合によっては、優先度の関係に基づいてワークを選択するほうが良いこともあります。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">影響</h2><ul><li><p>複数のワークアイテムを指定した場合、(デフォルトのインテル&reg; TBB の規則<strong>ではない</strong>) 次に処理するアイテムに対する規則があります。</p>
+</li>
+<li><p>プリエンプティブな優先度は必要ありません。優先度の高いアイテムが現れた場合、実行中の優先度の低いアイテムを直ちに停止する必要はありません。プリエンプティブな優先度が必要な場合、ノンプリエンプティブなタスク処理は不適切です。代わりにスレッドを使用してください。</p>
+</li>
+</ul>
+</div>
+<div class="section"><h2 class="sectiontitle">ソリューション</h2><p>ワークを共有ワークパイルに入れます。タスク実行がパイルから実際のワークを選択できるように、特定のワークからタスクを分離します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p id="NonPreemptivePrioritiesExample">次のサンプルは、3 つの優先度を実装します。ユーザー・インターフェイスとトップレベルの実装が続きます。</p>
+<pre>enum Priority {
+   P_High,
+   P_Medium,
+   P_Low
+};
+ 
+template&lt;typename Func&gt;
+void EnqueueWork( Priority p, Func f ) {
+   WorkItem* item = new ConcreteWorkItem&lt;Func&gt;( p, f );
+   ReadyPile.add(item);
+}</pre><p>呼び出し元はルーチン <samp class="codeph">EnqueueWork</samp> に優先度 <samp class="codeph">p</samp> とファンクター <samp class="codeph">f</samp> を提供します。ファンクターはラムダ式によるものかもしれません。 
+		  <samp class="codeph">EnqueueWork</samp> は <samp class="codeph">f</samp> を <samp class="codeph">WorkItem</samp> としてパッケージし、グローバル・オブジェクト <samp class="codeph">ReadyPile</samp> に追加します。 
+		</p>
+<p><samp class="codeph">WorkItem</samp> クラスは、不明な型のファンクターを実行するための統一されたインターフェイスを提供します。</p>
+<pre>// 優先度を付けるワークの抽象基本クラス
+class WorkItem {
+public:
+   WorkItem( Priority p ) : priority(p) {}
+   // 派生クラスは実際のワークを定義
+   virtual void run() = 0;
+   const Priority priority;
+};
+ 
+template&lt;typename Func&gt;</pre><pre id="ConcreteWorkItem">class ConcreteWorkItem: public WorkItem {
+   Func f;
+   /* オーバーライド */ void run() {
+       f();
+       delete this;
+   }
+public:
+   ConcreteWorkItem( Priority p, const Func&amp; f_ ) :
+       WorkItem(p), f(f_)
+   {}
+};</pre><p><samp class="codeph">ReadyPile</samp> クラスはコアパターンを含みます。ワークのコレクションを保持して、コレクションからワークを選択するタスクを送ります。
+		</p>
+<pre id="ReadyPile">class ReadyPileType {
+   // 各優先度レベルごとに 1 つのキュー
+   tbb::concurrent_queue&lt;WorkItem*&gt; level[P_Low+1];
+public:
+   void add( WorkItem* item ) {
+       level[item-&gt;priority].push(item);
+       tbb::task::enqueue(*new(tbb::task::allocate_root()) RunWorkItem);
+   }
+   void runNextWorkItem() {
+       // アイテムの優先度順にキューをスキャン
+       WorkItem* item=NULL;
+       for( int i=P_High; i&lt;=P_Low; ++i )
+           if( level[i].try_pop(item) )
+               break;
+       assert(item);
+       item-&gt;run();
+   }
+};
+ 
+ReadyPileType ReadyPile;</pre><p><samp class="codeph">add(item)</samp> によってキューに入れられたタスクは、必ずしもそのアイテムを実行するわけでは<strong>ありません</strong>。タスクは <samp class="codeph">runNextWorkItem()</samp> を実行し、より優先度の高いアイテムが見つかることがあります。各アイテムにつき 1 つのタスクがありますが、マッピングにより、タスクがいつ作成されるかではなく、タスクがいつ実際に実行されるかを指定できます。 
+		</p>
+<p><samp class="codeph">RunWorkItem</samp> クラスの詳細は次のとおりです。</p>
+<pre>class RunWorkItem: public tbb::task {
+   /* オーバーライド */tbb::task* execute(); // 仮想メソッドのプライベート・オーバーライド
+};
+...
+tbb::task* RunWorkItem::execute() { 
+   ReadyPile.runNextWorkItem();
+   return NULL;
+};</pre><p><samp class="codeph">RunWorkItem</samp> オブジェクトは代替可能です。インテル&reg; TBB のスケジューラーは、これらのオブジェクトを使用して、どのワークアイテムを行うかではなく、いつワークアイテムを行うかを決定します。呼び出しはすべて <samp class="codeph">task</samp> 基本クラス経由でディスパッチされるため、<samp class="codeph">task::execute</samp> 仮想メソッドのオーバーライドはプライベートです。
+		</p>
+<p>ほかの優先度手法は <samp class="codeph">ReadyPileType</samp> の内部を変更することで実装できます。非常に細粒度の優先度を実装するには、優先度キューを使用することができます。</p>
+<p>パターンのスケーラビリティーは <samp class="codeph">ReadyPileType</samp> のスケーラビリティーによって制限されるため、この部分には理想的にスケーラブルなコンカレント・コンテナーを使用するべきです。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../tbb_userguide/Design_Patterns/Design_Patterns.html">デザインパターン</a></div>
+</div>
+<div/>
+</body>
+</html>

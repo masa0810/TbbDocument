@@ -1,0 +1,288 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="concurrent_unordered_set テンプレート・クラスと concurrent_unordered_multiset テンプレート・クラス"/>
+<meta name="DC.subject" content="concurrent_unordered_set, concurrent_unordered_multiset"/>
+<meta name="keywords" content="concurrent_unordered_set, concurrent_unordered_multiset"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/containers_overview.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/containers_overview/concurrent_unordered_set_cls/construct_destroy_copy_set_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/containers_overview/concurrent_unordered_set_cls/size_and_capacity_set_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/containers_overview/concurrent_unordered_set_cls/container_iterators_set_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/containers_overview/concurrent_unordered_set_cls/modifiers_set_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/containers_overview/concurrent_unordered_set_cls/observers_set_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/containers_overview/concurrent_unordered_set_cls/lookup_set_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/containers_overview/concurrent_unordered_set_cls/parallel_iteration_set_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/containers_overview/concurrent_unordered_set_cls/bucket_interface_set_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/containers_overview/concurrent_unordered_set_cls/hash_policy_set_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="tbb_hash_compare_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="concurrent_unordered_map_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="concurrent_hash_map_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="concurrent_unordered_set_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>concurrent_unordered_set テンプレート・クラスと concurrent_unordered_multiset テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="concurrent_unordered_set_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1"><samp class="codeph">concurrent_unordered_set</samp> テンプレート・クラスと <samp class="codeph">concurrent_unordered_multiset</samp> テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>挿入および全検索の並列操作をサポートするセットコンテナー用のテンプレート・クラス。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>
+template &lt;typename Key,
+             typename Hasher = tbb_hash&lt;Key&gt;,
+             typename Equality = std::equal_to&lt;Key&gt;,
+             typename Allocator = tbb::tbb_allocator&lt;Key&gt;
+class concurrent_unordered_set;
+</pre><pre>
+template &lt;typename Key,
+             typename Hasher = tbb_hash&lt;Key&gt;,
+             typename Equality = std::equal_to&lt;Key&gt;,
+             typename Allocator = tbb::tbb_allocator&lt;Key&gt;
+class concurrent_unordered_multiset;
+</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/concurrent_unordered_set.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">concurrent_unordered_map</samp> と <samp class="codeph">concurrent_unordered_multimap</samp> は、挿入と全検索の並列操作はサポートしていますが、消去の並列操作はサポートしていません。インターフェイスには使用可能なロックはありません。内部的にロックを保持している可能性はありますが、ユーザー定義コードの呼び出し中にロックが保持されることはありません。次の点を除いて、それぞれ C++11 の <samp class="codeph">std::unordered_set</samp> と <samp class="codeph">std::unordered_multiset</samp> のセマンティクスと似ています。</p>
+<ul><li><p>C++11 言語機能を必要とする一部のメソッド (rvalue 参照など) は省略されています。</p>
+</li>
+<li><p><samp class="codeph">erase</samp> メソッドには、並列化セーフでないことを示すプリフィクス <samp class="codeph">unsafe_</samp> が付いています。</p>
+</li>
+<li><p>バケットメソッドには、挿入操作は並列化セーフでないことを示すプリフィクス <samp class="codeph">unsafe_</samp> が付いています。</p>
+</li>
+<li><p><samp class="codeph">concurrent_unordered_set</samp> で <samp class="codeph">insert</samp> メソッドは、一時的なペアを作成することがあります。これは、別のスレッドが同時に同じキーを挿入した場合は破棄されます。</p>
+</li>
+<li><p><samp class="codeph">std::list</samp> と同様に、新しいアイテムの挿入はイテレーターを無効に<strong>しません</strong>。また、すでにマップにあるアイテムの順序を変更することもありません。挿入操作と全検索操作は並列に処理することができます。</p>
+</li>
+<li><p><samp class="codeph">iterator</samp> イテレーター型および <samp class="codeph">const_iterator</samp> イテレーター型は、前方イテレーターです。</p>
+</li>
+<li><p>挿入操作は、<samp class="codeph">equal_range</samp> によって返されたイテレーターを無効にまたは更新しません。そのため、等価でないアイテムが範囲の最後に挿入されることがあります。最初のイテレーターは、挿入操作後も見つかったアイテムを指します。</p>
+</li>
+</ul>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><thead align="left"><tr><th class="cellrowborder" valign="top" width="37.453183520599254%" id="d35254e108">クラス</th>
+<th class="cellrowborder" valign="top" width="62.546816479400746%" id="d35254e110">重要な違い</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="37.453183520599254%" headers="d35254e108 "><p><samp class="codeph">concurrent_unordered_set</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="62.546816479400746%" headers="d35254e110 "><p><samp class="codeph">concurrent_unordered_set</samp> では、アイテムが 1 回だけ挿入される可能性があります。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="37.453183520599254%" headers="d35254e108 "><p><samp class="codeph">concurrent_unordered_multiset</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="62.546816479400746%" headers="d35254e110 "><ul><li><p><samp class="codeph">concurrent_unordered_multiset</samp> では、アイテムが複数回挿入される可能性があります。</p>
+</li>
+<li><p><samp class="codeph">find</samp> は、検索キーに一致するテーブルの最初のアイテムを返します。ただし、そのアイテムが返される前に、コンテナーへの同時アクセスにより、同じキーの別のアイテムが挿入される可能性があります。</p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>ほかのハッシュテーブルと同様に、等価なキーのハッシュコードは同じでなければなりません。理想的なハッシュ関数は、キーをハッシュコード空間に均等に分散します。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle"><samp class="codeph">concurrent_unordered_set</samp> と <samp class="codeph">concurrent_unordered_multiset</samp> の共通のメンバー</h2><p>次のコード例で、<samp class="codeph"><span class="color(blue)" style="color:blue"><strong>太字</strong></span></samp>のメソッドは同時に呼び出すことができます。例えば、3 つの異なるスレッドが <samp class="codeph">insert</samp>、<samp class="codeph">begin</samp>、および <samp class="codeph">size</samp> を同時に呼び出すことができます。それぞれの結果は非決定的です。例えば、size の結果は insert 操作の前後では異なります。</p>
+<pre>
+public:
+    // 型
+    typedef Key key_type;
+    typedef Key value_type;
+    typedef Key mapped_type;
+    typedef Hash hasher;
+    typedef Equality key_equal;
+    typedef Alloc allocator_type;
+    typedef typename allocator_type::pointer pointer;
+    typedef typename allocator_type::const_pointer const_pointer;
+    typedef typename allocator_type::reference reference;
+    typedef typename allocator_type::const_reference const_reference;
+    typedef <em>implementation-defined</em> size_type;
+    typedef <em>implementation-defined</em> difference_type;
+    typedef <em>implementation-defined</em> iterator;
+    typedef <em>implementation-defined</em> const_iterator;
+    typedef <em>implementation-defined</em> local_iterator;
+    typedef <em>implementation-defined</em> const_local_iterator;
+
+    allocator_type get_allocator() const;
+
+    // サイズとキャパシティー
+    bool <span class="color(blue)" style="color:blue"><strong>empty()</strong></span> const;     // リニア時間になる! 
+    size_type <span class="color(blue)" style="color:blue"><strong>size()</strong></span> const; // リニア時間になる! 
+    size_type max_size() const;
+
+    // イテレーター
+    iterator <span class="color(blue)" style="color:blue"><strong>begin</strong></span>();
+    const_iterator <span class="color(blue)" style="color:blue"><strong>begin</strong></span>() const;
+    iterator <span class="color(blue)" style="color:blue"><strong>end</strong></span>();
+    const_iterator <span class="color(blue)" style="color:blue"><strong>end</strong></span>() const;
+    const_iterator <span class="color(blue)" style="color:blue"><strong>cbegin</strong></span>() const;
+    const_iterator <span class="color(blue)" style="color:blue"><strong>cend</strong></span>() const;
+
+    // 修飾子
+    std::pair&lt;iterator, bool&gt; <span class="color(blue)" style="color:blue"><strong>insert</strong></span>(const value_type&amp; x);
+    iterator <span class="color(blue)" style="color:blue"><strong>insert</strong></span>(const_iterator hint, const value_type&amp; x);
+    template&lt;class InputIterator&gt;
+    void <span class="color(blue)" style="color:blue"><strong>insert</strong></span>(InputIterator first,InputIterator last);
+    // C++11 からサポート
+    std::pair&lt;iterator, bool&gt; <span class="color(blue)" style="color:blue"><strong>insert</strong></span>(value_type&amp;&amp; x);
+    iterator <span class="color(blue)" style="color:blue"><strong>insert</strong></span>(const_iterator hint, value_type&amp;&amp; x);    
+    void <span class="color(blue)" style="color:blue"><strong>insert</strong></span>(std::initializer_list&lt;value_type&gt; il);
+    // C++11 からサポート
+    template&lt;typename...Args&gt;
+    std::pair&lt;iterator, bool&gt; <span class="color(blue)" style="color:blue"><strong>emplace</strong></span>(Args&amp;&amp;... args);
+    template&lt;typename...Args&gt;
+    iterator <span class="color(blue)" style="color:blue"><strong>emplace_hint</strong></span>(const_iterator hint, Args&amp;&amp;... args);
+
+
+    iterator unsafe_erase(const_iterator position);
+    size_type unsafe_erase(const key_type&amp; k);
+    iterator unsafe_erase(const_iterator first, const_iterator last);
+    void clear();
+
+    // オブザーバー
+    hasher hash_function() const;
+    key_equal key_eq() const;
+
+    // ルックアップ
+    iterator <span class="color(blue)" style="color:blue"><strong>find</strong></span>(const key_type&amp; k);
+    const_iterator <span class="color(blue)" style="color:blue"><strong>find</strong></span>(const key_type&amp; k) const;
+    size_type <span class="color(blue)" style="color:blue"><strong>count</strong></span>(const key_type&amp; k) const;
+    std::pair&lt;iterator, iterator&gt; <span class="color(blue)" style="color:blue"><strong>equal_range</strong></span>(const key_type&amp; k);
+    std::pair&lt;const_iterator, const_iterator&gt; <span class="color(blue)" style="color:blue"><strong>equal_range</strong></span>(const key_type&amp; k) const;
+
+    // 並列反復
+    typedef <em>implementation defined</em> range_type;
+    typedef <em>implementation defined</em> const_range_type;
+    range_type range();
+    const_range_type range() const;
+
+    // バケット・インターフェイス - デバッグ用
+    size_type unsafe_bucket_count() const;
+    size_type unsafe_max_bucket_count() const;
+    size_type unsafe_bucket_size(size_type n);
+    size_type unsafe_bucket(const key_type&amp; k) const;
+    local_iterator unsafe_begin(size_type n);
+    const_local_iterator unsafe_begin(size_type n) const;
+    local_iterator unsafe_end(size_type n);
+    const_local_iterator unsafe_end(size_type n) const;
+    const_local_iterator unsafe_cbegin(size_type n) const;
+    const_local_iterator unsafe_cend(size_type n) const;
+
+    // ハッシュ・ポリシー
+    float load_factor() const;
+    float max_load_factor() const;
+    void max_load_factor(float z);
+    void rehash(size_type n);
+</pre></div>
+<div class="section"><h2 class="sectiontitle"><samp class="codeph">concurrent_unordered_set</samp> のメンバー</h2><pre>
+public:
+    // 構築、破棄、コピー
+    explicit concurrent_unordered_set(size_type n = <em>implementation-defined</em>,
+                                      const Hasher&amp; hf = hasher(),
+                                      const key_equal&amp; eql = key_equal(),
+                                      const allocator_type&amp; a = allocator_type());
+    template &lt;typename InputIterator&gt;
+    concurrent_unordered_set(InputIterator first, InputIterator last,
+                             size_type n = <em>implementation-defined</em>,
+                             const hasher&amp; hf = hasher(),
+                             const key_equal&amp; eql = key_equal(),
+                             const allocator_type&amp; a = allocator_type());
+    concurrent_unordered_set(const concurrent_unordered_set&amp;);
+    explicit concurrent_unordered_set(const Alloc&amp;);
+    concurrent_unordered_set(const concurrent_unordered_set&amp;, const Alloc&amp;);
+    // C++11 からサポート
+    concurrent_unordered_set(concurrent_unordered_set&amp;&amp;);
+    concurrent_unordered_set(concurrent_unordered_set&amp;&amp;, const Allocator&amp;);
+    concurrent_unordered_set(std::initializer_list&lt;value_type&gt; il,
+                             size_type n = <em>implementation-defined</em>,
+                             const Hasher&amp; hf = hasher(),
+                             const key_equal&amp; eql = key_equal(),
+                             const allocator_type&amp; a = allocator_type());
+    ~concurrent_unordered_set();
+
+    concurrent_unordered_set&amp; operator=(const concurrent_unordered_set&amp;);
+    // C++11 からサポート
+    concurrent_unordered_set&amp; operator=(concurrent_unordered_set&amp;&amp;)
+    concurrent_unordered_set&amp; operator=(std::initializer_list&lt;value_type&gt; il);
+
+    void swap(concurrent_unordered_set&amp;);
+</pre></div>
+<div class="section"><h2 class="sectiontitle"><samp class="codeph">concurrent_unordered_multiset</samp> のメンバー</h2><pre>
+public:
+    // 構築、破棄、コピー
+    explicit concurrent_unordered_multiset(size_type n = <em>implementation-defined</em>,
+                                           const Hasher&amp; hf = hasher(),
+                                           const key_equal&amp; eql = key_equal(),
+                                           const allocator_type&amp; a = allocator_type());
+    template &lt;typename InputIterator&gt;
+    concurrent_unordered_multiset(InputIterator first, InputIterator last,
+                                  size_type n = <em>implementation-defined</em>,
+                                  const hasher&amp; hf = hasher(),
+                                  const key_equal&amp; eql = key_equal(),
+                                  const allocator_type&amp; a = allocator_type());
+    concurrent_unordered_multiset(const concurrent_unordered_multiset&amp;);
+    explicit concurrent_unordered_multiset(const Alloc&amp;);
+    concurrent_unordered_multiset(const concurrent_unordered_multiset&amp;, const Alloc&amp;);
+    // C++11 からサポート
+    concurrent_unordered_multiset(concurrent_unordered_multiset&amp;&amp;);
+    concurrent_unordered_multiset(concurrent_unordered_multiset&amp;&amp;, const Allocator&amp;);
+    concurrent_unordered_multiset(std::initializer_list&lt;value_type&gt; il,
+                                  size_type n = <em>implementation-defined</em>,
+                                  const Hasher&amp; hf = hasher(),
+                                  const key_equal&amp; eql = key_equal(),
+                                  const allocator_type&amp; a = allocator_type());
+    ~concurrent_unordered_multiset();
+
+    concurrent_unordered_multiset&amp; operator=(const concurrent_unordered_multiset&amp;);
+    // C++11 からサポート
+    concurrent_unordered_multiset&amp; operator=(concurrent_unordered_multiset&amp;&amp;)
+    concurrent_unordered_multiset&amp; operator=(std::initializer_list&lt;value_type&gt; il);
+
+    void swap(concurrent_unordered_multiset&amp;);
+</pre></div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/containers_overview.html">コンテナーの概要</a></div>
+</div>
+<div class="See Also">
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../../reference/containers_overview/concurrent_unordered_set_cls/construct_destroy_copy_set_cls.html">構築、破棄、コピー</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/containers_overview/concurrent_unordered_set_cls/size_and_capacity_set_cls.html">サイズおよびキャパシティー</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/containers_overview/concurrent_unordered_set_cls/container_iterators_set_cls.html">イテレーター</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/containers_overview/concurrent_unordered_set_cls/modifiers_set_cls.html">修飾子</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/containers_overview/concurrent_unordered_set_cls/observers_set_cls.html">オブザーバー</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/containers_overview/concurrent_unordered_set_cls/lookup_set_cls.html">ルックアップ</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/containers_overview/concurrent_unordered_set_cls/parallel_iteration_set_cls.html">並列反復</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/containers_overview/concurrent_unordered_set_cls/bucket_interface_set_cls.html">バケットのインターフェイス</a><br/>
+</li>
+<li class="ulchildlink"><a href="../../reference/containers_overview/concurrent_unordered_set_cls/hash_policy_set_cls.html">ハッシュポリシー</a><br/>
+</li>
+</ul>
+<h2>関連情報</h2>
+<div class="linklist">
+<div><a href="tbb_hash_compare_cls.html">tbb_hash</a></div>
+<div><a href="concurrent_unordered_map_cls.html">concurrent_unordered_map</a></div>
+<div><a href="concurrent_hash_map_cls.html">concurrent_hash_map</a></div></div></div>
+</body>
+</html>

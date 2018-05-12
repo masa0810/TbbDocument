@@ -1,0 +1,189 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="スケーラブル・アロケーターの C インターフェイス"/>
+<meta name="DC.subject" content="スケーラブル・アロケーターの C インターフェイス"/>
+<meta name="keywords" content="スケーラブル・アロケーターの C インターフェイス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/memory_allocation.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="c_interface_to_scalable_allocator"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>スケーラブル・アロケーターの C インターフェイス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="c_interface_to_scalable_allocator">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">スケーラブル・アロケーターの C インターフェイス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>スケーラブルなメモリー割り当て用の低水準インターフェイス。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>        extern "C" {
+            // C メモリー・アロケーターのスケーラブル・バージョン
+            void* scalable_malloc( size_t size );
+            void  scalable_free( void* ptr );
+            void* scalable_calloc( size_t nobj, size_t size );
+            void* scalable_realloc( void* ptr, size_t size );
+         
+            // _msize/malloc_size/malloc_usable_size のスケーラブル・バージョン
+            size_t scalable_msize( void* ptr );
+         
+            // posix_memalign のスケーラブル・バージョン
+            int scalable_posix_memalign( void** memptr, size_t alignment, 
+                                         size_t size );
+         
+            // アラインして割り当て
+            void* scalable_aligned_malloc( size_t size, 
+                                           size_t alignment);
+            void scalable_aligned_free( void* ptr ); 
+            void* scalable_aligned_realloc( void* ptr, size_t size, 
+                                            size_t alignment );
+
+            // scalable_allocation_* 関数の戻り値
+            typedef enum {
+                TBBMALLOC_OK,
+                TBBMALLOC_INVALID_PARAM,
+                TBBMALLOC_UNSUPPORTED,
+                TBBMALLOC_NO_MEMORY,
+                TBBMALLOC_NO_EFFECT
+            } ScalableAllocationResult;
+
+            typedef enum {
+                // ラージ・メモリー・ページの使用のオン/オフ
+                TBBMALLOC_USE_HUGE_PAGES,
+                // アロケーターのメモリー使用量のしきい値を設定
+                // しきい値を超えると内部メモリーバッファーをクリーン
+                TBBMALLOC_SET_SOFT_HEAP_LIMIT
+            } AllocationModeParam;
+
+            // アロケーター固有のアロケーション・モードを設定
+            int scalable_allocation_mode(int param, intptr_t value);
+
+            typedef enum {
+                // すべてのスレッドの内部アロケーター・バッファーをクリーン
+                TBBMALLOC_CLEAN_ALL_BUFFERS,
+                // 現在のスレッドの内部アロケーター・バッファーをクリーン
+                TBBMALLOC_CLEAN_THREAD_BUFFERS
+            } ScalableAllocationCmd;
+
+            // アロケーター固有のコマンドを呼び出す
+            int scalable_allocation_command(int cmd, void *param);
+
+
+        }</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/scalable_allocator.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p>これらの関数は、スケーラブル・アロケーターに C 水準のインターフェイスを提供します。scalable_allocation_mode および scalable_allocation_command を除き、scalable_<samp class="codeph"><em>x</em></samp> ルーチンはそれぞれ、<samp class="codeph"><em>x</em></samp> ライブラリー関数に似た動作を行います。下記の表に示されているように、ルーチンには 2 つのファミリーがあります。あるファミリーの scalable_<samp class="codeph"><em>x</em></samp> 関数で割り当てた記憶領域は、C 標準ライブラリー関数ではなく、同じファミリーの scalable_<samp class="codeph"><em>x</em></samp> 関数で解放またはサイズ変更してください。同様に、C 標準ライブラリー関数で割り当てた記憶領域は、scalable_<samp class="codeph"><em>x</em></samp> 関数で解放またはサイズ変更しないでください。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl23" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">スケーラブル・アロケーターの C インターフェイス</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="10.256410256410255%" id="d69068e64"><p>ファミリー</p>
+</th>
+<th class="cellrowborder" valign="top" width="30.76923076923077%" id="d69068e67"><p>割り当てルーチン</p>
+</th>
+<th class="cellrowborder" valign="top" width="33.94871794871795%" id="d69068e70"><p>割り当て解除ルーチン</p>
+</th>
+<th class="row-nocellborder" valign="top" width="25.025641025641026%" id="d69068e73"><p>類似ライブラリー</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" rowspan="4" valign="top" width="10.256410256410255%" headers="d69068e64 "><p>1</p>
+</td>
+<td class="cellrowborder" valign="top" width="30.76923076923077%" headers="d69068e67 "><p>scalable_malloc</p>
+</td>
+<td class="cellrowborder" rowspan="4" valign="top" width="33.94871794871795%" headers="d69068e70 "><p>scalable_free</p>
+</td>
+<td class="row-nocellborder" rowspan="3" valign="top" width="25.025641025641026%" headers="d69068e73 "><p>C 標準ライブラリー</p>
+</td>
+</tr>
+<tr><td class="row-nocellborder" valign="top" width="30.76923076923077%" headers="d69068e67 "><p>scalable_calloc</p>
+</td>
+</tr>
+<tr><td class="row-nocellborder" valign="top" width="30.76923076923077%" headers="d69068e67 "><p>scalable_realloc</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="30.76923076923077%" headers="d69068e67 "><p>scalable_posix_memalign</p>
+</td>
+<td class="row-nocellborder" valign="top" width="25.025641025641026%" headers="d69068e73 "><p>POSIX*</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" rowspan="2" valign="top" width="10.256410256410255%" headers="d69068e64 "><p>2</p>
+</td>
+<td class="cellrowborder" valign="top" width="30.76923076923077%" headers="d69068e67 "><p>scalable_aligned_malloc</p>
+</td>
+<td class="cellrowborder" rowspan="2" valign="top" width="33.94871794871795%" headers="d69068e70 "><p>scalable_aligned_free</p>
+</td>
+<td class="row-nocellborder" rowspan="2" valign="top" width="25.025641025641026%" headers="d69068e73 "><p>Microsoft* C ランタイム・ライブラリー</p>
+</td>
+</tr>
+<tr><td class="row-nocellborder" valign="top" width="30.76923076923077%" headers="d69068e67 "><p>scalable_aligned_realloc</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">size_t scalable_msize( void* ptr )</h2><p><strong>戻り値</strong></p>
+<p><em>ptr</em> がスケーラブル・アロケーターで割り当てたメモリーブロックを指している場合、メモリーブロックの使用可能なサイズ。<em>ptr</em> がそのようなブロックを指していない場合は 0。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">int scalable_allocation_mode(int mode, intptr_t value)</h2><p>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc"><p>この関数は、スケラーブル・メモリー・アロケーターの動作を調整するために使用されます。</p>
+<p><strong>戻り値</strong>: 操作に成功した場合は TBBMALLOC_OK。<samp class="codeph">mode</samp> が次のいずれかでない、または <samp class="codeph">value</samp> が指定されたモードで有効でない場合は TBBMALLOC_INVALID_PARAM。次に示すように、ほかの戻り値も可能です。</p>
+</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d69068e158">引数</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d69068e160">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d69068e158 "><span class="keyword">TBBMALLOC_USE_HUGE_PAGES</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d69068e160 "><p><samp class="codeph">scalable_allocation_mode(TBBMALLOC_USE_HUGE_PAGES, 1)</samp> は、オペレーティング・システムでサポートされている場合、アロケーターによる大容量ページの使用を有効にします。<samp class="codeph">scalable_allocation_mode(TBBMALLOC_USE_HUGE_PAGES, 0)</samp> は無効にします。<samp class="codeph">TBB_MALLOC_USE_HUGE_PAGES</samp> 環境変数を 1 に設定すると <samp class="codeph">scalable_allocation_mode(TBBMALLOC_USE_HUGE_PAGES, 1)</samp> と同じ効果が得られます。<samp class="codeph">scalable_allocation_mode()</samp> で設定されたモードは環境変数よりも優先されます。</p>
+<p><strong>戻り値</strong>: 大容量ページがプラットフォームでサポートされていない場合は TBBMALLOC_NO_EFFECT。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>このモードでは、メモリー要求サイズまたはアライメントを大容量ページサイズの倍数に丸めることは推奨しません。大容量ページが効率良く使用されず、パフォーマンスが低下する可能性があります。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d69068e158 "><span class="keyword">TBBMALLOC_SET_SOFT_HEAP_LIMIT</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d69068e160 "><p><samp class="codeph">scalable_allocation_mode(TBBMALLOC_SET_SOFT_HEAP_LIMIT, size)</samp> は、アロケーターが OS から取得するメモリー量のしきい値 <samp class="codeph">size</samp> (バイト単位) を設定します。しきい値を超えると、アロケーターの内部バッファーからメモリーを解放しますが、必要な場合により多くのメモリーを要求することを阻むわけではありません。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</p>
+</div>
+<div class="section"><h2 class="sectiontitle">int scalable_allocation_command(int cmd, void *reserved)</h2>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc"><p>この関数は、第 1 引数で指定された動作を実行するようスケーラブル・メモリー・アロケーターに指示するために使用されます。第 2 引数は予約されています。0 に設定してください。</p>
+<p><strong>戻り値</strong>: 操作に成功した場合は TBBMALLOC_OK。<samp class="codeph">cmd</samp> が次のいずれかでない、または <samp class="codeph">reserved</samp> が 0 でない場合は TBBMALLOC_INVALID_PARAM。</p>
+</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d69068e225">引数</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d69068e227">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d69068e225 "><span class="keyword">TBBMALLOC_CLEAN_ALL_BUFFERS</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d69068e227 "><p><samp class="codeph">scalable_allocation_command(TBBMALLOC_CLEAN_ALL_BUFFERS, 0)</samp> は、アロケーターの内部メモリーバッファーをクリーンして、メモリーのフットプリントを減らします。その結果、後続のメモリー割り当てリクエストにかかる時間は増えます。このコマンドは頻繁に使用されることを想定していません。パフォーマンスに与える影響を慎重に評価することを推奨します。</p>
+<p><strong>戻り値</strong>: バッファーが解放されなかった場合は TBBMALLOC_NO_EFFECT。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>呼び出しがすべての未使用メモリーを解放することは保証されません。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d69068e225 "><span class="keyword">TBBMALLOC_CLEAN_THREAD_BUFFERS</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d69068e227 "><p><samp class="codeph">scalable_allocation_command(TBBMALLOC_CLEAN_THREAD_BUFFERS, 0)</samp> は、呼び出しスレッドの内部メモリーバッファーをクリーンします。その結果、後続のメモリー割り当てリクエストにかかる時間は増えます。パフォーマンスに与える影響を慎重に評価することを推奨します。</p>
+<p><strong>戻り値</strong>: バッファーが解放されなかった場合は TBBMALLOC_NO_EFFECT。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/memory_allocation.html">メモリー割り当て</a></div>
+</div>
+<div/>
+</body>
+</html>

@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="join_node の型指定メッセージキー"/>
+<meta name="DC.subject" content="join_node テンプレート・クラス, 型指定メッセージキー"/>
+<meta name="keywords" content="join_node テンプレート・クラス, 型指定メッセージキー"/>
+<meta name="DC.Relation" scheme="URI" content="../../../../reference/appendices/preview_features/flow_graph_features.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../../flow_graph/join_node_cls.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="node_extraction"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../../intel_css_styles.css"/>
+<title>join_node の型指定メッセージキー</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="node_extraction">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(4);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">join_node の型指定メッセージキー</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>この拡張は、キー一致 join_node を使用して入力タイプに関連付けられている関数からキーを取得します。join_node の各入力ポートの関数オブジェクトを提供する必要がなくなるため、既存のアプローチが単純化されます。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><p><pre>
+#define TBB_PREVIEW_FLOW_GRAPH_FEATURES 1
+#include "tbb/flow_graph.h"
+</pre></p>
+</div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p>この拡張は、<samp class="codeph">key_matching&lt;typename K, class KHash=tbb_hash_compare&gt;</samp> ポリシーが使用されたときに join_node インターフェイスに特別なコンストラクターを追加します。コンストラクターは <samp class="codeph">join_node( graph &amp;g )</samp> のようになります。この方法で構築された場合、<samp class="codeph">join_node</samp> は、各着信メッセージについて <samp class="codeph">key_from_message</samp> 関数を呼び出し、関連するキーを取得します。<samp class="codeph">key_from_message</samp> のデフォルトの実装は次のとおりです。<pre>
+namespace tbb {
+    namespace flow {
+        template &lt;typename K, typename T&gt;
+        K key_from_message( const T &amp;t ) {
+              return t.key();
+        }
+    }
+}
+</pre>ここで、<samp class="codeph">T</samp> は、<samp class="codeph">join_node</samp> の構築に使用される <samp class="codeph">OutputTuple</samp> でユーザーが提供した型の 1 つ、<samp class="codeph">K</samp> はノードのキー型です。デフォルトでは、メッセージクラスで定義された <samp class="codeph">key()</samp> メソッドが呼び出されます。あるいは、メッセージの型と同じ名前空間に独自の <samp class="codeph">key_from_message</samp> 関数を定義することもできます。この関数は C++ 引数依存ルックアップによって見つかり、デフォルトの実装の代わりに使用されます。<pre>
+struct MyMessageType {
+    int my_key;
+    int my_value;
+    // ADL が key_from_message 関数のカスタム実装を見つけるため
+    // 次のメソッドは呼び出されません
+    int key() const {
+        // このメソッドは呼び出すべきではありません
+        assert(false);
+        return 0;
+    }
+};
+
+// key_from_message 関数のカスタム実装
+template &lt;typename K&gt;
+int key_from_message(const MyMessageType &amp;m) {
+    return m.my_key;
+}
+</pre></p>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><p><pre>
+#define TBB_PREVIEW_FLOW_GRAPH_FEATURES 1
+#include "tbb/flow_graph.h"
+#include &lt;cstdio&gt;
+#include &lt;cassert&gt;
+
+class MyMessage {
+    int my_key;
+    float my_value;
+public:
+    MyMessage( int k = 0, float v = 0 ) : my_key( k ), my_value( v ) {}
+    int key() const {
+        return my_key;
+    }
+    float value() const {
+        return my_value;
+    }
+};
+
+int main() {
+    using namespace tbb::flow;
+
+    graph g;
+    function_node&lt;int, MyMessage&gt;
+        f1( g, unlimited, []( int i ) { return MyMessage( i, (float)i ); } );
+    function_node&lt;int, MyMessage&gt;
+        f2( g, unlimited, []( int i ) { return MyMessage( i, (float)2 * i ); } );
+
+    function_node&lt; tuple&lt;MyMessage, MyMessage&gt; &gt;
+        f3( g, unlimited,
+        []( const tuple&lt;MyMessage, MyMessage&gt; &amp;t ) {
+        assert( get&lt;0&gt;( t ).key() == get&lt;1&gt;( t ).key() );
+        std::printf( "The result is %f for key %d\n", get&lt;0&gt;( t ).value() + get&lt;1&gt;( t ).value(), get&lt;0&gt;( t ).key() );
+    } );
+
+    join_node&lt; tuple&lt;MyMessage, MyMessage&gt;, key_matching&lt;int&gt; &gt; jn( g );
+
+    make_edge( f1, input_port&lt;0&gt;( jn ) );
+    make_edge( f2, input_port&lt;1&gt;( jn ) );
+    make_edge( jn, f3 );
+
+    f1.try_put( 1 );
+    f1.try_put( 2 );
+    f2.try_put( 2 );
+    f2.try_put( 1 );
+
+    g.wait_for_all();
+}
+</pre>この例で、キー一致 <samp class="codeph">join_node</samp> は同じキーのメッセージをペアにするために使用されます。<samp class="codeph">join_node</samp> は、型指定メッセージキー拡張を使用し、<samp class="codeph">MyMessage::key</samp> メソッドを呼び出してキーを取得します。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../../reference/appendices/preview_features/flow_graph_features.html">フローグラフ</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../../../flow_graph/join_node_cls.html">join_node テンプレート・クラス</a></div></div></div>
+</body>
+</html>

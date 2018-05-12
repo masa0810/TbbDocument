@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="fixed_pool テンプレート・クラス"/>
+<meta name="DC.subject" content="fixed_pool テンプレート・クラス"/>
+<meta name="keywords" content="fixed_pool テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../../../reference/appendices/preview_features/scalable_memory_pools.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="fixed_pool"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../../../intel_css_styles.css"/>
+<title>fixed_pool テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="fixed_pool">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(4);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">fixed_pool テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>固定長バッファーからのスケーラブルなメモリー割り当て用のテンプレート・クラス。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>class fixed_pool;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#define TBB_PREVIEW_MEMORY_POOL 1
+ #include "tbb/memory_pool.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">fixed_pool</samp> は、プロセッサーの数でスケールするようにメモリーの割り当てと解放を行います。最初に、割り当て可能なすべてのメモリーがコンストラクターの引数で渡されます。<samp class="codeph">fixed_pool</samp> はメモリープール・コンセプトをモデル化します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">サンプル</h2><pre>#define TBB_PREVIEW_MEMORY_POOL 1
+ #include "tbb/memory_pool.h"
+ ...
+ char buf[1024*1024];
+ tbb::fixed_pool my_pool(buf, 1024*1024);
+ void* my_ptr = my_pool.malloc(10);
+ my_pool.free(my_ptr);}</pre><p>上記のコードは、固定プールからの単純な割り当て例です。 
+		</p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+ class fixed_pool : no_copy {
+ public:
+ fixed_pool(void *buffer, size_t size) throw(std::bad_alloc);
+ ~fixed_pool();
+ void recycle();
+ void *malloc(size_t size);
+ void free(void* ptr);
+ void *realloc(void* ptr, size_t size);
+ };
+ }</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このクラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d20550e97">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d20550e99">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d20550e97 "><span class="keyword">fixed_pool(void *buffer, size_t size)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d20550e99 "><p>バッファーが指しているメモリーとそのサイズを管理するためのメモリープールを構築します。</p>
+<p>ランタイムにクラスのインスタンスの構築に失敗した場合、<samp class="codeph">bad_alloc</samp> 例外をスローします。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../../../reference/appendices/preview_features/scalable_memory_pools.html">スケーラブル・メモリープール</a></div>
+</div>
+<div/>
+</body>
+</html>

@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="フローグラフの基本: タスクへのノードのマッピング"/>
+<meta name="DC.subject" content="フローグラフの概念, タスクへのノードのマッピング"/>
+<meta name="keywords" content="フローグラフの概念, タスクへのノードのマッピング"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Basic_Flow_Graph_concepts.html"/>
+<meta name="DC.Relation" scheme="URI" content="Edges.html#Edges"/>
+<meta name="DC.Relation" scheme="URI" content="Graph_Object.html#Graph_Object"/>
+<meta name="DC.Relation" scheme="URI" content="Nodes.html#Nodes"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/task_scheduler.html#task_scheduler"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="Mapping_Nodes2Tasks"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>フローグラフの基本: タスクへのノードのマッピング</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="Mapping_Nodes2Tasks">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">フローグラフの基本: タスクへのノードのマッピング</h1>
+<div><p>次の図は、前のセクションで説明した 2 つのノードグラフの例の実行タイムラインを示しています。<span class="keyword">n</span> および <span class="keyword">m</span> のボディーは、それぞれ λ<sub>n</sub> および λ<sub>m</sub> と呼びます。<span class="keyword">try_put</span> の 3 回の呼び出しは 3 つのタスクをスポーンし、それぞれ 3 つの入力メッセージの 1 つにラムダ式 λ<sub>n</sub> を適用します。<span class="keyword">n</span> の同時実行数は unlimited であるため、十分なスレッドが利用可能であれば、これらのタスクは同時に実行できます。グラフで実行するタスクがなくなるまで、<span class="keyword">g.wait_for_all()</span> の呼び出しはブロックされます。インテル&reg; TBB のほかの <span class="keyword">wait_for_all</span> 関数と同様、<span class="keyword">wait_for_all</span> を呼び出すスレッドは、この間アイドル状態で待機するのではなく、ワークプールのほかのタスクを実行することができます。</p>
+<div class="fignone"><span class="figcap">2 つのノードグラフの実行タイムライン</span><br/><div class="imagecenter"><img src="Images/execution_timeline2node.jpg" align="center"/></div><br/></div>
+<p><span class="keyword">m</span> は <span class="keyword">n</span> のサクセサーであるため、n からのタスクが終了すると、出力を <span class="keyword">m</span> にプットします。ノード <span class="keyword">n</span> とは異なり、<span class="keyword">m</span> は同時実行数を 1 に制限して作成されているため、すべてのタスクを直ちにスポーンしません。代わりに、メッセージが到着した順に、ボディー λ<sub>m</sub> を実行するタスクを順番にスポーンします。すべてのタスクが完了すると、<span class="keyword">wait_for_all</span> の呼び出しがリターンします。</p>
+<div class="Note"><h3 class="NoteTipHead">注</h3> <p>フローグラフの実行はすべて非同期に行われます。<span class="keyword">try_put</span> を呼び出すと、直ちにタスクをスポーンするか、渡されたメッセージをバッファーした後、呼び出しスレッドに制御を返します。同様に、ボディータスクはラムダ式を実行し、すべてのサクセサーノードへ結果を送ります。<span class="keyword">wait_for_all</span> の呼び出しのみブロックします。このケースでも、待機している間、呼び出しスレッドはインテル&reg; TBB ワークプールのほかのタスクを実行することができます。</p>
+</div>
+<p>上記のタイムラインは、並列に実行できるすべてのタスクを実行するのに十分なスレッドがある場合のシーケンスを示しています。スレッド数が少ない場合、スポーンされるいくつかのタスクで、スレッドが利用できるようになるまで待つ必要があります。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Basic_Flow_Graph_concepts.html">基本的なフローグラフの概念</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Edges.html#Edges">エッジ</a></div>
+<div><a href="Graph_Object.html#Graph_Object">グラフ・オブジェクト</a></div>
+<div><a href="Nodes.html#Nodes">ノード</a></div>
+<div><a href="../reference/task_scheduler.html#task_scheduler">タスク・スケジューラー</a></div></div></div>
+</body>
+</html>

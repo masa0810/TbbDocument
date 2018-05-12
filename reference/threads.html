@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="スレッド"/>
+<meta name="DC.subject" content="スレッド"/>
+<meta name="keywords" content="スレッド"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/reference.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/threads/thread_cls.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/threads/thread_id.html"/>
+<meta name="DC.Relation" scheme="URI" content="../reference/threads/this_thread_namespace.html"/>
+<meta name="DC.Relation" scheme="URI" content="general_conventions/namespaces.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="threads"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>スレッド</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="threads">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">スレッド</h1>
+<div><div class="section"><p>インテル&reg; TBB は、C++11 標準規格に基づく、プラットフォームのネイティブスレッドのラッパーを提供します。これらのラッパーを使用する利点は 2 つあります。</p>
+<ul><li><p>複数のプラットフォームにわたって可搬性があるスレッドコードを作成できる。</p>
+</li>
+<li><p>ISO C++11 スレッドに後から容易に移行できる。</p>
+</li>
+</ul>
+<p>「名前空間」セクションで説明したように、ライブラリーは、<samp class="codeph">tbb</samp> 名前空間ではなく <samp class="codeph">std</samp> 名前空間にラッパーを定義します。</p>
+<p>C++11 と大幅に異なる点を次の表に示します。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl36" width="100%" frame="hsides" border="1" rules="all"><caption><span class="tablecap">C++11 とインテル&reg; TBB スレッドクラスの違い</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="NaN%" id="d89209e42"><p>C++11</p>
+</th>
+<th class="row-nocellborder" valign="top" width="NaN%" id="d89209e45"><p>インテル&reg; TBB</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="NaN%" headers="d89209e42 "><p><samp class="codeph">template&lt;class Rep, class Period&gt; std::this_thread::sleep_for(</samp></p>
+<p><samp class="codeph">const std::chrono::duration&lt;Rep, Period&gt;&amp; rel_time)</samp></p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d89209e45 "><p><samp class="codeph">std::this_thread::sleep_for( const tbb::tick_count::interval_t&amp; )</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d89209e42 "><p><samp class="codeph">std::thread::id</samp> は、<samp class="codeph">std::hash</samp> テンプレート・クラスと一緒にハッシュできます。</p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d89209e45 "><p><samp class="codeph">std::thread::id</samp> は、<samp class="codeph">tbb::tbb_hash_compare</samp> および <samp class="codeph">tbb::tbb_hash</samp> テンプレート・クラスと一緒にハッシュできます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d89209e42 "><p>rvalue 参照引数</p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d89209e45 "><p>引数はプレーン値に変更、または関数を削除。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d89209e42 "><p><samp class="codeph">std::thread</samp> のコンストラクターの引数の数は任意。</p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d89209e45 "><p><samp class="codeph">std::thread</samp> のコンストラクターの引数の数は 0-3。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="NaN%" headers="d89209e42 "><p>スレッドが <samp class="codeph">joinable()</samp> の場合、<samp class="codeph">std::thread</samp> のデストラクターは <samp class="codeph">terminate()</samp> を呼び出します。</p>
+</td>
+<td class="row-nocellborder" valign="top" width="NaN%" headers="d89209e45 "><p>スレッドが <samp class="codeph">joinable()</samp> の場合、<samp class="codeph">std::thread</samp> のデストラクターは <samp class="codeph">detach()</samp> を呼び出します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>ほかの変更点は、C++03 標準規格またはインテル&reg; TBB との互換性に関連しています。例えば、引数の数が任意のコンストラクターには、C++11 の可変個引数テンプレート機能が必要です。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>スレッドはほとんどのシステムにとって重い処理であり、システムで非常に多くのスレッドを実行すると、パフォーマンスが大幅に低下します。実用性を重視する場合は、代わりにタスクベースのソリューションを使用することを検討してください。</p>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../reference/reference.html">インテル&reg; TBB デベロッパー・リファレンス</a></div>
+</div>
+<div class="See Also">
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../reference/threads/thread_cls.html">thread クラス</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/threads/thread_id.html">thread::id</a><br/>
+</li>
+<li class="ulchildlink"><a href="../reference/threads/this_thread_namespace.html">this_thread 名前空間</a><br/>
+</li>
+</ul>
+<h2>関連情報</h2>
+<div class="linklist">
+<div><a href="general_conventions/namespaces.html">名前空間、std 名前空間</a></div></div></div>
+</body>
+</html>

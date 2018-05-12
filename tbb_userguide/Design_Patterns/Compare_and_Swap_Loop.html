@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="CAS (コンペアー・アンド・スワップ) ループ"/>
+<meta name="DC.subject" content="CAS (コンペアー・アンド・スワップ) ループ"/>
+<meta name="keywords" content="CAS (コンペアー・アンド・スワップ) ループ"/>
+<meta name="DC.Relation" scheme="URI" content="../../tbb_userguide/Design_Patterns/Design_Patterns.html"/>
+<meta name="DC.Relation" scheme="URI" content="Reduction.html#Reduction"/>
+<meta name="DC.Relation" scheme="URI" content="Reference_Counting.html#Reference_Counting"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="Compare_and_Swap_Loop"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>CAS (コンペアー・アンド・スワップ) ループ</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="Compare_and_Swap_Loop">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">CAS (コンペアー・アンド・スワップ) ループ</h1>
+<div><div class="section"><h2 class="sectiontitle">問題</h2><p>プレディケートが満たされるようにスカラー値をアトミックに更新する。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">コンテキスト</h2><p>多くの場合、共有変数は、新しい値が古い値にとって代わるように変更することで、アトミックに更新する必要があります。この変更は、有限状態機械の遷移、または大域的な情報の記録になります。例えば、共有変数は任意のスレッドにおいてこれまでに確認された最大値を記録しているかもしれません。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">影響</h2><ul><li><p>変数は複数のスレッドによって読み取りおよび更新されます。</p>
+</li>
+<li><p>ハードウェアは、その種の変数に「コンペアー・アンド・スワップ」を実装します。</p>
+</li>
+<li><p>mutex による更新の保護は回避されます。</p>
+</li>
+</ul>
+</div>
+<div class="section"><h2 class="sectiontitle">関連項目</h2><ul><li>リダクション</li>
+<li>参照カウント</li>
+</ul>
+</div>
+<div class="section"><h2 class="sectiontitle">ソリューション</h2><p>アトミックに現在の値のスナップショットをとり、<samp class="codeph">atomic&lt;T&gt;::compare_and_swap</samp> を使用して更新します。<samp class="codeph">compare_and_swap</samp> が成功するまで再試行します。現在の値がある条件と一致した場合は、<samp class="codeph">compare_and_swap</samp> が成功する前に終了することもあります。</p>
+<p>以下のテンプレートは x=f(x) の更新をアトミックに行います。</p>
+<pre>// x=f(x) をアトミックに実行
+template&lt;typename F, typename T&gt;
+void AtomicUpdate( atomic&lt;T&gt;&amp; x, F f ) {
+   int o;
+   do {
+       // スナップショットをとる
+       o = x;
+       // スナップショットから計算した新しい値のインストールを試みる
+   } while( x.compare_and_swap(f(o),o)!=o );
+}</pre><p>X の値はほかのスレッドによって変更される可能性があるため、スナップショットをとって中間の計算に使用することが非常に重要になります。 
+		</p>
+<p>次のコードは、テンプレートを使用して <samp class="codeph">RecordMax</samp> によって確認された任意の値のグローバルな最大値を維持する方法を示しています。 
+		</p>
+<pre>// UpperBound = max(UpperBound,y) をアトミックに実行
+void RecordMax( int y ) {
+   extern atomic&lt;int&gt; UpperBound;
+   AtomicUpdate(UpperBound, [&amp;](int value){return std::max(value,y);} );
+}</pre><p>y によって <samp class="codeph">UpperBound</samp> が増えない場合、<samp class="codeph">AtomicUpdate</samp> の呼び出しは冗長な操作 <samp class="codeph">compare_and_swap(o,o)</samp> を実行して時間を浪費することになります。一般に、<samp class="codeph">AtomicUpdate</samp> のループを <samp class="codeph">f(o)==o</samp> の場合に早く終了することにより、この種の冗長な操作を省略できます。特に <samp class="codeph">F==std::max&lt;int&gt;</samp> の場合は、テストをさらに単純化できます。<samp class="codeph">RecordMax</samp> の次のバージョンでは、単純化されたテストを行っています。 
+		</p>
+<pre>// UpperBound = max(UpperBound,y) をアトミックに実行
+void RecordMax( int y ) ..
+   extern atomic&lt;int&gt; UpperBound;
+   do {
+       // スナップショットをとる
+       int o = UpperBound;
+       // スナップショットが条件を満たした場合は終了
+       if( o&gt;=y ) break;
+       // 新しい値のインストールを試みる
+   } while( UpperBound.compare_and_swap(y,o)!=o );
+}</pre><p>関与しているすべてのスレッドが共通の場所を修正するため、高い競合により CAS ループのパフォーマンスが低くなることがあります。このため、より効率的なパターンが適用できるかどうかを最初に考慮するべきです。特に次の点を考慮してください。 
+		</p>
+<ul><li><p>全体的な目的がリダクションの場合は、リダクション・パターンを代わりに使用してください。</p>
+</li>
+<li><p>更新が加算または減算の場合は、<samp class="codeph">atomic&lt;T&gt;::fetch_and_add</samp> を使用してください。また、更新が 1 の加算あるいは減算の場合は、<samp class="codeph">atomic&lt;T&gt;::operater++</samp> または <samp class="codeph">atomic&lt;T&gt;::operator--</samp> を使用してください。これらの方法では通常、CAS ループを回避する直接的なハードウェア・サポートが適用されます。</p>
+</li>
+</ul>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p><samp class="codeph">compare_and_swap</samp> を使用してリンク構造のリンクを更新する場合、「ABA 問題」が発生していないことを確認する必要があります。この問題の詳細は、インターネットで検索してください。</p>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../tbb_userguide/Design_Patterns/Design_Patterns.html">デザインパターン</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="Reduction.html#Reduction">リダクション</a></div>
+<div><a href="Reference_Counting.html#Reference_Counting">参照カウント</a></div></div></div>
+</body>
+</html>

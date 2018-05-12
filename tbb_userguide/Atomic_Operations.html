@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="アトミック操作"/>
+<meta name="DC.subject" content="アトミック操作"/>
+<meta name="keywords" content="アトミック操作"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/title.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Why_atomic_T_Has_No_Constructors.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Memory_Consistency.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Atomic_Operations"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>アトミック操作</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Atomic_Operations">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">アトミック操作</h1>
+<div><p>アトミック操作を使用して、排他制御の問題を回避することができます。スレッドがアトミック操作を行うと、その他のスレッドではその操作が瞬時に発生したかのように認識されます。アトミック操作の長所は、ロックに比べて比較的処理が速く、デッドロックやコンボイなどを回避できる点にあります。短所は、限られた操作しか行うことができず、より複雑な操作を効率良く総合的に扱うには不十分なことです。しかし、排他制御の代わりにアトミック操作を使用する機会を逃す手はありません。<samp class="codeph">atomic&lt;<var>T</var>&gt;</samp> クラスは、C++ スタイルでアトミック操作を実装します。</p>
+<p>アトミック操作の典型的な使用方法は、スレッドセーフな参照カウントに使用することです。x が <samp class="codeph">int</samp> 型の参照カウントで、プログラムでは参照カウントが 0 になったときに何らかのアクションが必要だとします。シングルスレッド・コードでは、x に <samp class="codeph">int</samp> を使用し、<samp class="codeph">--x; if(x==0) action()</samp> を書き込みます。しかし、このメソッドは、次の表で示されるように、2 つのスレッドが自身の操作をインターリーブするため、マルチスレッド・コードでは失敗する可能性があります。次の表で示されているように、t<sub>a</sub> と t<sub>b</sub> はマシンレジスターで、時間は下方向に経過します。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl12" width="100%" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">機械語命令のインターリーブ</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="53.92156862745098%" id="d91774e51"><p>スレッド A</p>
+</th>
+<th class="cellrowborder" valign="top" width="46.07843137254902%" id="d91774e54"><p>スレッド B</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="53.92156862745098%" headers="d91774e51 "><pre>t<sub>a</sub> = x</pre></td>
+<td class="cellrowborder" valign="top" width="46.07843137254902%" headers="d91774e54 "><pre> </pre></td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="53.92156862745098%" headers="d91774e51 "><pre> </pre></td>
+<td class="cellrowborder" valign="top" width="46.07843137254902%" headers="d91774e54 "><pre>t<sub>b</sub> = x</pre></td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="53.92156862745098%" headers="d91774e51 "><pre>x = t<sub>a</sub> -<sub> </sub>1</pre></td>
+<td class="cellrowborder" valign="top" width="46.07843137254902%" headers="d91774e54 "><pre> </pre></td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="53.92156862745098%" headers="d91774e51 "><pre> </pre></td>
+<td class="cellrowborder" valign="top" width="46.07843137254902%" headers="d91774e54 "><pre>x = t<sub>b</sub> –<sub> </sub>1</pre></td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="53.92156862745098%" headers="d91774e51 "><pre>if( x==0 )</pre></td>
+<td class="cellrowborder" valign="top" width="46.07843137254902%" headers="d91774e54 "><pre> </pre></td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="53.92156862745098%" headers="d91774e51 "><pre> </pre></td>
+<td class="cellrowborder" valign="top" width="46.07843137254902%" headers="d91774e54 "><pre>if( x==0 )</pre></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>コードでは <samp class="codeph">x</samp> が 2 回デクリメントされることになっていますが、x は、元の値と比べて 1 つしか減っていません。また、<var>x</var> のテストがデクリメントとは別に行われるため、ほかの問題も生じます。<var>x</var> が 2 から開始して、どちらかのスレッドが <samp class="codeph">if</samp> 条件を評価する前に、両方のスレッドで <var>x</var> 回デクリメントする場合、<strong>両方の</strong>スレッドが <samp class="codeph">action()</samp> を呼び出してしまいます。この問題を解決するには、一度に 1 つのスレッドのみがデクリメントを行い、<strong>さらに</strong> if によってチェックされる値がデクリメントの結果の値であることを保証しなければなりません。mutex を導入して行うことも可能ですが、<var>x</var> を <samp class="codeph">atomic&lt;int&gt;</samp> として宣言し、<samp class="codeph">if(--<var>x</var>==0) action()</samp> にすることで、より素早く簡単に行うことができます。<samp class="codeph">atomic&lt;int&gt;::operator--</samp> メソッドはアトミックに動作します。ほかのスレッドは介入できません。
+  </p>
+<p><samp class="codeph">atomic&lt;<var>T</var>&gt;</samp> は、整数型またはポインター型の <var>T</var> 型でアトミック操作をサポートします。5 つの基本的な操作がサポートされており、構文の便宜上、オーバーロードされた演算子の形式のインターフェイスが追加されています。例えば、<samp class="codeph">atomic&lt;<var>T</var>&gt;</samp> の <samp class="codeph">++</samp>、<samp class="codeph">--</samp>、<samp class="codeph">-=</samp>、<samp class="codeph">+=</samp> 演算子は、基本操作「フェッチ・アンド・アッド (fetch-and-add)」の形式です。次の表は、<samp class="codeph">atomic&lt;<var>T</var>&gt;</samp> 型の変数 <var>x</var> の 5 つの基本操作を示しています。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl13" width="100%" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">atomic&lt;T&gt; 型の変数 x の基本操作</span></caption><tbody><tr><td class="cellrowborder" valign="top" width="30%"><p><samp class="codeph">= <var>x</var></samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="70%"><p><var>x</var> の値を読み取ります。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="30%"><p><samp class="codeph"><var>x</var>=</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="70%"><p><var>x</var> の値を書き込み、値を返します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="30%"><p><samp class="codeph"><var>x</var>.fetch_and_store(y)</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="70%"><p><samp class="codeph"><var>x</var>=<var>y</var></samp> を行い、<var>x</var> の古い値を返します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="30%"><p><samp class="codeph"><var>x</var>.fetch_and_add(<var>y</var>)</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="70%"><p><samp class="codeph"><var>x</var>=<var>y</var></samp> を行い、<var>x</var> の古い値を返します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="30%"><p><samp class="codeph"><var>x</var>.compare_and_swap(<var>y</var>,<var>z</var>)</samp></p>
+</td>
+<td class="cellrowborder" valign="top" width="70%"><p><var>x</var> と <var>z</var> が等しい場合、<samp class="codeph"><var>x</var>=<var>y</var></samp> を行います。いずれの場合でも、<var>x</var> の古い値を返します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>これらの操作はアトミックに行われるため、排他制御がなくても安全に使用できます。次の例について考えてみます。</p>
+<pre>atomic&lt;unsigned&gt; counter;
+ 
+unsigned GetUniqueInteger() {
+    return counter.fetch_and_add(1);
+}</pre><p><samp class="codeph">GetUniqueInteger</samp> ルーチンは、カウンターが巡回するまで呼び出されるごとに異なる整数を返します。どれだけのスレッドが同時に <samp class="codeph">GetUniqueInteger</samp> ルーチンを呼び出してもこれは変わりません。 
+  </p>
+<p><samp class="codeph">compare_and_swap</samp> 操作は、多くの非ブロック・アルゴリズムにおける基本操作です。排他制御における問題は、ロックを保持しているスレッドが停止した場合に、ほかのすべてのスレッドは、保持しているスレッドが再開されるまでブロックされる点にあります。非ブロック・アルゴリズムでは、ロックではなく、アトミック操作を使用することによってこの問題を回避します。アトミック操作は、一般に複雑で、確認には洗練された解析が必要ですが、次の表現方法は、分かりやすいので知っておくと良いでしょう。この表現方法では、共有変数 <samp class="codeph">globalx</samp> を古い値を基にして更新します。</p>
+<pre>atomic&lt;int&gt; globalx;
+ 
+int UpdateX() {      // x を更新して x の古い値を返す
+    do {
+        // globalx の読み取り
+        oldx = globalx;
+        // 新しい値を計算
+        newx = ...expression involving oldx....
+        // 別のスレッドが globalX を変更していない場合、新しい値を格納
+    } while( globalx.compare_and_swap(newx,oldx)!=oldx );
+    return oldx;
+}</pre><p>さらに、いくつかのスレッドは、ほかのスレッドが干渉しなくなるまでループを繰り返します。
+	 通常、更新に 2 から 3 個の命令しか必要ない場合は、この表現方法は、対応する排他制御よりも処理が高速です。 
+  </p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>次のシーケンスが意図に反する場合は、この表現方法は適切ではありません。</p>
+<ol><li><p>スレッドが <samp class="codeph">globalx</samp> から <var>A</var> の値を読み取る</p>
+</li>
+<li><p>ほかのスレッドが <samp class="codeph">globalx</samp> を <var>A</var> から <var>B</var> へ、そして再び <var>A</var> へ変更する</p>
+</li>
+<li><p>ステップ 1 のスレッドは、自身の <samp class="codeph">compare_and_swap</samp> を行い、<var>A</var> を読み取るため、<var>B</var> が変更されたことを認識しません。</p>
+</li>
+</ol>
+</div>
+<p>この問題は、「ABA 問題」と呼ばれます。リンクされたデータ構造に対する非ブロック・アルゴリズムの設計に問題があるケースが大半です。詳細は、インターネットで検索してください。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/title.html">インテル&reg; TBB デベロッパー・ガイド</a></div>
+</div>
+<div>
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../tbb_userguide/Why_atomic_T_Has_No_Constructors.html">C++03 モードで atomic&lt;T&gt; にコンストラクターがない理由</a><br/>
+</li>
+<li class="ulchildlink"><a href="../tbb_userguide/Memory_Consistency.html">メモリーの一貫性</a><br/>
+</li>
+</ul>
+</div>
+</body>
+</html>

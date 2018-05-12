@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="機能マクロ"/>
+<meta name="DC.subject" content="機能マクロ, TBB_DEPRECATED, TBB_USE_EXCEPTIONS, TBB_USE_CAPTURED_EXCEPTION, C++11 のサポート"/>
+<meta name="keywords" content="機能マクロ, TBB_DEPRECATED, TBB_USE_EXCEPTIONS, TBB_USE_CAPTURED_EXCEPTION, C++11 のサポート"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/environment.html"/>
+<meta name="DC.Relation" scheme="URI" content="../exceptions.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="feature_macros"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>機能マクロ</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="feature_macros">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">機能マクロ</h1>
+<div><div class="section"><p>このセクションのマクロは、ライブラリーのオプションの機能を制御します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle"><samp class="codeph">TBB_DEPRECATED</samp> マクロ</h2><p><samp class="codeph">TBB_DEPRECATED</samp> マクロは、現在のバージョンの機能と競合が発生する古いバージョンの機能 (非推奨) を制御します。インテル&reg; TBB 2.1 のインターフェイスを使用する場合は、1 に定義します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle"><samp class="codeph">TBB_USE_EXCEPTIONS</samp> マクロ</h2><p><samp class="codeph">TBB_USE_EXCEPTIONS</samp> マクロは、ライブラリー・ヘッダーが <samp class="codeph">try</samp>、<samp class="codeph">catch</samp>、および <samp class="codeph">throw</samp> のような例外処理構造を使用するかどうかを制御します。<samp class="codeph">TBB_USE_EXCEPTIONS=0</samp> の場合、ヘッダーはこれらの構造を使用しません。</p>
+<p>Windows*、Linux*、macOS* オペレーティング・システムのデフォルト値は、コンパイラーで例外処理構造が有効にされている場合は 1、その他の場合は 0 です。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p><samp class="codeph">TBB_USE_EXCEPTIONS=0</samp> であっても、ランタイム・ライブラリーは例外をスローすることがあります。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle"><samp class="codeph">TBB_USE_CAPTURED_EXCEPTION</samp> マクロ</h2><p><samp class="codeph">TBB_USE_CAPTURED_EXCEPTION</samp> マクロは、ライブラリー内での例外の再スローを制御します。C++03 は、1 つのスレッドで例外をキャッチし、別のスレッドに再スローすることをサポートしていないため、ライブラリーは <samp class="codeph">tbb::captured_exception</samp> と呼ばれる例外オブジェクトを再スローして並べ替えることがあります。</p>
+<ul><li><p><samp class="codeph">TBB_USE_CAPTURED_EXCEPTION=1</samp> に定義すると、ライブラリーは例外オブジェクトを再スローできます。これは、プラットフォーム間の動作を統一する上で便利です。</p>
+</li>
+<li><p><samp class="codeph">TBB_USE_CAPTURED_EXCEPTION=0</samp> に定義すると、(例外オブジェクトではなく) キャッチされた例外の再スローが要求されます。この設定は、C++11 の std::exception_ptr 機能をサポートするプラットフォームでのみ有効です。その他の場合は、コンパイル時診断が発行されます。</p>
+</li>
+</ul>
+<p>Windows*、Linux*、macOS* オペレーティング・システムのデフォルト値は、<samp class="codeph">std::exception_ptr</samp> をサポートするホスト・コンパイラーでは <samp class="codeph">1</samp>、その他の場合は <samp class="codeph">0</samp> です。IA-64 アーキテクチャー・プロセッサーでは、デフォルト値は <samp class="codeph">0</samp> です。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>例外の伝播が正しく行われるように、適切なライブラリー・バイナリーを使用してください。</p>
+</div>
+</div>
+<div class="section"><h2 class="sectiontitle">C++11 のサポート</h2><p>C++11 が必要な機能を有効にするには、C++11 モードをサポートするコンパイラーを使用し、このモードでコードをコンパイルします。コンパイラーの C++11 のサポートは、デフォルトではオフです。次の表は、サポートをオンにするオプションを示しています。</p>
+
+<div class="tablenoborder"><table cellpadding="4" summary="" id="tbl9" width="100%" frame="border" border="1" cellspacing="0" rules="all"><caption><span class="tablecap">C++11 のサポートを設定するコンパイルコマンド</span></caption><thead align="left"><tr><th class="cellrowborder" valign="top" width="30.959752321981426%" id="d44246e119"><p>環境</p>
+</th>
+<th class="cellrowborder" valign="top" width="69.04024767801857%" id="d44246e122"><p>インテル&reg; C++ コンパイラー</p>
+<p>コンパイルコマンドとオプション</p>
+</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="30.959752321981426%" headers="d44246e119 "><p>Windows* システム</p>
+</td>
+<td class="cellrowborder" valign="top" width="69.04024767801857%" headers="d44246e122 "><p><samp class="codeph">icl /Qstd=c++11 foo.cpp</samp></p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="30.959752321981426%" headers="d44246e119 "><p>Linux* システム</p>
+<p>macOS* システム</p>
+</td>
+<td class="cellrowborder" valign="top" width="69.04024767801857%" headers="d44246e122 "><p><samp class="codeph">icc -std=c++11 foo.cpp</samp></p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>場合によっては、インテル&reg; TBB ヘッダーは C++ 標準ライブラリーの C++11 機能を正しく検出できません。例えば、GNU libstdc++ ライブラリーを、GCC バージョンマクロ (__GNUC__ など) を設定しないコンパイラーや、libstdc++ のバージョンと一致しないバージョンを設定する Clang コンパイラーとともに使用すると、検出に失敗します。</p>
+<p>検出に失敗する場合、マクロ <samp class="codeph">TBB_USE_GLIBCXX_VERSION</samp> を使用して GNU libstdc++ の適切なバージョンを指定できます。<samp class="codeph">Major*10000 + Minor*100 + Patch</samp> になるようにマクロの値を定義します。ここで、Major.Minor.Patch は実際の GCC/libstdc++ のバージョンです (不明な場合は、<samp class="codeph">'gcc -dumpversion'</samp> コマンドを実行して取得できます)。例えば、GCC 4.9.2 の libstdc++ を使用する場合は、<samp class="codeph">TBB_USE_GLIBCXX_VERSION=40902</samp> のように定義します。</p>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/environment.html">環境</a></div>
+</div>
+<div class="See Also"><h2>関連情報</h2>
+<div class="linklist">
+<div><a href="../exceptions.html">例外</a></div></div></div>
+</body>
+</html>

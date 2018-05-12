@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="並列キュークラス"/>
+<meta name="DC.subject" content="並列キュークラス"/>
+<meta name="keywords" content="並列キュークラス"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Containers.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/Iterating_Over_a_Concurrent_Queue_for_Debugging.html"/>
+<meta name="DC.Relation" scheme="URI" content="../tbb_userguide/When_Not_to_Use_Queues.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Concurrent_Queue_Classes"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>並列キュークラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Concurrent_Queue_Classes">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">並列キュークラス</h1>
+<div><p><samp class="codeph">concurrent_queue&lt;<em>T,Alloc</em>&gt;</samp> テンプレート・クラスは、<samp class="codeph">T</samp> 型値の並列キューを実装します。複数のスレッドがキューから要素を同時にプッシュおよびポップします。キューは無制限で、ブロック操作はありません。キューの基本的な操作は、<samp class="codeph">push</samp> と <samp class="codeph">try_pop</samp> です。<samp class="codeph">push</samp> 操作は、<span class="option">std::queue</span> の <samp class="codeph">push</samp> のように動作します。<samp class="codeph">try_pop</samp> 操作は、利用可能なアイテムをポップします。スレッド安全性のために、1 つの操作でチェックとポップを行わなければなりません。</p>
+<p>例えば、次のシリアルコードについて考えてみます。</p>
+<pre>        extern std::queue&lt;T&gt; MySerialQueue;
+        T item;
+        if( !MySerialQueue.empty() ) {
+            item = MySerialQueue.front(); 
+            MySerialQueue.pop_front();
+            ...   item を処理 ...
+        }</pre><p><span class="option">std::queue</span> メソッドがそれぞれスレッドセーフな方法で実装されても、ほかのスレッドも同じキューからポップしている場合、サンプルで示されているようなメソッドの構成はスレッドセーフになりません。例えば、別のスレッドが <samp class="codeph">MySerialQueue</samp> から最後のアイテムを取得する直前に <samp class="codeph">MySerialQueue.empty()</samp> が true を返すことがあります。</p>
+<p>等価のスレッドセーフなインテル&reg; TBB コードは次のようになります。</p>
+<pre>        extern concurrent_queue&lt;T&gt; MyQueue;
+        T item;
+        if( MyQueue.try_pop(item) ) {
+            ... item を処理 ...
+        }            </pre><p>シングルスレッド・プログラムでは、キューは FIFO (先入れ先出し) 構造です。しかし、マルチスレッド・プログラムの場合、プッシュとポップが同時に行われるため、「先」の定義は不確定です。<samp class="codeph">concurrent_queue</samp> は、スレッドが 2 つの値をプッシュして、別のスレッドがその 2 つの値をポップする場合に、プッシュされたのと同じ順で値がポップされることを保証します。</p>
+<p><samp class="codeph">concurrent_queue</samp> テンプレート・クラスは無制限で、待機するメソッドがありません。オーバーフローを回避するために同期を提供する、またはキューが空でなくなるのを待つのは、ユーザーの責任です。一般に、より高いレベルで同期を行う必要がある場合は、このテンプレート・クラスが適切です。</p>
+<p><samp class="codeph">concurrent_bounded_queue&lt;<em>T,Alloc</em>&gt;</samp> テンプレート・クラスは、ブロック操作を追加して大きさを指定するバリエーションです。特に注目すべきメソッドを次に示します。</p>
+<ul><li><p><samp class="codeph">pop(<em>item</em>)</samp> は、成功するまで待機します。</p>
+</li>
+<li><p><samp class="codeph">push(<em>item</em>)</samp> は、キューの大きさを超えずに成功するまで待機します。</p>
+</li>
+<li><p><samp class="codeph">try_push(<em>item</em>)</samp> は、キューの大きさを超えない場合のみ <var>item</var> をプッシュします。</p>
+</li>
+<li><p>size() は、<strong>符号付き</strong>整数を返します。</p>
+</li>
+</ul>
+<p><span class="option">concurrent_queue::size()</span> の値は、開始したプッシュ操作の数から、開始したポップ操作の数を引いた値として定義されます。ポップの数がプッシュの数より多い場合、<samp class="codeph">size()</samp> は負になります。例えば、<samp class="codeph">concurrent_queue</samp> が空で保留中のポップ操作が <var>n</var> ある場合、<samp class="codeph">size()</samp> は <span class="eqsymbol">-</span><var>n</var> を返します。この方法を使用すると、生産タスクは、キュー上で待機している消費タスクの数を簡単に知ることができます。<samp class="codeph">empty()</samp> メソッドは、<samp class="codeph">size()</samp> が正でない場合にのみ true に定義されます。</p>
+<p>デフォルトでは、<samp class="codeph">concurrent_bounded_queue</samp> は無制限です。メモリーがなくなるまで、任意の数の値を保持します。この数は、<samp class="codeph">set_capacity</samp> メソッドでキューの大きさを設定して制限できます。大きさを設定すると、キューに空間ができるまで <samp class="codeph">push</samp> はブロックされます。制限のあるキューは無制限のキューよりも遅いため、キューの大きさを監視するようなコードがプログラム中にある場合は、大きさを設定しないほうが良いでしょう。制限やポップのブロックが必要ない場合は、代わりに <samp class="codeph">concurrent_queue</samp> を使用することを検討してください。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../tbb_userguide/Containers.html">コンテナー</a></div>
+</div>
+<div>
+<ul class="ullinks">
+<li class="ulchildlink"><a href="../tbb_userguide/Iterating_Over_a_Concurrent_Queue_for_Debugging.html">デバッグ目的の並列キュー上での反復</a><br/>
+</li>
+<li class="ulchildlink"><a href="../tbb_userguide/When_Not_to_Use_Queues.html">キューを使用するべきではない状況</a><br/>
+</li>
+</ul>
+</div>
+</body>
+</html>

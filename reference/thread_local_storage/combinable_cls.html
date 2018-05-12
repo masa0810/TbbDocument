@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="combinable テンプレート・クラス"/>
+<meta name="DC.subject" content="combinable テンプレート・クラス"/>
+<meta name="keywords" content="combinable テンプレート・クラス"/>
+<meta name="DC.Relation" scheme="URI" content="../../reference/thread_local_storage.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="combinable_cls"/>
+<meta name="DC.Language" content="ja-JP"/>
+<link rel="stylesheet" type="text/css" href="../../intel_css_styles.css"/>
+<title>combinable テンプレート・クラス</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="combinable_cls">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(2);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">combinable テンプレート・クラス</h1>
+<div><div class="section"><h2 class="sectiontitle">概要</h2><p>並列処理中に最終的な値にマージされるスレッドローカル値を保持するテンプレート・クラス。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">構文</h2><pre>template&lt;typename T&gt; class combinable;</pre></div>
+<div class="section"><h2 class="sectiontitle">ヘッダー</h2><pre>#include "tbb/combinable.h"</pre></div>
+<div class="section"><h2 class="sectiontitle">説明</h2><p><samp class="codeph">combinable&lt;T&gt;</samp> は、<samp class="codeph">T</samp> 型の自身のローカル・インスタンスを各スレッドに提供します。</p>
+</div>
+<div class="section"><h2 class="sectiontitle">メンバー</h2><pre>namespace tbb {
+        template &lt;typename T&gt;
+        class combinable {
+        public:
+            combinable();
+
+            template &lt;typename FInit&gt;
+            explicit combinable(FInit finit);
+
+            combinable(const combinable&amp; other);
+            // C++11 からサポート
+            combinable(combinable&amp;&amp; other);
+
+            ~combinable();
+
+            combinable&amp; operator=( const combinable&amp; other);
+            // C++11 からサポート
+            combinable&amp; operator=( combinable&amp;&amp; other);
+
+            void clear();
+
+            T&amp; local();
+            T&amp; local(bool &amp; exists);
+
+            template&lt;typename FCombine&gt; T combine(FCombine fcombine);
+            template&lt;typename Func&gt; void combine_each(Func f);
+        };
+}</pre>
+<div class="tablenoborder"><table cellpadding="4" summary="" frame="border" border="1" cellspacing="0" rules="all"><span class="tabledesc">次の表は、このテンプレート・クラスのメンバーの詳細な情報を提供します。</span><thead align="left"><tr><th class="cellrowborder" valign="top" width="33.89830508474576%" id="d85758e52">メンバー</th>
+<th class="cellrowborder" valign="top" width="66.10169491525423%" id="d85758e54">説明</th>
+</tr>
+</thead>
+<tbody><tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d85758e52 "><span class="keyword">combinable()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d85758e54 "><p><samp class="codeph">T</samp> のスレッド・ローカル・インスタンスがデフォルト設定を使用して作成される <samp class="codeph">combinable</samp> を作成します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d85758e52 "><span class="keyword">template&lt;typename FInit&gt; explicit combinable(FInit finit)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d85758e54 "><p>スレッドローカル要素が <em>finit()</em> の結果をコピーして作成される <samp class="codeph">combinable</samp> を作成します。</p>
+<div class="Note"><h3 class="NoteTipHead">注意</h3> <p>finit() 式は複数のスレッドで同時かつ安全に評価できなければなりません。スレッドローカル要素が作成されるたびに評価されます。</p>
+</div>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d85758e52 "><span class="keyword">combinable( const combinable&amp; other );</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d85758e54 "><p><em>other</em> のコピーを作成します。同じスレッドマップで <em>other</em> の各要素のコピーが含まれます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d85758e52 "><span class="keyword">combinable( combinable&amp;&amp; other );</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d85758e54 "><p>C++11 からサポート。<em>other</em> のコンテンツをそのまま移動することにより <samp class="codeph">combinable</samp> を構築します。<em>other</em> は無指定の状態のままですが、安全に破棄することができます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d85758e52 "><span class="keyword">~combinable()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d85758e54 "><p><samp class="codeph">*this</samp> のすべてのスレッドローカル要素を破棄します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d85758e52 "><span class="keyword">combinable&amp; operator=( const combinable&amp; other )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d85758e54 "><p><samp class="codeph">*this</samp> を <em>other</em> のコピーに設定します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d85758e52 "><span class="keyword">combinable&amp; operator=( combinable&amp;&amp; other )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d85758e54 "><p>C++11 からサポート。<em>other</em> のコンテンツをそのまま <samp class="codeph">*this</samp> に移動します。<em>other</em> は無指定の状態のままですが、安全に破棄することができます。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d85758e52 "><span class="keyword">void clear()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d85758e54 "><p><samp class="codeph">*this</samp> からすべての要素を削除します。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d85758e52 "><span class="keyword">T&amp; local()</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d85758e54 "><p>スレッドローカル要素が存在しない場合、スレッドローカル要素を作成します。</p>
+<p><strong>戻り値</strong>: スレッドローカル要素への参照。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d85758e52 "><span class="keyword">T&amp; local( bool&amp; exists )</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d85758e54 "><p>要素が現在のスレッドに存在していた場合は <em>exists</em> が true に設定され、存在していなかった場合は false に設定されることを除いて、<samp class="codeph">local()</samp> に似ています。</p>
+<p><strong>戻り値</strong>: スレッドローカル要素への参照。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d85758e52 "><span class="keyword">template&lt;typename FCombine&gt;T combine(FCombine fcombine)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d85758e54 "><p><strong>要件</strong>: <em><samp class="codeph"><em>fcombine</em></samp></em> 引数は、署名 <samp class="codeph">T(T,T)</samp> または <samp class="codeph">T(const T&amp;,const T&amp;)</samp> の結合バイナリー・ファンクターでなければなりません。</p>
+<p><strong>効果</strong>: バイナリー・ファンクター <em>fcombine</em> を使用してすべての要素のリダクションを計算します。要素がない場合、スレッドローカル要素の作成と同じ規則を使用して結果を作成します。</p>
+<p><strong>戻り値</strong>: リダクションの結果。</p>
+</td>
+</tr>
+<tr><td class="cellrowborder" valign="top" width="33.89830508474576%" headers="d85758e52 "><span class="keyword">template&lt;typename Func&gt; void combine_each(Func f)</span></td>
+<td class="cellrowborder" valign="top" width="66.10169491525423%" headers="d85758e54 "><p><strong>要件</strong>: <em><samp class="codeph">f</samp></em> 引数は、署名 <samp class="codeph">void(T)</samp> または <samp class="codeph">void(const T&amp;)</samp> の単項ファンクターでなければなりません。</p>
+<p><strong>効果</strong>: <samp class="codeph">*this</samp> の <samp class="codeph">T</samp> の各インスタンス <samp class="codeph"><em>x</em></samp> について <em><samp class="codeph"><em>f(x)</em></samp></em> を評価します。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../../reference/thread_local_storage.html">スレッド・ローカル・ストレージ</a></div>
+</div>
+<div/>
+</body>
+</html>

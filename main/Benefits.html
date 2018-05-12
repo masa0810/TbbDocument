@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0016)http://localhost -->
+<html xml:lang="ja-jp" lang="ja-jp">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="topic"/>
+<meta name="DC.Title" content="インテル&reg; TBB の利点"/>
+<meta name="DC.subject" content="利点"/>
+<meta name="keywords" content="利点"/>
+<meta name="DC.Relation" scheme="URI" content="../main/title_main.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="tutorial_Benefits"/>
+<link rel="stylesheet" type="text/css" href="../intel_css_styles.css"/>
+<title>インテル&reg; TBB の利点</title>
+<script src="resources/prism/prism.js"><!----></script>
+<link href="resources/prism/prism.css" rel="stylesheet"/>
+</head>
+<body id="tutorial_Benefits">
+ <!-- ==============(Start:NavScript)================= -->
+ <script src="..\NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+ <script language="JavaScript1.2" type="text/javascript">WriteNavLink(1);</script>
+ <!-- ==============(End:NavScript)================= -->
+
+
+<h1 class="topictitle1">インテル&reg; TBB の利点</h1>
+<div><p>インテル&reg; TBB は、スレッド化の熟練者に手を借りることなく、マルチコア・プロセッサーのパフォーマンスを最大限に活用できるよう支援するライブラリーです。デベロッパー・ガイドの初めに説明されている重要なポイントを実装することで、マルチコア・プロセッサーのパフォーマンスを向上させることができます。徐々に知識が深まると、詳細セクションで記述されているような、より複雑な内容に関心を持たれることでしょう。</p>
+<p>並列プログラミングには、プラットフォーム依存のスレッド・プリミティブから、特殊な新しい言語の使用まで、さまざまな手法があります。インテル&reg; TBB の利点は、ロースレッドよりも高いレベルで動作し、非標準言語やコンパイラーを必要としない点にあります。インテル&reg; TBB は、ISO C++をサポートしている任意のコンパイラーで使用できます。このライブラリーは、次の点で典型的なスレッドパッケージとは異なります。</p>
+<ul><li><p><strong>インテル&reg; TBB では、スレッドの指定ではなく、「論理的な並列処理」の指定が可能です。</strong>ほとんどのスレッドパッケージでは、スレッドを指定する必要があります。スレッドは、ハードウェアに非常に近い重要な構造であるため、スレッドを直接プログラミングすることは骨の折れる作業であり、また非効率的なプログラムが作成される可能性も高くなります。スレッドを直接プログラミングする場合は、論理タスクをスレッドに効率的にマッピングする必要があります。しかし、インテル&reg; TBB のランタイム・ライブラリーを使用すれば、プロセッサー・リソースを効率良く活用できるように、自動的に論理的な並列処理がスレッドにマッピングされます。</p>
+</li>
+<li><p><strong>インテル&reg; TBB は、「パフォーマンスに特化したスレッド処理」が対象です。</strong>汎用を目的としたスレッドパッケージの多くは、グラフィカル・ユーザー・インターフェイスにおける非同期イベントのスレッド化など、さまざまなスレッド化をサポートしています。その結果、ソリューションではなくファウンデーションを提供するローレベルのツールとなる傾向があります。一方、インテル&reg; TBB は、計算負荷の高い処理の並列化を目的としており、よりハイレベルで簡単なソリューションを提供します。</p>
+</li>
+<li><p><strong>インテル&reg; TBB は、その他のスレッドパッケージと「互換性」があります。</strong>ライブラリーは、すべてのスレッド問題に対応するために設計されているわけではないため、その他のスレッドパッケージともシームレスに共存できるようになっています。</p>
+</li>
+<li><p><strong>インテル&reg; TBB は、「スケーラブルなデータ並列プログラミング」を重視しています。</strong>プログラムをそれぞれ機能別のブロックに分け、各ブロックに個別のスレッドを割り当てる方法では、機能別のブロック数が固定されてしまうため、パフォーマンスの向上はあまり見込めません。一方、インテル&reg; TBB の場合、「データ並列」プログラミングに重点が置かれているため、コレクションのあらゆる部分をマルチスレッドで動作させることができます。データ並列プログラミングは、コレクションを小さなまとまりに分割することにより、より多くのプロセッサー数にも対応します。このデータ並列プログラミングによって、プロセッサーを追加することでプログラムのパフォーマンスを向上させることができます。</p>
+</li>
+<li><p><strong>インテル&reg; TBB は、「汎用プログラミング」を使用します。</strong>従来のライブラリーでは、特定の型や基本クラスでインターフェイスを指定します。しかし、インテル&reg; TBB では、汎用プログラミングを使用します。汎用プログラミングの本質は、最小限の制約で最良のアルゴリズムを作成する点にあります。C++ 標準テンプレート・ライブラリー (STL) は、インターフェイスが型の「要件」によって指定される汎用プログラミングの良い例です。例えば、C++ STL には、シーケンス上のイテレーターで任意に定義されるシーケンスをソートするテンプレート関数 <samp class="codeph">sort</samp> があります。イテレーターの要件は次のとおりです。</p>
+<ul><li><p>ランダムアクセスを提供すること。</p>
+</li>
+<li><p>式 <samp class="codeph">*i&lt;*j</samp> は、イテレーター <samp class="codeph">j</samp> によってポイントされたアイテムの前に配置されたイテレーター <samp class="codeph">i</samp> により、アイテムがポイントされた場合は true で、そうでない場合は false であること。</p>
+</li>
+<li><p>式 <samp class="codeph">swap(*i,*j)</samp> は、2 つの要素を交換すること。</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>型の要件に関する仕様では、テンプレートを使用して、ベクトルやデックといった、あらゆるシーケンス表現をソートすることができます。同様に、インテル&reg; TBB のテンプレートは、特定の型ではなく、型の要件を指定するため、さまざまなデータ表現に応用することが可能です。汎用プログラミングにより、インテル&reg; TBB では、幅広く応用できるハイパフォーマンス・アルゴリズムを提供します。</p>
+</div>
+
+<div class="familylinks">
+<div class="parentlink"><strong>親トピック:</strong> <a href="../main/title_main.html">インテル&reg; TBB</a></div>
+</div>
+<div/>
+</body>
+</html>
